@@ -94,7 +94,7 @@ export function Files({
               key={entry.path}
               variant="ghost"
               size="block"
-              disabled={entry.kind === 'other'}
+              disabled={saving || entry.kind === 'other'}
               onClick={() =>
                 void (
                   entry.kind === 'directory' ? openDirectory(entry.path) : openFile(entry.path)
@@ -123,6 +123,7 @@ export function Files({
             <textarea
               aria-label="文件内容"
               spellCheck={false}
+              disabled={saving}
               value={content}
               onChange={(event) => setContent(event.target.value)}
             />

@@ -43,7 +43,7 @@ mkdir server-install
 tar -xzf server-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz -C server-install
 ```
 
-进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `165139c`，保留 3 天，不含随后源码自查的终端重连和审批提交控制修复；最新源码的检查记录见 docs/verification.md。需要最新源码的产物时，在同架构 Linux 按本仓冻结输入构建。持久安装回执见 `docs/evidence/linux-install-165139c.json`，部署与 systemd 配置见 `deploy/README.md`。
+进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `165139c`，保留 3 天，不含随后源码自查的终端重连、审批提交与文件保存期间的界面控制修复；最新源码的检查记录见 docs/verification.md。需要最新源码的产物时，在同架构 Linux 按本仓冻结输入构建。持久安装回执见 `docs/evidence/linux-install-165139c.json`，部署与 systemd 配置见 `deploy/README.md`。
 
 ## 许可证
 

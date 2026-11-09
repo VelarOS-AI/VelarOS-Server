@@ -5,6 +5,7 @@ import { createServer } from 'node:http'
 import { createServer as createPortReservation } from 'node:net'
 import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { dirname, basename, join, resolve } from 'node:path'
+import { tmpdir } from 'node:os'
 import { spawn } from 'node:child_process'
 
 assert.equal(process.platform, 'linux', 'Only the existing Linux product is exercised')

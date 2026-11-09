@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
 import { z } from 'zod'
 import type {
@@ -56,6 +56,8 @@ const requestSchema = z.object({
   run_id: z.string().nullable(),
   status: sessionSchema.shape.status,
 })
+
+type InputAdmission = { receipt: InputReceipt } | { receipt: InputReceipt; notice: ChangeNotice }
 
 /** 只存产品索引、有界投影、去重指纹和事实引用；通知表不保存事件正文。 */
 export class ProductStore {
@@ -133,6 +135,10 @@ export class ProductStore {
   }
 
   public saveSession(session: SessionView): ChangeNotice {
+    return this.transaction(() => this.persistSession(session))
+  }
+
+  private persistSession(session: SessionView): ChangeNotice {
     session.messages = session.messages.slice(-ProjectionLimits.messages).map((message) => ({
       ...message,
       text: message.text.slice(0, ProjectionLimits.textChars),
@@ -141,54 +147,84 @@ export class ProductStore {
     session.facts = session.facts.slice(-ProjectionLimits.facts)
     session.revision++
     session.updatedAt = new Date().toISOString()
+    this.db
+      .prepare('UPDATE sessions SET projection=? WHERE id=?')
+      .run(JSON.stringify(session), session.id)
+    const result = this.db
+      .prepare('INSERT INTO changes (session_id,revision) VALUES (?,?)')
+      .run(session.id, session.revision)
+    const sequence = Number(result.lastInsertRowid)
+    this.db
+      .prepare('DELETE FROM changes WHERE sequence <= ?')
+      .run(sequence - ProjectionLimits.notices)
+    return { sequence, sessionId: session.id, revision: session.revision }
+  }
+
+  private transaction<T>(operation: () => T): T {
     this.db.exec('BEGIN IMMEDIATE')
     try {
-      this.db
-        .prepare('UPDATE sessions SET projection=? WHERE id=?')
-        .run(JSON.stringify(session), session.id)
-      const result = this.db
-        .prepare('INSERT INTO changes (session_id,revision) VALUES (?,?)')
-        .run(session.id, session.revision)
-      const sequence = Number(result.lastInsertRowid)
-      this.db
-        .prepare('DELETE FROM changes WHERE sequence <= ?')
-        .run(sequence - ProjectionLimits.notices)
+      const result = operation()
       this.db.exec('COMMIT')
-      return { sequence, sessionId: session.id, revision: session.revision }
+      return result
     } catch (error) {
       this.db.exec('ROLLBACK')
       throw error
     }
   }
 
-  public admit(requestId: string, sessionId: string, fingerprint: string): InputReceipt {
-    const existing = this.db.prepare('SELECT * FROM requests WHERE id=?').get(requestId)
-    if (existing) {
-      const row = requestSchema.parse(existing)
-      if (row.session_id !== sessionId || row.fingerprint !== fingerprint)
-        throw new HttpError(409, 'REQUEST_CONFLICT', '同一请求身份不能提交不同内容')
-      return {
-        requestId,
-        sessionId,
-        inputId: row.input_id,
-        runId: row.run_id,
-        status: row.status,
-        replayed: true,
+  public admitInput(requestId: string, sessionId: string, text: string): InputAdmission {
+    const fingerprint = createHash('sha256').update(text).digest('hex')
+    return this.transaction((): InputAdmission => {
+      const existing = this.db.prepare('SELECT * FROM requests WHERE id=?').get(requestId)
+      if (existing) {
+        const row = requestSchema.parse(existing)
+        if (row.session_id !== sessionId || row.fingerprint !== fingerprint)
+          throw new HttpError(409, 'REQUEST_CONFLICT', '同一请求身份不能提交不同内容')
+        return {
+          receipt: {
+            requestId,
+            sessionId,
+            inputId: row.input_id,
+            runId: row.run_id,
+            status: row.status,
+            replayed: true,
+          },
+        }
       }
-    }
-    const session = this.getSession(sessionId)
-    if (['received', 'accepted', 'running', 'waiting', 'unknown'].includes(session.status))
-      throw new HttpError(409, 'SESSION_BUSY', '会话仍有执行或未知结果，请先核对原运行')
-    this.db
-      .prepare("INSERT INTO requests (id,session_id,fingerprint,status) VALUES (?,?,?,'received')")
-      .run(requestId, sessionId, fingerprint)
-    return { requestId, sessionId, inputId: null, runId: null, status: 'received', replayed: false }
+      const session = this.getSession(sessionId)
+      if (['received', 'accepted', 'running', 'waiting', 'unknown'].includes(session.status))
+        throw new HttpError(409, 'SESSION_BUSY', '会话仍有执行或未知结果，请先核对原运行')
+      this.db
+        .prepare(
+          "INSERT INTO requests (id,session_id,fingerprint,status) VALUES (?,?,?,'received')",
+        )
+        .run(requestId, sessionId, fingerprint)
+      session.status = 'received'
+      session.runId = null
+      session.inputId = null
+      session.interaction = null
+      session.messages.push({ id: randomUUID(), role: 'user', text, truncated: false })
+      return {
+        receipt: {
+          requestId,
+          sessionId,
+          inputId: null,
+          runId: null,
+          status: 'received',
+          replayed: false,
+        },
+        notice: this.persistSession(session),
+      }
+    })
   }
 
-  public updateRequest(requestId: string, session: SessionView): void {
-    this.db
-      .prepare('UPDATE requests SET input_id=?,run_id=?,status=? WHERE id=?')
-      .run(session.inputId, session.runId, session.status, requestId)
+  public saveRunSession(requestId: string, session: SessionView): ChangeNotice {
+    return this.transaction(() => {
+      this.db
+        .prepare('UPDATE requests SET input_id=?,run_id=?,status=? WHERE id=?')
+        .run(session.inputId, session.runId, session.status, requestId)
+      return this.persistSession(session)
+    })
   }
 
   public changesAfter(sequence: number): {

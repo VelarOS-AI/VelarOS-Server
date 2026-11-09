@@ -40,6 +40,13 @@ if (handle) {
       ['control-concurrency', '--test', 'dist/tests/control-concurrency.test.js'],
       ['terminal-http', '--test', 'dist/tests/terminal-http.test.js'],
       ['file-concurrency', '--test', 'dist/tests/file-concurrency.test.js'],
+      ['admission-atomicity', '--test', 'dist/tests/admission-atomicity.test.js'],
+      [
+        'admission-boundary',
+        '--test',
+        '--test-name-pattern=网络受理|重启保留 unknown',
+        'dist/tests/product-boundaries.test.js',
+      ],
       [
         'file-boundary',
         '--test',

@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto'
+import { randomUUID } from 'node:crypto'
 import type { InputReceipt } from '../../../packages/contracts/src/index.js'
 import type { ExecutionNotice, ExecutionPort } from './execution.js'
 import { ChangeStream } from './change-stream.js'
@@ -26,17 +26,11 @@ export class RunRequests {
         'EXECUTION_UNAVAILABLE',
         this.execution.unavailableReason ?? '执行不可用',
       )
-    const fingerprint = createHash('sha256').update(text).digest('hex')
-    const receipt = this.store.admit(requestId, sessionId, fingerprint)
-    if (receipt.replayed) return receipt
-    const session = this.store.getSession(sessionId)
+    const admission = this.store.admitInput(requestId, sessionId, text)
+    const { receipt } = admission
+    if (!('notice' in admission)) return receipt
     this.activeRequests.set(sessionId, requestId)
-    session.status = 'received'
-    session.runId = null
-    session.inputId = null
-    session.interaction = null
-    session.messages.push({ id: randomUUID(), role: 'user', text, truncated: false })
-    this.changes.publish(this.store.saveSession(session))
+    this.changes.publish(admission.notice)
 
     const delivery = Promise.resolve()
       .then(() =>
@@ -45,25 +39,34 @@ export class RunRequests {
         ),
       )
       .catch((error: unknown) => {
+        console.error('Execution submission could not be reconciled', {
+          sessionId,
+          requestId,
+          error: error instanceof Error ? error.name : 'unknown',
+        })
         // 未取得真实拒绝/close 证据时只记录 unknown，禁止自动重放。
         if (this.activeRequests.get(sessionId) !== requestId) return
-        const current = this.store.getSession(sessionId)
-        if (!['completed', 'failed', 'cancelled'].includes(current.status)) {
-          current.status = 'unknown'
-          current.interaction = null
-          current.messages.push({
-            id: randomUUID(),
-            role: 'system',
-            text: '执行连接未能确认结果；请核对原运行，系统不会自动重试。',
-            truncated: false,
+        try {
+          const current = this.store.getSession(sessionId)
+          if (!['completed', 'failed', 'cancelled'].includes(current.status)) {
+            current.status = 'unknown'
+            current.interaction = null
+            current.messages.push({
+              id: randomUUID(),
+              role: 'system',
+              text: '执行连接未能确认结果；请核对原运行，系统不会自动重试。',
+              truncated: false,
+            })
+            this.changes.publish(this.store.saveRunSession(requestId, current))
+          }
+        } catch (persistenceError) {
+          // 保留最后一次持久事实；数据库失败不产生第二份内存状态，也不能变成无人接收的拒绝。
+          console.error('Execution status could not be persisted; prior state retained', {
+            sessionId,
+            requestId,
+            error: persistenceError instanceof Error ? persistenceError.name : 'unknown',
           })
-          this.store.updateRequest(requestId, current)
-          this.changes.publish(this.store.saveSession(current))
         }
-        console.error(
-          'Execution submission could not be reconciled',
-          error instanceof Error ? error.name : 'unknown',
-        )
       })
       .finally(() => this.pending.delete(delivery))
     this.pending.add(delivery)
@@ -95,8 +98,7 @@ export class RunRequests {
       session.interaction = notice.request
       if (notice.request) session.status = 'waiting'
     } else session.facts.push(notice.reference)
-    this.store.updateRequest(requestId, session)
-    this.changes.publish(this.store.saveSession(session))
+    this.changes.publish(this.store.saveRunSession(requestId, session))
   }
 
   public async cancel(sessionId: string, runId: string): Promise<void> {

@@ -48,3 +48,11 @@ Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做�
 一个真实产品 HTTP 会话中先后运行两条任务。第一条通过原审批身份授权，真实 Foundation Agent/Kernel 启动 Node 写入并读回文件，实际工具结果经本地 HTTP/SSE 模型服务返回真实 `done`，进入 completed。第二条再次审批，真实 Node 启动等待程序，产品取消接口受理后观察到 cancelled。模型共收到 3 次请求，产品 SSE 观察到 26 次变化。随后 SIGTERM 产品，等待实际 child close、退出码 0，并核对所记录的自有 Node 进程身份全部消失，最后关闭模型服务与订阅、移除临时目录。取消受理与 cancelled 不单独视为进程已回收；资源关闭结论来自 Host/服务关闭后的独立检查。
 
 此独立用例仅以确定性本地模型 HTTP 服务替代供应商，产品 HTTP、审批、Agent/Kernel、Node 执行、完成/取消状态与资源关闭均走真实安装包。仍未验证真实供应商 API、网页交互、bubblewrap、systemd 或生产部署。此前首次尝试 `42610108736` 因验证脚本缺少 `tmpdir` 导入，在 Server/Agent 启动前失败；只修复该脚本导入后补原用例，没有改变产品或依赖。
+
+2026-11-09 当前源码正式消费基础 0.9.4 / tag v0.7.5，源 `1b0004d773ac54c9f20f3748f9f4baed021a6481`，SHA-256 `ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250`。安装前独立下载官方归档，核对 SHA-256、SHA-512 integrity、2,255,841 bytes、包名/版本/代际与空 peer；GitHub release target/asset digest、官方 manifest/validation 和本地字节一致。只将基础加入 vendor/manifest/snapshot/provenance；一次 `bun install --ignore-scripts --offline` 更新 lock，第三方依赖与 UI 1.1.0 完全不变，不安装 capabilities。
+
+在共享 wx/token 锁下仅执行一次 `node scripts/verify.mjs server-types platform-seam`，首次全部通过。2026-11-09 23:56:06（北京时间）开始，总约 14.79 秒；Server `strict=true`、`skipLibCheck=false` 的类型/编译通过。既有单条真实产品接缝正文 2,366.30 ms，Node runner 5,697.11 ms，自然退出码 0。没有重复旧 Linux、Windows PTY 或网页交互场景。
+
+该接缝仅替代外部模型为确定性 ModelDriver，实际走产品 HTTP 登录/输入、Foundation Agent/Kernel、真实 LocalShellHost。模型先单独提交 `observe('', { history: { kind: 'list' } })`；第二轮核对真实 selected/selectionRef/next-model-turn/executed:false 回执、空历史目录与完整原生 call/result 同处 dynamic 尾区，未进入普通可保留历史；第三轮确认选择已经消费。随后原 HTTP 审批仍在文件不存在时等待，按原交互身份授权后真实 Node 写入，模型与产品外部读取核对，再 done/completed。总计 3 次模型调用；应用、Runtime、Host、环境及存储关闭后才打印成功回执并自然退出。
+
+fixture 用正式公开 `modelRequestEncoder.layout()` 检查完整消息，不把旧 compiledPrompt 当作完整请求。实际运行的控制 schema 与 dynamic availability 均报告当前 Windows read-only 后端不可用并给出真实原因，仍允许历史选择；没有提交观察源码，没有用 exec 冒充只读采集，也没有创建产品观察索引。精简证据见 [evidence/platform-094-seam.json](evidence/platform-094-seam.json)，含基础归档身份、源码指纹及 fixture SHA、命令与单例回执。此证明不覆盖真实供应商、只读采集、网页重建、Linux 新安装、systemd 或生产部署；既有 19d4261 / 0.9.3 制品及 bf62940 所保存的证明保留原身份。

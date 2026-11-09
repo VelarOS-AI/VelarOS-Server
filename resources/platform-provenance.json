@@ -1,37 +1,39 @@
 {
-  "kind": "verified-published-candidate",
+  "kind": "verified-published-release",
   "frozen": true,
-  "version": "0.9.3",
+  "version": "0.9.4",
   "platformGeneration": "0.7",
-  "sourceCommit": "308b3f306f103ba1942b6fd383ab558c441f82f0",
+  "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
   "source": {
-    "commitTree": "cc3fb865568307c8c37844804e116b5ecc1df6c1",
-    "tag": "v0.7.4",
-    "tagObject": "03d65d62d8cc202673eccd2c63504cd35ff6c895",
-    "cleanCheckoutValidatedByPublisher": true
+    "commitTree": "3595343501b1887e97c98f614f70dadf84078949",
+    "tag": "v0.7.5",
+    "tagObject": "009794f077c103a986cf21a11d8f415e09733368"
   },
   "archive": {
     "name": "@velaros-ai/velaros",
-    "version": "0.9.3",
-    "file": "vendor/runtime/velaros-ai-velaros-0.9.3.tgz",
-    "sourceCommit": "308b3f306f103ba1942b6fd383ab558c441f82f0",
-    "sha256": "7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59",
-    "integrity": "sha512-4QmjiiPMjHXO1MDn46I8iyVcr6kgmj1k/KaGDV82ImRP3BBR65D6TWng9C5dWaHjypzl6dfoB1T0M2mF+lOA7A==",
+    "version": "0.9.4",
+    "file": "vendor/runtime/velaros-ai-velaros-0.9.4.tgz",
+    "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
+    "sha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
+    "integrity": "sha512-drlAS61V6o/j0l+EP/1vrNRirSZDlTGZmY6kWbFOO2d0YcVly7RfGwLVdSC1X9ucnMSBBf2VLD4TUgnnBiBiMQ==",
     "kind": "published-release",
     "provenance": "resources/platform-provenance.json",
-    "bytes": 2224526
+    "bytes": 2255841
   },
-  "ownerReceiptSha256": "cb5efe7c923b31da0e09b122c9784b245eae6ba534116d78d39f0a9d85b4b366",
+  "ownerReceiptSha256": "74c6bff71b0ea7faa40398a721bbad1ac075d545b05980837b31c5e873ba716f",
   "publication": {
     "published": true,
-    "tag": "v0.7.4",
-    "version": "0.9.3",
-    "publishedAt": "2026-11-09T10:59:13Z",
-    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.4/velaros-ai-velaros-0.9.3.tgz",
-    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.4",
-    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/42604975639",
-    "sha256": "7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59",
-    "sourceCommit": "308b3f306f103ba1942b6fd383ab558c441f82f0",
+    "tag": "v0.7.5",
+    "version": "0.9.4",
+    "publishedAt": "2026-11-09T15:42:15Z",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/velaros-ai-velaros-0.9.4.tgz",
+    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.5",
+    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/release-manifest.json",
+    "manifestSha256": "8add6b99e576aca376f980dfca1e0ce8ea0f22f5dae4afb7882a44f6ee75cb19",
+    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/release-validation.json",
+    "sha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
+    "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
+    "githubTargetMatchesSourceCommit": true,
     "githubAssetDigestMatches": true,
     "downloadedArchiveHashMatches": true
   },
@@ -66,6 +68,12 @@
       "sha256": "ba4c31c49582380d84f63b884c44bc2fbd4897bb45bbda6a33ad68f1aa789045",
       "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/42565071313",
       "scope": "Foundation only, not Server install"
+    },
+    "linuxServer093": {
+      "sourceCommit": "19d426196d43238f38d83ae1c3712438e1b0fd48",
+      "foundationVersion": "0.9.3",
+      "installationEvidence": "docs/evidence/linux-install-19d4261.json",
+      "agentEvidence": "docs/evidence/agent-chain-19d4261.json"
     }
   },
   "linuxProductInstall": false

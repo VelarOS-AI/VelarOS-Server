@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "server-foundation-consumer-seam",
+  "sourceBaseCommit": "bf629406d3a35107dcd2320083c9c4f6b1fc1487",
+  "serverSourceFingerprint": "c9afc4095afb51853cc029610a1fd924ac8d3a91090788ea5af1f55df1bcb8a7",
+  "fixtureSha256": "1c2a17980e4eaba4d56e2f14429ddb36bc537b9160365f1453ceaadb6e932620",
+  "foundation": {
+    "name": "@velaros-ai/velaros",
+    "version": "0.9.4",
+    "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/velaros-ai-velaros-0.9.4.tgz",
+    "sha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
+    "integrity": "sha512-drlAS61V6o/j0l+EP/1vrNRirSZDlTGZmY6kWbFOO2d0YcVly7RfGwLVdSC1X9ucnMSBBf2VLD4TUgnnBiBiMQ==",
+    "bytes": 2255841,
+    "peerDependencies": {},
+    "engines": {
+      "node": ">=24.22.0"
+    },
+    "thirdPartyDependenciesUnchanged": true,
+    "verifiedBeforeInstall": true,
+    "ownerReceiptSha256": "74c6bff71b0ea7faa40398a721bbad1ac075d545b05980837b31c5e873ba716f",
+    "manifestSha256": "8add6b99e576aca376f980dfca1e0ce8ea0f22f5dae4afb7882a44f6ee75cb19"
+  },
+  "installedFoundationVersion": "0.9.4",
+  "baseOnly": true,
+  "capabilitiesInstalled": false,
+  "ui": {
+    "name": "@velaros-ai/ui",
+    "version": "1.1.0",
+    "file": "vendor/ui/velaros-ai-ui-1.1.0.tgz",
+    "sourceCommit": "131bab8178913bed8392c61c473693aa910e941f",
+    "sha256": "5561690111c8e9dbb806658c88473b8866364b02fdec2d39116588fedd0422c6",
+    "integrity": "sha512-Pt02hkaL/PZqAQtSZppM7lqXiZMBVc34za/3Z6cbq6V3MMfCGq3iRtJJmB7PzX/Ff5SEcbywMIlN1fZMmWLZbA==",
+    "kind": "sha-pinned-archive",
+    "provenance": "resources/ui-provenance.json"
+  },
+  "productHostWrapperAdded": false,
+  "productCompositionUnchanged": true,
+  "validation": {
+    "command": "node scripts/verify.mjs server-types platform-seam",
+    "exitCode": 0,
+    "startedAt": "2026-11-09T15:56:06.9892050+00:00",
+    "durationMs": 14789.9383,
+    "strict": true,
+    "skipLibCheck": false,
+    "singleCase": true,
+    "caseDurationMs": 2366.3046,
+    "nodeRunnerDurationMs": 5697.1144,
+    "logSha256": "9b69b318c2ac97850826f88a6ff2beebf2cdeb11cb1b75c289dbb6e53f0322ae",
+    "result": {
+      "input": true,
+      "observationSupport": {
+        "available": false,
+        "reason": "进程约束模式“read-only”在当前 win32 宿主不可用，已拒绝以裸进程继续执行。"
+      },
+      "historySelection": true,
+      "historyExecuted": false,
+      "nextTurnDynamicHistory": true,
+      "completeNativeExchangeInDynamicTail": true,
+      "officialRequestEncoder": true,
+      "selectionConsumedOnce": true,
+      "approval": true,
+      "nodeFile": true,
+      "completed": true,
+      "modelCalls": 3,
+      "host": "win32",
+      "node": "24.22.0",
+      "runtimeHostClosed": true,
+      "providerApi": false,
+      "readOnlyCaptureTested": false,
+      "linuxInstallRepeated": false,
+      "webBuildRepeated": false
+    }
+  },
+  "retainedLinux093": {
+    "sourceCommit": "19d426196d43238f38d83ae1c3712438e1b0fd48",
+    "installationEvidence": "docs/evidence/linux-install-19d4261.json",
+    "agentEvidence": "docs/evidence/agent-chain-19d4261.json",
+    "originalEvidenceAndArchiveUnchanged": true
+  },
+  "limits": {
+    "providerApi": false,
+    "readOnlyCapture": false,
+    "windowsPtyRepeated": false,
+    "linuxInstallRepeated": false,
+    "webBuildRepeated": false,
+    "productionPackageRebuilt": false,
+    "systemd": false,
+    "productionDeployed": false
+  }
+}

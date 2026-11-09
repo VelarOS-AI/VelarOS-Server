@@ -4,7 +4,9 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。基础依赖固定为正式 Platform 0.9.3（tag v0.7.4），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。[当前 Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 已通过，制品源码为 19d4261，包含终端重连、审批提交及文件保存保护修复。同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328) 也已通过：产品 HTTP、审批、真实 Node 读写与完成、第二次运行取消及服务关闭后的资源回收。模型使用本地确定性 HTTP 服务，未调用真实供应商。网页确认与中文/列表/代码/表格的既有证明保持原依赖身份，准确范围见 docs/verification.md。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前源码的基础依赖固定为正式 Platform 0.9.4（tag v0.7.5），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。新增[真实消费接缝](docs/evidence/platform-094-seam.json)已通过：产品 HTTP 输入、observe 历史选择及下一轮动态交付、审批、真实 Node 写入与外部读取核对、完成及 Runtime/Host 关闭。只替代外部模型，未执行只读采集或重新构建网页。
+
+既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为 0.9.4 制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 
 本产品不依赖 Cloud 登录或生产服务，不复制 Desktop IPC、People/团队、Workbench 工作区，不新增 Agent 循环或命令执行 Host。
 
@@ -24,6 +26,8 @@ bun run start
 
 执行默认 `workspace-write` 与逐程序 `ask`。Linux 受约束模式需要可用 bubblewrap，底座不能落实约束时拒绝执行；`danger-full-access` 是管理员明确选择的进程权限模式，仍受服务用户的操作系统权限约束。模型首版可明确选择 OpenAI Responses 或兼容 Chat Completions，设置变更在活动运行收束后应用。
 
+只读观察能力由真实 Host 报告，不按操作系统推定支持，也不以普通执行代替只读采集。后端不可用时仍可选择已有观察历史或清除订阅；历史、动态材料和索引均由 Core 维护。当前 Windows 接缝实际报告只读程序不可用，不影响历史控制及明确审批的普通执行。
+
 ## 验证与交付
 
 按一批改动集中进行格式、必要类型和四个产品边界场景，不默认跑压力测试、大型矩阵或 Linux/桌面全量回归。真实 Platform 与 Linux 验收在接入固定归档后单独记录，不用测试端口替代。
@@ -34,7 +38,7 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-当前 Linux x64 生产包使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。下载并核对本次 CI 产物：
+已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。本轮 0.9.4 源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
 
 ```sh
 gh run download 42607896603 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42607896603 --dir server-download

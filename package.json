@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@lydell/node-pty": "1.2.0-beta.15",
-    "@velaros-ai/velaros": "file:./vendor/runtime/velaros-ai-velaros-0.9.3.tgz",
+    "@velaros-ai/velaros": "file:./vendor/runtime/velaros-ai-velaros-0.9.4.tgz",
     "zod": "4.4.3"
   },
   "devDependencies": {

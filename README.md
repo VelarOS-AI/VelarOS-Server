@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。基础依赖固定为正式 Platform 0.9.3（tag v0.7.4），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。真实 Runtime、网页确认与中文/列表/代码/表格的既有证明保持原依赖身份。[历史 Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 对应 Platform 0.9.2 和源码 165139c；当前 0.9.3 的生产制品与安装证明正在生成，准确范围见 docs/verification.md。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。基础依赖固定为正式 Platform 0.9.3（tag v0.7.4），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。[当前 Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 已通过，制品源码为 19d4261，包含终端重连、审批提交及文件保存保护修复。真实 Runtime、网页确认与中文/列表/代码/表格的既有证明保持原依赖身份，准确范围见 docs/verification.md。
 
 本产品不依赖 Cloud 登录或生产服务，不复制 Desktop IPC、People/团队、Workbench 工作区，不新增 Agent 循环或命令执行 Host。
 
@@ -34,16 +34,16 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-历史 Linux x64 生产包使用 Platform 0.9.2，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。以下命令仍对应历史 CI 产物：
+当前 Linux x64 生产包使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。下载并核对本次 CI 产物：
 
 ```sh
-gh run download 42581492981 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42581492981 --dir server-download
+gh run download 42607896603 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42607896603 --dir server-download
 (cd server-download/artifacts && sha256sum --check velaros-server-0.1.0-linux-x64.tar.gz.sha256)
 mkdir server-install
 tar -xzf server-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz -C server-install
 ```
 
-进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `165139c`，保留 3 天，不含随后源码自查的终端重连、审批提交与文件保存期间的界面控制修复；最新源码的检查记录见 docs/verification.md。需要最新源码的产物时，在同架构 Linux 按本仓冻结输入构建。持久安装回执见 `docs/evidence/linux-install-165139c.json`，部署与 systemd 配置见 `deploy/README.md`。
+进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `19d426196d43238f38d83ae1c3712438e1b0fd48`，SHA-256 `23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e`，保留至 2026-11-12 19:18:29（北京时间）。持久安装回执见 `docs/evidence/linux-install-19d4261.json`；旧 165139c 回执保持原身份。部署与 systemd 配置见 `deploy/README.md`，本轮没有执行生产部署。
 
 ## 许可证
 

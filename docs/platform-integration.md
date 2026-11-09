@@ -18,4 +18,6 @@ Server 的真实 Node/网页确认绿项保留于 0.9.0 原身份，不重复整
 
 UI 已切到本仓固定的正式 v1.1.0 同字节归档。聊天从 `@velaros-ai/ui/conversation/basic` 消费同一 ChatConversationPane，使用配套 conversation-basic.css；AppShell、Input/Button、Select 与 Composer 继续用已有公开入口。显式挂载公开 ConversationBlockHooksProvider 与中立 hooks，避免仅空会话可用、有消息时因漏装配崩溃。终端 xterm 按页加载，不修改库或复制渲染器。
 
+当前 0.9.3 的独立 Linux 产品安装已在 [run 42607896603](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 通过，制品源为 `19d426196d43238f38d83ae1c3712438e1b0fd48`，包括此前 2eb7622 的全部服务与网页修复。网页仅在该 Linux 轮次冷构建一次；原 UI 交互、Agent 与 Windows PTY 证明未重跑、未重标为新归档执行。此次新证明覆盖生产安装、HTTP、文件读写及模式、原生 PTY 输出/停止/exited 和主服务 SIGTERM 零退出码；精确摘要见 `docs/evidence/linux-install-19d4261.json`。provenance 中的 `linuxProductInstall: false` 记录采用依赖时的状态，不替代本次产品回执。
+
 实际有消息场景已核对中文、列表、普通代码与表格，浏览器无新错误。静态总产物从 404 文件、16,029,876 bytes 变为 16 文件、3,020,832 bytes，减少 81.15%；该数字不是首屏下载。总产物还含约 1.13 MB 主 JS 和代码格式化等基础资源，不宣称已完成所有体积优化。

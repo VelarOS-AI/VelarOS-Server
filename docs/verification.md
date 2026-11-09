@@ -35,4 +35,10 @@ Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做�
 
 文件页另外关闭保存进行时继续编辑/选择文件的窗口，避免请求返回覆盖期间的新草稿；仅设置现有保存状态下的禁用属性，没有增加缓存或业务状态。此改动只补 Web 严格类型和受影响的网页构建，通过；原浏览器绿项保留。当前静态总产物 16 文件、3,020,846 bytes，相对原 16,029,876 bytes 仍减少 81.15%。该后续网页修复同样不在原 165139c 安装归档内。
 
-2026-11-09 正式基础升级至 0.9.3 / tag v0.7.4，源 `308b3f306f103ba1942b6fd383ab558c441f82f0`，SHA-256 `7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59`。本仓归档、上游 manifest/receipt 与 GitHub asset digest 一致；只更新基础依赖及 lock 的归档路径和 integrity，第三方依赖与 UI 1.1.0 不变。本机只补 Server 严格类型/编译，通过；本机不重建网页。新 Linux 工作流将以当前已提交源码冷构建网页一次并组装生产制品，旧 Linux、网页与供应商证据没有重标为 0.9.3 执行结果。
+2026-11-09 正式基础升级至 0.9.3 / tag v0.7.4，源 `308b3f306f103ba1942b6fd383ab558c441f82f0`，SHA-256 `7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59`。本仓归档、上游 manifest/receipt 与 GitHub asset digest 一致；只更新基础依赖及 lock 的归档路径和 integrity，第三方依赖与 UI 1.1.0 不变。本机只补 Server 严格类型/编译，通过；本机不重建网页。本轮 Linux 工作流按下述固定源码冷构建网页一次并组装生产制品，旧 Linux、网页与供应商证据没有重标为 0.9.3 执行结果。
+
+[0.9.3 最终 Linux 安装 run 42607896603](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 首次执行成功，2026-11-09 19:18:36（北京时间）完成，job 39 秒，产品安装步骤 24 秒。源精确为 `19d426196d43238f38d83ae1c3712438e1b0fd48`，包含 2eb7622 之前的全部控制与文件保存保护修复。采用既有 Ubuntu 24.04 x64 / Node 24.22.0 / Bun 1.4.3 公有工作流，没有扩展矩阵或重新执行原 Agent、UI 交互、Windows PTY 场景。
+
+新产品归档 `velaros-server-0.1.0-linux-x64.tar.gz` 为 40,298,499 bytes，SHA-256 `23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e`。GitHub artifact ID `13668329136`，ZIP 40,236,715 bytes，digest `sha256:4cf4faf51df3ad25beeea439ced9d4b8b18048a027ca5443cea3d2ed314f9a37`，本机下载实算一致。清单源、两份安装回执、基础归档 SHA、服务及网页入口哈希一致，清单 12,439 文件，包含 LICENSE，生产依赖没有 UI/React/Electron/capabilities，也没有携带旧 0.9.2 vendor。精简持久证明为 [evidence/linux-install-19d4261.json](evidence/linux-install-19d4261.json)。
+
+该轮真实安装验证 HTTP 登录与静态网页、文件读取/修改及模式保留、原生 PTY 实际输出、按原 taskId 停止并观察 exited、主服务 SIGTERM 自然退出码 0。权限模式为 danger-full-access；供应商 API、Agent 整链、bubblewrap、systemd 及真实生产部署未实测。后续证据提交只更新文档与该回执，归档仍准确对应上述构建源，不改称证据提交本身的产物。原 165139c/0.9.2 的归档和回执保持不变。

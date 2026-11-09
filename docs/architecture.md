@@ -14,7 +14,7 @@ SSE 发送变更引用，网页随后读取最新投影；通知保留 512 条�
 
 网页刷新只接受当前认证下最新一次读取的结果；认证切换和卸载取消过期 GET，并清理本地展示投影，不能借此取消或重放已发出的变更请求。刷新失败单独报告，不反转已经受理的输入或回答；SSE 重连只重读投影。实际权限仍由服务器认证与 CSRF 校验负责。
 
-按 ADR 0028 固定 `resources/runtime-snapshot.json` 登记的本仓正式基础归档，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型设置改变不会热替换正在运行的 Runtime。
+按 ADR 0028 固定 `resources/runtime-snapshot.json` 登记的本仓正式基础归档，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型设置改变不会热替换正在运行的 Runtime；初始化也只合并同一配置身份，不同配置的新提交沿用 MODEL_BUSY，等待原运行收束。关闭等待初始化结果；没有 Runtime 留存的初始化失败不重复阻断产品资源清理，旧 Runtime 的实际关闭失败仍保留原 owner 和错误。
 
 首版 API：`/api/auth`、`/api/info`、`/api/sessions`、`/api/sessions/:id/inputs|cancel|answers|interaction`、`/api/files`、`/api/files/text`、`/api/settings/model`、`/api/events` 和 `/api/terminal`。JSON 入参在 HTTP 边界校验；网页变更需登录、CSRF 和匹配来源。后端持有模型密钥，前端仅收到 hasApiKey。
 

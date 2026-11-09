@@ -24,7 +24,7 @@ export interface PlatformExecutionOptions {
 /** 只消费 SDK 会话与事实；模型循环和标准进程均由同一个 Runtime/Host 提供。 */
 export class PlatformExecution implements ExecutionPort {
   private runtime: VelarosRuntime | null = null
-  private opening: Promise<VelarosRuntime> | null = null
+  private opening: { identity: string; promise: Promise<VelarosRuntime> } | null = null
   private modelIdentity: string | null = null
   private readonly active = new Map<string, VelarosSession>()
   private closing = false
@@ -65,15 +65,15 @@ export class PlatformExecution implements ExecutionPort {
 
   private async getRuntime(): Promise<VelarosRuntime> {
     if (this.closing) throw new HttpError(503, 'CLOSING', '执行环境正在收束')
-    if (this.opening) return this.opening
     const model = this.configuration()
     const identity = this.options.model
       ? 'injected-driver'
       : createHash('sha256').update(JSON.stringify(model)).digest('hex')
-    if (this.runtime && this.modelIdentity === identity) return this.runtime
-    if (this.active.size)
+    if (this.opening?.identity === identity) return this.opening.promise
+    if (!this.opening && this.runtime && this.modelIdentity === identity) return this.runtime
+    if (this.opening || this.active.size)
       throw new HttpError(409, 'MODEL_BUSY', '模型设置已改变，请等待现有运行收束后再开始')
-    this.opening = (async () => {
+    const promise = (async () => {
       if (this.runtime) {
         await this.runtime.close()
         this.runtime = null
@@ -113,7 +113,8 @@ export class PlatformExecution implements ExecutionPort {
     })().finally(() => {
       this.opening = null
     })
-    return this.opening
+    this.opening = { identity, promise }
+    return promise
   }
 
   private async validateBinding(sessionId: string): Promise<void> {
@@ -241,7 +242,14 @@ export class PlatformExecution implements ExecutionPort {
     if (this.closePromise) return this.closePromise
     this.closing = true
     this.closePromise = (async () => {
-      if (this.opening) await this.opening
+      if (this.opening) {
+        try {
+          await this.opening.promise
+        } catch (error) {
+          // 旧 Runtime 关闭失败时仍保留 owner；未交付 Runtime 的初始化错误由提交路径接收。
+          if (this.runtime) throw error
+        }
+      }
       if (this.runtime) await this.runtime.close()
     })()
     return this.closePromise

@@ -58,13 +58,17 @@ export class BrowserAuth {
   ): { csrf: string } {
     const key = request.socket.remoteAddress ?? 'unknown'
     const now = Date.now()
+    for (const [address, failure] of this.loginFailures) {
+      if (failure.resetAt <= now) this.loginFailures.delete(address)
+    }
     const failure = this.loginFailures.get(key)
-    if (failure && failure.resetAt > now && failure.count >= 10)
+    if (failure && failure.count >= 10)
       throw new HttpError(429, 'RATE_LIMIT', '登录尝试过多，请稍后再试')
     if (!timingSafeEqual(Buffer.from(digest(token)), Buffer.from(digest(this.accessToken)))) {
-      if (this.loginFailures.size >= 512) this.loginFailures.clear()
+      if (!failure && this.loginFailures.size >= 512)
+        throw new HttpError(429, 'RATE_LIMIT', '登录尝试过多，请稍后再试')
       this.loginFailures.set(key, {
-        count: failure && failure.resetAt > now ? failure.count + 1 : 1,
+        count: (failure?.count ?? 0) + 1,
         resetAt: now + 600_000,
       })
       throw new HttpError(401, 'INVALID_TOKEN', '访问令牌不正确')

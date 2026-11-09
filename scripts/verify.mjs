@@ -41,6 +41,13 @@ if (handle) {
       ['terminal-http', '--test', 'dist/tests/terminal-http.test.js'],
       ['file-concurrency', '--test', 'dist/tests/file-concurrency.test.js'],
       ['admission-atomicity', '--test', 'dist/tests/admission-atomicity.test.js'],
+      ['auth-settings', '--test', 'dist/tests/auth-settings.test.js'],
+      [
+        'runtime-lifecycle',
+        '--experimental-test-module-mocks',
+        '--test',
+        'dist/tests/runtime-lifecycle.test.js',
+      ],
       [
         'admission-boundary',
         '--test',

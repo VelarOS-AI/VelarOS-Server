@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { ModelSettings } from '../../../packages/contracts/src/index.js'
 import { ProductStore } from './store.js'
 
-export const modelSettingsSchema = z
+const storedModelSettingsSchema = z
   .object({
     provider: z.enum(['openai', 'openai-compatible-gateway']),
     baseUrl: z.url().refine((value) => {
@@ -21,6 +21,11 @@ export const modelSettingsSchema = z
   })
   .strict()
 
+export const modelSettingsSchema = storedModelSettingsSchema.refine(
+  ({ apiKey }) => apiKey === undefined || apiKey === '' || apiKey.trim().length > 0,
+  { path: ['apiKey'], message: 'API 密钥不能只包含空白字符' },
+)
+
 export class ModelSettingsStore {
   public constructor(private readonly store: ProductStore) {}
 
@@ -33,7 +38,7 @@ export class ModelSettingsStore {
     const row = this.store.db.prepare("SELECT value FROM settings WHERE key='model'").get()
     if (!row)
       return { provider: 'openai', baseUrl: 'https://api.openai.com/v1', model: '', apiKey: '' }
-    const value = modelSettingsSchema.parse(
+    const value = storedModelSettingsSchema.parse(
       JSON.parse(z.object({ value: z.string() }).parse(row).value),
     )
     return {

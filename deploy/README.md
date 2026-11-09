@@ -6,11 +6,11 @@
 
 `bun run package` 将使用当前干净源码、固定 Runtime/UI 身份和现有构建产物，生成本地 tar.gz、SHA-256 和文件清单。归档只包含运行代码、静态网页、生产 node_modules、部署模板与说明，不包含源码仓库、开发依赖或数据。该命令不会启动服务、安装 systemd、联网发布或改 Cloud 部署。
 
-生产包仅保留基础 Runtime 的 vendor 归档；UI 候选归档属于构建输入，网页编译后不随生产目录再次携带。生产依赖安装本身仍以冻结 lock 为准，实际闭包由 Linux 安装验证核验。
+生产包仅保留基础 Runtime 的 vendor 归档；固定 UI 归档属于构建输入，网页编译后不随生产目录再次携带。生产依赖安装本身仍以冻结 lock 为准，实际闭包由 Linux 安装验证核验。
 
 部署目录仅包含最终用户所需的配置示例、systemd unit、Caddy 模板和说明。CI 工作流、研发交接与历史排障文档不进入生产包。
 
-最终基础为本仓 vendor 中的正式 0.9.2 归档（tag v0.7.3）；不安装 capabilities。轻量 UI 1.1.0 已固定并正式发布同字节资产，必要类型、构建与实际消息展示通过。两份真实发布身份已齐，可按冻结输入进行一次原生 Linux 安装验证。打包前核对固定归档 SHA、干净源码及构建回执；生成归档不等于已经通过 Linux 产品验收。
+当前固定基础与 UI 身份由 `resources/runtime-snapshot.json` 管理；不安装 capabilities。各版本的静态、实际接缝和历史安装证明分别见根 README 与 `docs/verification.md`，不以旧制品替代当前源码。打包前核对固定归档 SHA、干净源码及构建回执；生成归档不等于已经通过 Linux 产品验收。
 
 目标机需要与构建产物原生依赖匹配的 Linux/架构，以及 Node.js 24.22.0 或更新版本。同一份 Windows node_modules 不能作为 Linux 原生依赖交付；打包器在清单中标记实际构建平台，不伪装跨平台产物。最终 Linux 包应在对应隔离环境中组装。
 
@@ -29,14 +29,16 @@
 
 首次启动把随机访问令牌写入数据目录中的 `access-token`，日志只输出文件位置。网页登录后只获得 HttpOnly 会话 Cookie；模型密钥不返回浏览器。
 
+产品诊断写到标准输出和错误输出，由 systemd/journald 或实际进程管理器负责日志轮转与保留；没有另建产品日志归档。SQLite 的变更通知和展示投影有界，请求去重记录保留原身份，不随日志清理删除，以免历史命令被重复执行。数据目录及其备份包含访问与模型凭据，应沿用该目录的访问限制。
+
 更新先停止服务并等待真实运行收束，保存数据目录，解压新产物再启动。不要将同一数据根同时交给两个服务实例；unknown 结果先核对原操作，不自动重放。这里只提供单机交付流程，不加入自更新代理或产品版本兼容层。
 
 ## 单轮 Linux 安装验证
 
-最终固定依赖到齐后，在隔离 Linux/同架构环境使用本仓干净 checkout，按顺序安装冻结依赖、运行必要 Server/Web 类型与一次网页构建、`node scripts/package.mjs`。校验 SHA 后将归档解压到新的空目录，执行 `node scripts/verify-linux-install.mjs <解压后的velaros-server绝对目录>`。
+需要验证新制品时，在隔离 Linux/同架构环境使用本仓干净 checkout，按顺序安装冻结依赖、运行必要 Server/Web 类型与一次网页构建、`node scripts/package.mjs`。校验 SHA 后将归档解压到新的空目录，执行 `node scripts/verify-linux-install.mjs <解压后的velaros-server绝对目录>`。
 
 此脚本消费真实生产目录和原生依赖，核对基础归档与主入口哈希，确认不安装 UI/React/Electron/capabilities 开发或扩展包，再启动真实产品 main，验证 HTTP 登录、静态网页、样例文件、PTY 输出与停止、SIGTERM 后零退出码。测试使用一次性目录和 loopback，不配置供应商密钥，不重跑已通过 Agent 链；进程退出未知时报告并保留现场，不增加强杀兜底。
 
-真实 Linux 安装已在 [run 42581492981](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 通过，准确源码为 `165139c90caaeab917fd9920985ff070c619ca7a`。已下载产物并核对 SHA-256 `aaf806a6451e1406a0dd1de9acc7101588e7082f54c0511fcc2c4b50f56a0197`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，40,282,169 bytes。CI artifact 保留 3 天，持久回执见 docs/evidence/linux-install-165139c.json。
+最近一次已验收的 Linux 制品来自 [run 42607896603](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)，准确源码为 `19d426196d43238f38d83ae1c3712438e1b0fd48`，使用基础 0.9.3。已下载产物并核对 SHA-256 `23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，40,298,499 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-19d4261.json`。此前 165139c / 0.9.2 的原回执同样保留；两者均不包含后续源码与依赖升级，不重标为当前版本。
 
 此验证使用显式 danger-full-access 来验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。真实 systemd 启停、授权模式和实际服务维护任务仍需在目标环境验收，不能用 Platform 基础 CI 或 Windows PTY 结果替代。尚未部署到 Cloud 或用户生产主机。

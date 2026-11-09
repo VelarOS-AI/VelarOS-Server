@@ -49,20 +49,13 @@ export class TerminalHttp {
       throw new HttpError(405, 'METHOD_NOT_ALLOWED', '方法不受支持')
     if (this.connections.size >= 16)
       throw new HttpError(429, 'CONNECTION_LIMIT', '事件连接数量已达上限')
-    let cursor = z.coerce
+    const cursor = z.coerce
       .number()
       .int()
       .nonnegative()
       .max(Number.MAX_SAFE_INTEGER)
       .parse(request.headers['last-event-id'] ?? url.searchParams.get('after') ?? 0)
-    // 先验证 task；发送 SSE 响应头后无法再返回可靠的 HTTP 错误。
-    let chunk = await terminal.read(taskId, cursor)
-    response.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache, no-transform',
-      Connection: 'keep-alive',
-      'X-Accel-Buffering': 'no',
-    })
+    // 首次读取也属于此订阅：等待期间即占用额度，并能由断线或应用关闭回收。
     this.connections.add(response)
     let closed = false
     let lastDelivery = 0
@@ -74,8 +67,24 @@ export class TerminalHttp {
     }
     response.once('close', cleanup)
     response.once('error', cleanup)
+    const connected = (): boolean => !closed && !response.destroyed && !response.writableEnded
+    let chunk: Awaited<ReturnType<TerminalPort['read']>>
+    try {
+      // 先验证 task；发送 SSE 响应头后无法再返回可靠的 HTTP 错误。
+      chunk = await terminal.read(taskId, cursor)
+    } catch (error) {
+      cleanup()
+      throw error
+    }
+    if (!connected()) return
+    response.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    })
     const poll = async (): Promise<void> => {
-      if (closed) return
+      if (!connected()) return
       if (!authenticated()) {
         response.end()
         return
@@ -98,14 +107,14 @@ export class TerminalHttp {
           }
           lastDelivery = Date.now()
         }
-        cursor = chunk.cursor
         if (chunk.status !== 'running') {
           response.end()
           return
         }
         timer = setTimeout(() => {
+          if (!connected()) return
           void terminal
-            .read(taskId, cursor)
+            .read(taskId, chunk.cursor)
             .then((next) => {
               chunk = next
               return poll()

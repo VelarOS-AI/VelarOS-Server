@@ -51,7 +51,8 @@ export default function Terminal({
       if (disposed) return
       writable = false
       terminal.options.disableStdin = true
-      setRunning(false)
+      // 输入未确认只暂停输入，不能据此把仍由 Host 持有的进程标成已停止。
+      setStatus('输入已暂停，请核对或重新连接')
       onError(error instanceof Error ? error.message : '终端输入未确认，请核对后重新连接')
     }
     const flush = (): void => {
@@ -87,7 +88,6 @@ export default function Terminal({
     const events = new EventSource(`${path}/events`)
     events.onopen = () => {
       setStatus('已连接')
-      setRunning(true)
     }
     events.onerror = () => {
       if (!disposed) setStatus('输出连接中断，正在重连…')
@@ -97,10 +97,10 @@ export default function Terminal({
       if (value.droppedChars)
         terminal.write(`\r\n[输出缓冲已越界，缺少 ${value.droppedChars} 字符]\r\n`)
       terminal.write(value.text)
+      setRunning(value.status === 'running')
       if (value.status !== 'running') {
         writable = false
         terminal.options.disableStdin = true
-        setRunning(false)
         setStatus(value.status === 'exited' ? '终端已退出' : '进程状态未知，请核对')
         events.close()
       }
@@ -121,6 +121,7 @@ export default function Terminal({
       const value = await request<{ taskId: string }>('/api/terminal/open', csrf, 'POST', {})
       setTaskId(value.taskId)
       setConnection((value) => value + 1)
+      setRunning(false)
       setStatus('正在连接…')
     } catch (error) {
       onError(error instanceof Error ? error.message : '连接终端失败')

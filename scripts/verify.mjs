@@ -38,6 +38,7 @@ if (handle) {
       ['web-types', 'node_modules/typescript/bin/tsc', '-p', 'apps/web/tsconfig.json'],
       ['product-boundaries', '--test', 'dist/tests/product-boundaries.test.js'],
       ['control-concurrency', '--test', 'dist/tests/control-concurrency.test.js'],
+      ['terminal-http', '--test', 'dist/tests/terminal-http.test.js'],
       [
         'http-boundary',
         '--test',

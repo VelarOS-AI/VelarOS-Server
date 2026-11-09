@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。真实 Runtime、网页确认和 Node 执行短链已通过；终端使用同一 Host。最终基础依赖为正式 Platform 0.9.2（tag v0.7.3），原 Windows PTY 停止缺口保留 0.9.1 的单独通过证据。网页使用正式 UI 1.1.0 的基础会话入口，有消息的中文/列表/代码/表格检查通过。最终身份已齐，Server Linux 产品安装待隔离私有 CI 单次验收。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。真实 Runtime、网页确认和 Node 执行短链已通过；终端使用同一 Host。最终基础依赖为正式 Platform 0.9.2（tag v0.7.3），原 Windows PTY 停止缺口保留 0.9.1 的单独通过证据。网页使用正式 UI 1.1.0 的基础会话入口，有消息的中文/列表/代码/表格检查通过。Server Linux 产品安装由本仓独立手动 CI 验收，进度与证明范围见 docs/verification.md。
 
 本产品不依赖 Cloud 登录或生产服务，不复制 Desktop IPC、People/团队、Workbench 工作区，不新增 Agent 循环或命令执行 Host。
 
@@ -31,6 +31,8 @@ bun run start
 `deploy/` 提供原生 Node + systemd 和同源反向代理模板，尚未执行生产部署。配置专用用户、目录与 Node 路径后再安装。普通容器中的命令不代表宿主机权限。
 
 架构、数据与待接入边界见 `docs/architecture.md`。
+
+Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
 ## 许可证
 

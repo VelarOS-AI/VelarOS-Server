@@ -1,24 +1,24 @@
-# 模板由私有 CI owner 部署到独立分支；Server 本轮不推送其他仓。
-name: Isolated Server Linux install
+name: Server Linux install
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: read
+
 concurrency:
   group: server-linux-install-${{ github.ref }}
   cancel-in-progress: false
+
 jobs:
   install:
-    if: github.event.repository.private == true && startsWith(github.ref_name, 'codex/server-linux-install-')
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    env:
-      PRIVATE_CI: ${{ github.event.repository.private }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1，沿用现有私有 CI 固定身份
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
-          sparse-checkout: server-validation
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24.22.0'
@@ -27,7 +27,7 @@ jobs:
         with:
           bun-version: '1.4.3'
       - name: Verify one isolated Server installation
-        run: node server-validation/run.mjs
+        run: node scripts/linux-product.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: velaros-server-linux-${{ github.run_id }}
@@ -35,7 +35,7 @@ jobs:
           retention-days: 3
           include-hidden-files: true
           path: |
-            server-install-source/.cache/artifacts/*.tar.gz
-            server-install-source/.cache/artifacts/*.sha256
-            server-install-source/.cache/linux-install-proof.json
-            server-install-source/.cache/linux-product-build.json
+            .cache/artifacts/*.tar.gz
+            .cache/artifacts/*.sha256
+            .cache/linux-install-proof.json
+            .cache/linux-product-build.json

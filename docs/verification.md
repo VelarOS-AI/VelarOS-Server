@@ -9,7 +9,7 @@
 - 终端 SSE 与实际输出已分段观察；停止失败。最短 `terminal-seam` 场景约 2.64 秒得到原始 PERMISSION，Node 因存活资源未退出，外层 30 秒预算中止。该失败不记绿，证据在 `platform-host-issue.md`。
 - 后续固定 0.9.1 已核对归档元数据、SHA、658 输入的提交树证明并进入本仓 vendor/生产 manifest/lock。原 terminal-seam 只补一次，通过 PID 对齐、实际 PTY 输出、停止、exited；正文约 1.73 秒，Node 总约 3.14 秒自然退出码 0。其他 Agent/边界/网页绿项保留原归档和产品身份，不重复运行。
 - UI 1.1.0 按候选 SHA 一次切入本仓 vendor、manifest、lock，随后正式发布同字节资产，来源记录单独更新，不因发布标签重装或重构建。必要 Server/Web 类型通过；一个有消息的聊天场景发现 Server 漏装 ConversationBlockHooksProvider，补齐公开装配后仅补 Web 类型/构建和原场景，通过中文/列表/普通代码/表格，未出现新浏览器错误。截图 `.cache/server-basic-ui.png`；独立 fixture 正常退出，未调用 Agent 或连接终端。
-- 最终轻量静态总产物 16 文件、3,020,832 bytes（2.88 MiB），相对原 404 文件、16,029,876 bytes 减少 81.15%，不是首屏流量。Linux 输入仍等待最终基础正式发行，当前没有调度旧输入的私有安装 job。
+- 最终轻量静态总产物 16 文件、3,020,832 bytes（2.88 MiB），相对原 404 文件、16,029,876 bytes 减少 81.15%，不是首屏流量。
 - 最终基础已核实为实际发布的 0.9.2 / tag v0.7.3，SHA-256 `285083f64db4f31869af25d2f8cbd944f82eed8bbea03fa08fb1deaea6fec5b2`，源 `ae20dcebf5d086d99ff7d8df1701d71a91574efe`；本机归档、GitHub asset digest、正式 receipt 一致。仅基础进入 vendor/manifest/lock，不安装 capabilities。UI 同字节、只读 trace 的真实 delta 没有触发 Agent、Windows 终端或网页绿项重跑。
 - 0.9.2 实装后仅补受影响的 Server 严格类型/编译，通过；原 UI 1.1.0 源码、归档和展示均未变，保留前端绿项。最终 Linux 冷构建会为两份正式输入生成本机产物与回执，不以旧 Windows dist 冒充 Linux 发行。
 - 网页严格类型通过；含真实聊天 UI、确认面板与懒加载 xterm 的 Vite 构建通过，5.13 秒。后续小修的受影响静态门集中补查，不重新跑 Agent 链。
@@ -17,4 +17,4 @@
 
 所有类型/构建/真实进程验证用 `scripts/verify.mjs` 的 wx 共享锁、独占 token 和 finally 释放；每步最多 45 秒、Node 2 GiB。只补失败或本批受影响步骤。禁止默认全量回归、压力测试、大型矩阵或反复构建。
 
-Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做，也不把它当 Server 安装验收。Linux 产品安装验证脚本已准备并通过 node --check，消费真实生产目录验证独立闭包/HTTP/PTY/SIGTERM，但尚未在 Linux 执行。最终发布身份已齐，剩余实际 Linux 产品安装与生产归档。真实供应商 API、systemd 实装不在本轮证明内。没有触碰 Cloud 生产服务或其他仓源码。
+Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做，也不把它当 Server 安装验收。此前私有 Linux job 在 runner 分配前被账户付款/消费限额阻止，runner_id=0、执行步骤为零；没有安装/HTTP/PTY 结果。用户随后明确授权 Server 开源，改用本仓手动单 job，待实际执行后登记产品安装和归档结果。真实供应商 API、systemd 实装不在本轮证明内。没有触碰 Cloud 生产服务或其他仓源码。

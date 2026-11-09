@@ -7,10 +7,9 @@ import { fileURLToPath } from 'node:url'
 import { sourceState } from './source-state.mjs'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const lockPath =
-  process.platform === 'win32'
-    ? 'D:/Projects/VelarOS-Desktop/scratchpad/heavy-validation.lock'
-    : resolve(root, '.cache/heavy-validation.lock')
+const lockPath = resolve(
+  process.env.VELAROS_VALIDATION_LOCK_PATH ?? resolve(root, '.cache/heavy-validation.lock'),
+)
 const token = randomUUID()
 let handle
 try {
@@ -28,7 +27,6 @@ if (handle) {
     JSON.stringify({
       token,
       owner: 'velaros-server',
-      thread: '01a1be43-e99a-76b2-83f3-f5cba4d32cd1',
       pid: process.pid,
       at: new Date().toISOString(),
     }),

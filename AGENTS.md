@@ -8,4 +8,4 @@
 - 包管理使用 Bun，Node 是生产执行环境。代码按职责保持简单，测试验证真实接缝和失败边界。
 - 一批完整改动只集中跑一次最小必要验证；已通过结果保留，修复后仅补未通过或受影响步骤，不默认跑全量回归、压力/性能矩阵或长时间 E2E。
 - 提交只暂存本轮精确文件；不提交密钥、数据、归档缓存或临时日志。公开发布仅在用户明确授权范围内进行，不携带其他产品源码或未发行候选包。
-- 重型验证遵循 Desktop scratchpad/ecosystem-coordination/current.md 的共享锁；锁以 wx 获取，只在 finally 释放自己持有的 token。
+- 验证默认使用本仓 .cache 独占锁；多仓联调通过 VELAROS_VALIDATION_LOCK_PATH 显式指定共享锁。锁以 wx 获取，只在 finally 释放自己持有的 token。

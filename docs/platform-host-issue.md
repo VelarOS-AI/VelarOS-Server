@@ -18,4 +18,4 @@ Server 不取消身份核对，不保存第二份进程表，不吞错或添加�
 
 同一原始 `terminal-seam` 仅复验一次，固定基础 SHA-256 `7845f1e6c90fd93f90faf8d5c52203a7110580054365419acb1c38d72d0e93c2`、源提交 `e3e157696994a0d667cbd542a809484b93e40e71`。初始 PID=0，就绪后实际 PID=44000，Host 任务 PID=44000；实际哨兵输出、原 taskId 停止和 exited 状态全部通过。测试正文 1727.13 ms，Node runner 总计 3137.62 ms，自然退出码 0，没有强制退出或 Server 私有进程补丁。
 
-Host close 兑现瞬间仍能观察到短暂的 MessagePort/管道/定时器，随后 Node 正常退出；不能把瞬时资源列表宣称为已经全空，也不能据此继续沿用原“无法自然退出”的失败结论。这里只关闭已复现的 Windows 缺口，Linux PTY 仍需要独立产品安装证据。已通过 Agent 链、网页和四边界场景没有重跑。
+Host close 兑现瞬间仍能观察到短暂的 MessagePort/管道/定时器，随后 Node 正常退出；不能把瞬时资源列表宣称为已经全空，也不能据此继续沿用原“无法自然退出”的失败结论。这份复验只关闭已复现的 Windows 缺口。后续独立 Linux 产品安装已在最终 SDK 0.9.2 和 Server 源码 165139c 的公开 CI 验证 PTY 实际输出、原 taskId 停止、exited 和服务 SIGTERM 零退出码，见 verification.md；并未重跑已通过 Agent 链、网页和四边界场景。

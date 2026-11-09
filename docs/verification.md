@@ -17,8 +17,14 @@
 
 所有类型/构建/真实进程验证用 `scripts/verify.mjs` 的 wx 共享锁、独占 token 和 finally 释放；每步最多 45 秒、Node 2 GiB。只补失败或本批受影响步骤。禁止默认全量回归、压力测试、大型矩阵或反复构建。
 
-Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做，也不把它当 Server 安装验收。此前私有 Linux job 在 runner 分配前被账户付款/消费限额阻止，runner_id=0、执行步骤为零；没有安装/HTTP/PTY 结果。用户随后明确授权 Server 开源，改用本仓手动单 job，待实际执行后登记产品安装和归档结果。真实供应商 API、systemd 实装不在本轮证明内。没有触碰 Cloud 生产服务或其他仓源码。
+Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做，也不把它当 Server 安装验收。此前私有 Linux job 在 runner 分配前被账户付款/消费限额阻止，runner_id=0、执行步骤为零；没有安装/HTTP/PTY 结果。用户随后明确授权 Server 开源，改用本仓手动单 job。真实供应商 API、systemd 实装不在本轮证明内。没有触碰 Cloud 生产服务或其他仓源码。
 
 公开仓库实际为 PUBLIC、GitHub 识别 Apache-2.0。应用源码、合同、锁及两个正式 vendor 与原冻结源码一致；公开历史仅从正式依赖快照开始，未上传旧候选包开发历史。源码快照为 `8f58240b4065492c88a22716f3ab2931c77a0747`，独立 CI 接线为 `4a0d1888c024e7ccca2fd3ba783996c114d5873b`。
 
-[Server Linux run 42580381502](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42580381502) 的 headSha 与上述 CI 提交一致。两个 attempt 均分配了真实 Ubuntu runner，checkout 与 Node 安装通过，固定官方 Bun 1.4.3 下载连续 HTTP 504。官方发布 API 确认资产存在且地址正确，SHA-256 `3e730528d89775f03f87f05c06787c4df4099d0a37f3f252e7b829cb23816e18`。仅对首次失败 job 恢复过一次；没有改版本、来源或应用代码。第二次 job `129038290877` 于 2026-11-09 07:40:46 UTC 结束，产品验证与 artifact 上传步骤均 skipped。此结果是安装工具下载阻塞：没有运行冻结依赖安装、Linux 类型/构建、生产打包、HTTP、文件读写、原生 PTY 或 SIGTERM 验证，不记为产品代码失败或 Linux 验收通过。后续只恢复这个必要 job。
+[Server Linux run 42580381502](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42580381502) 的 headSha 与上述 CI 提交一致。两个 attempt 均分配了真实 Ubuntu runner，checkout 与 Node 安装通过，固定官方 Bun 1.4.3 下载连续 HTTP 504。官方发布 API 确认资产存在且地址正确，SHA-256 `3e730528d89775f03f87f05c06787c4df4099d0a37f3f252e7b829cb23816e18`。仅对首次失败 job 恢复过一次；没有改版本、来源或应用代码。第二次 job `129038290877` 于 2026-11-09 15:40:46（北京时间）结束，产品验证与 artifact 上传步骤均 skipped。此结果是安装工具下载阻塞：没有运行冻结依赖安装、Linux 类型/构建、生产打包、HTTP、文件读写、原生 PTY 或 SIGTERM 验证，不记为产品代码失败或 Linux 验收通过。随后经诊断切换同一官方资产的 API 入口，实际通过结果如下。
+
+最终 [Server Linux run 42581492981](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 于 2026-11-09 15:48:39（北京时间）完成，单个 job 1m34s，产品安装步骤约 22 秒，通过。headSha 精确为 `165139c90caaeab917fd9920985ff070c619ca7a`；CI 接线只更改同一官方 Bun 1.4.3 资产的 API 下载入口，先核官方 SHA 和实际版本，没有改应用、依赖或增加镜像。
+
+真实 Ubuntu 24.04 x64 / Node 24.22.0 冷安装、必要 Server/Web 类型与网页构建、生产打包和新目录安装通过。真实产品 main 的 HTTP 登录、静态网页、样例文件读取/修改及模式保留、原生 PTY 实际输出、按原 taskId 停止并观察 exited、主服务 SIGTERM 后自然退出码 0 均通过。生产安装没有 UI/React/Electron/capabilities；本机下载后另核产物 SHA、文件清单源码身份、两个回执一致及根 LICENSE 包含，未重复运行 Agent 或其他原绿项。`resources/platform-provenance.json` 的 false 标记保留的是依赖采用时尚未进行产品安装的历史状态，以本次独立产品回执为当前证据。
+
+生产包 `velaros-server-0.1.0-linux-x64.tar.gz`，40,282,169 bytes，SHA-256 `aaf806a6451e1406a0dd1de9acc7101588e7082f54c0511fcc2c4b50f56a0197`。artifact ID 13656869693，保留 3 天；永久保存的精简结果见 [evidence/linux-install-165139c.json](evidence/linux-install-165139c.json)。此证明使用 danger-full-access，不覆盖 bubblewrap、systemd、供应商模型或真实生产服务维护；没有部署到 Cloud 或用户生产主机。

@@ -37,4 +37,6 @@
 
 此脚本消费真实生产目录和原生依赖，核对基础归档与主入口哈希，确认不安装 UI/React/Electron/capabilities 开发或扩展包，再启动真实产品 main，验证 HTTP 登录、静态网页、样例文件、PTY 输出与停止、SIGTERM 后零退出码。测试使用一次性目录和 loopback，不配置供应商密钥，不重跑已通过 Agent 链；进程退出未知时报告并保留现场，不增加强杀兜底。
 
-当前脚本仅完成本机静态检查，未在 Linux 执行。它使用显式 danger-full-access 来验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。真实 systemd 启停、授权模式和实际服务维护任务仍需在隔离 Linux 安装环境验收，不能用 Platform 基础 CI 或 Windows PTY 结果替代。
+真实 Linux 安装已在 [run 42581492981](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 通过，准确源码为 `165139c90caaeab917fd9920985ff070c619ca7a`。已下载产物并核对 SHA-256 `aaf806a6451e1406a0dd1de9acc7101588e7082f54c0511fcc2c4b50f56a0197`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，40,282,169 bytes。CI artifact 保留 3 天，持久回执见 docs/evidence/linux-install-165139c.json。
+
+此验证使用显式 danger-full-access 来验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。真实 systemd 启停、授权模式和实际服务维护任务仍需在目标环境验收，不能用 Platform 基础 CI 或 Windows PTY 结果替代。尚未部署到 Cloud 或用户生产主机。

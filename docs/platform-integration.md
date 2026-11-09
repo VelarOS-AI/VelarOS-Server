@@ -14,7 +14,7 @@
 
 模型显式选择底座已有的 `openai`（Responses）或 `openai-compatible-gateway`（Chat Completions）适配器，不按地址猜协议、不回退另一线路，不把任意字符串当已注册 Provider。活动运行继续使用原连接，结束后下次输入才重建 Runtime。运行事实和程序原文留在底座，产品只保有界投影与事实引用。
 
-Server 的真实 Node/网页确认绿项保留于 0.9.0 原身份，不重复整链。0.9.1 原终端失败路径的 PID 对齐、实际输出、停止、exited 和 Node 自然退出通过证据保留。0.9.2 的实际增量为通用只读 trace，未以此重复 Agent、Windows PTY 或网页场景。基础 Linux 证明沿用 owner 原单轮，Server 最终 0.9.2 的安装/HTTP/原生 PTY/退出将在同一私有 Linux job 验收；systemd 与真实供应商 API 不在本轮证明内。
+Server 的真实 Node/网页确认绿项保留于 0.9.0 原身份，不重复整链。0.9.1 原终端失败路径的 PID 对齐、实际输出、停止、exited 和 Node 自然退出通过证据保留。0.9.2 的实际增量为通用只读 trace，未以此重复 Agent、Windows PTY 或网页场景。基础 Linux 证明沿用 owner 原单轮；Server 最终 0.9.2 的独立生产安装、HTTP、文件读写、原生 PTY 输出/停止/exited 和主 SIGTERM 零退出码已在本仓 [run 42581492981](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 通过。systemd 与真实供应商 API 不在本轮证明内。
 
 UI 已切到本仓固定的正式 v1.1.0 同字节归档。聊天从 `@velaros-ai/ui/conversation/basic` 消费同一 ChatConversationPane，使用配套 conversation-basic.css；AppShell、Input/Button、Select 与 Composer 继续用已有公开入口。显式挂载公开 ConversationBlockHooksProvider 与中立 hooks，避免仅空会话可用、有消息时因漏装配崩溃。终端 xterm 按页加载，不修改库或复制渲染器。
 

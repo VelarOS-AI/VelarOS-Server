@@ -1,0 +1,44 @@
+name: Server artifact Agent chain
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  agent-chain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.22.0'
+          package-manager-cache: false
+      - name: Reuse the verified 19d4261 Linux product without installing or rebuilding
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .cache/agent-product
+          curl --fail --location --max-time 60 \
+            --header 'Accept: application/vnd.github+json' \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --output .cache/agent-product.zip \
+            'https://api.github.com/repos/VelarOS-AI/VelarOS-Server/actions/artifacts/13668329136/zip'
+          printf '%s  %s\n' '4cf4faf51df3ad25beeea439ced9d4b8b18048a027ca5443cea3d2ed314f9a37' '.cache/agent-product.zip' | sha256sum --check --status
+          unzip -q .cache/agent-product.zip -d .cache/agent-download
+          printf '%s  %s\n' '23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e' '.cache/agent-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz' | sha256sum --check --status
+          tar -xzf .cache/agent-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz -C .cache/agent-product
+      - name: Verify one real Agent completion and cancellation through product HTTP
+        run: node scripts/verify-agent-chain.mjs .cache/agent-product/velaros-server
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: velaros-server-agent-chain-${{ github.run_id }}
+          if-no-files-found: error
+          retention-days: 3
+          path: .cache/agent-chain-proof.json

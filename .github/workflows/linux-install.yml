@@ -23,9 +23,21 @@ jobs:
         with:
           node-version: '24.22.0'
           package-manager-cache: false
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
-        with:
-          bun-version: '1.4.3'
+      - name: Install pinned Bun from its official release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(node -p "require('./package.json').packageManager")" = 'bun@1.4.3'
+          curl --fail --location --max-time 60 \
+            --header 'Accept: application/octet-stream' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --output "$RUNNER_TEMP/velaros-bun.zip" \
+            'https://api.github.com/repos/oven-sh/bun/releases/assets/626788717'
+          printf '%s  %s\n' '3e730528d89775f03f87f05c06787c4df4099d0a37f3f252e7b829cb23816e18' "$RUNNER_TEMP/velaros-bun.zip" | sha256sum --check --status
+          unzip -q "$RUNNER_TEMP/velaros-bun.zip" -d "$RUNNER_TEMP/velaros-bun"
+          test "$("$RUNNER_TEMP/velaros-bun/bun-linux-x64/bun" --version)" = '1.4.3'
+          echo "$RUNNER_TEMP/velaros-bun/bun-linux-x64" >> "$GITHUB_PATH"
       - name: Verify one isolated Server installation
         run: node scripts/linux-product.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -9,6 +9,7 @@ import { ProductStore } from './store.js'
 export class RunRequests {
   private readonly pending = new Set<Promise<void>>()
   private readonly activeRequests = new Map<string, string>()
+  private readonly answering = new Set<string>()
   private closing = false
 
   public constructor(
@@ -116,9 +117,20 @@ export class RunRequests {
     const request = session.interaction
     if (!request || request.id !== requestId || request.runId !== runId || session.runId !== runId)
       throw new HttpError(409, 'STALE_INTERACTION', '交互已失效或不属于当前运行')
-    session.interaction = null
-    this.changes.publish(this.store.saveSession(session))
-    await this.execution.answer(sessionId, request, value)
+    if (this.answering.has(sessionId))
+      throw new HttpError(409, 'ANSWER_PENDING', '本次回答正在提交，请等待结果')
+    this.answering.add(sessionId)
+    try {
+      await this.execution.answer(sessionId, request, value)
+      // 执行端可能已发布后续事实；只清除仍然属于本次回答的展示提示。
+      const current = this.store.getSession(sessionId)
+      if (current.interaction?.id === requestId && current.interaction.runId === runId) {
+        current.interaction = null
+        this.changes.publish(this.store.saveSession(current))
+      }
+    } finally {
+      this.answering.delete(sessionId)
+    }
   }
 
   public async close(): Promise<void> {

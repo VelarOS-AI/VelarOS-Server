@@ -37,6 +37,13 @@ if (handle) {
       ['server-types', 'node_modules/typescript/bin/tsc', '-p', 'tsconfig.server.json'],
       ['web-types', 'node_modules/typescript/bin/tsc', '-p', 'apps/web/tsconfig.json'],
       ['product-boundaries', '--test', 'dist/tests/product-boundaries.test.js'],
+      ['control-concurrency', '--test', 'dist/tests/control-concurrency.test.js'],
+      [
+        'http-boundary',
+        '--test',
+        '--test-name-pattern=真实 HTTP',
+        'dist/tests/product-boundaries.test.js',
+      ],
       ['platform-seam', 'scripts/platform-seam.mjs'],
       ['terminal-seam', 'scripts/platform-seam.mjs', 'terminal'],
       [

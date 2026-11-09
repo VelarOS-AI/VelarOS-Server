@@ -28,3 +28,7 @@ Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做�
 真实 Ubuntu 24.04 x64 / Node 24.22.0 冷安装、必要 Server/Web 类型与网页构建、生产打包和新目录安装通过。真实产品 main 的 HTTP 登录、静态网页、样例文件读取/修改及模式保留、原生 PTY 实际输出、按原 taskId 停止并观察 exited、主服务 SIGTERM 后自然退出码 0 均通过。生产安装没有 UI/React/Electron/capabilities；本机下载后另核产物 SHA、文件清单源码身份、两个回执一致及根 LICENSE 包含，未重复运行 Agent 或其他原绿项。`resources/platform-provenance.json` 的 false 标记保留的是依赖采用时尚未进行产品安装的历史状态，以本次独立产品回执为当前证据。
 
 生产包 `velaros-server-0.1.0-linux-x64.tar.gz`，40,282,169 bytes，SHA-256 `aaf806a6451e1406a0dd1de9acc7101588e7082f54c0511fcc2c4b50f56a0197`。artifact ID 13656869693，保留 3 天；永久保存的精简结果见 [evidence/linux-install-165139c.json](evidence/linux-install-165139c.json)。此证明使用 danger-full-access，不覆盖 bubblewrap、systemd、供应商模型或真实生产服务维护；没有部署到 Cloud 或用户生产主机。
+
+后续源码自查阅读了四页、HTTP/存储/文件、运行桥、Host/终端适配、打包与依赖边界。旧私有 carrier 已移除；网络故障隔离的 catch、资源所有权及必要 unknown 保留，没有为形式整洁新增框架。发现并修复两个具体控制问题：对已退出终端的并发重连原本能分别越过异步状态检查，现把检查与启动统一放进同一在途 open；审批展示原本在执行端接纳前被清除，现仅在成功后清除匹配提示，拒绝时保留原提示，临时并发回答保护在 finally 释放且不持久化第二份运行事实。
+
+本批只补 Server 严格类型/编译、两个不创建 Host/Agent 的控制交错测试（合计 Node runner 298.55 ms）和一个受协议 fixture 修正影响的真实 HTTP 边界（380.60 ms），全部通过。其余绿项未重复；既有生产包和 Linux 回执准确对应源码 165139c，不包含后续这两处控制修复，不将新源码冒充已核对的原归档。

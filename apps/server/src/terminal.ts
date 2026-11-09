@@ -38,20 +38,20 @@ export class HostTerminal implements TerminalPort {
 
   public async open(): Promise<TerminalConnection> {
     if (this.opening) return this.opening
-    if (this.taskId) {
-      const existing = (
-        await this.host.listBackgroundTasks({ taskId: this.taskId, sessionId: this.sessionId })
-      )[0]
-      if (existing?.status === 'running')
-        return {
-          taskId: this.taskId,
-          channel: existing.console?.channel ?? 'pty',
-          shell: this.shell,
-        }
-      if (existing?.status === 'unknown')
-        throw new HttpError(409, 'TERMINAL_UNKNOWN', '原终端收尾未知，请先核对进程')
-    }
     this.opening = (async () => {
+      if (this.taskId) {
+        const existing = (
+          await this.host.listBackgroundTasks({ taskId: this.taskId, sessionId: this.sessionId })
+        )[0]
+        if (existing?.status === 'running')
+          return {
+            taskId: this.taskId,
+            channel: existing.console?.channel ?? 'pty',
+            shell: this.shell,
+          }
+        if (existing?.status === 'unknown')
+          throw new HttpError(409, 'TERMINAL_UNKNOWN', '原终端收尾未知，请先核对进程')
+      }
       const shell = await this.environment.resolveShell()
       const args =
         shell.kind === 'pwsh' || shell.kind === 'powershell'

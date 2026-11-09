@@ -228,7 +228,7 @@ test('真实 HTTP 鉴权、CSRF、来源与密钥隐藏；SSE 断开不取消已
     execution.observer!({ type: 'state', status: 'completed' })
     assert.equal(value.store.getSession(session.id).status, 'completed')
     const model = await call('/api/settings/model', 'PUT', {
-      provider: 'test',
+      provider: 'openai-compatible-gateway',
       baseUrl: 'https://model.example/v1',
       model: 'test-model',
       apiKey: 'private-test-key',

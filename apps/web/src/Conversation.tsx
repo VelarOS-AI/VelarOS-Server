@@ -129,8 +129,9 @@ export function Conversation({
           : 'Agent 暂不可用；可先使用文件与设置',
         disabled: !available || active(session) || session.status === 'unknown',
         onSend: async () => {
-          await onSend(draft)
-          setDraft('')
+          const submitted = draft
+          await onSend(submitted)
+          setDraft((current) => (current === submitted ? '' : current))
         },
       },
       attachments: { files: [] },

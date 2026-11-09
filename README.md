@@ -36,6 +36,8 @@ bun run start
 
 架构、数据与待接入边界见 `docs/architecture.md`。
 
+内部清理的分模块结论、保留理由及必要验证见 `docs/cleanup-coverage.md`；这些源码变更不改写既有 Linux 制品或真实 Agent 证明的身份。
+
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
 已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。0.9.4/0.9.5 源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：

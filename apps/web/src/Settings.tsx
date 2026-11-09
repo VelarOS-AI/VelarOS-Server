@@ -47,6 +47,7 @@ export function Settings({
           接口协议
           <Select<ModelSettings['provider']>
             id="model-provider"
+            disabled={saving}
             value={provider}
             onChange={setProvider}
             options={[
@@ -60,6 +61,7 @@ export function Settings({
           <Input
             type="url"
             required
+            disabled={saving}
             value={baseUrl}
             onChange={(event) => setBaseUrl(event.target.value)}
           />
@@ -67,6 +69,7 @@ export function Settings({
         <label>
           模型名称
           <Input
+            disabled={saving}
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="填写服务商提供的模型 ID"
@@ -77,6 +80,7 @@ export function Settings({
           <Input
             type="password"
             autoComplete="new-password"
+            disabled={saving}
             value={key}
             onChange={(event) => setKey(event.target.value)}
             placeholder={model.hasApiKey ? '已配置，留空保留' : '尚未配置'}

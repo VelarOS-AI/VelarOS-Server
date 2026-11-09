@@ -39,6 +39,13 @@ if (handle) {
       ['product-boundaries', '--test', 'dist/tests/product-boundaries.test.js'],
       ['control-concurrency', '--test', 'dist/tests/control-concurrency.test.js'],
       ['terminal-http', '--test', 'dist/tests/terminal-http.test.js'],
+      ['file-concurrency', '--test', 'dist/tests/file-concurrency.test.js'],
+      [
+        'file-boundary',
+        '--test',
+        '--test-name-pattern=真实文件编辑',
+        'dist/tests/product-boundaries.test.js',
+      ],
       [
         'http-boundary',
         '--test',

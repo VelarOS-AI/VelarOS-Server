@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@velaros-ai/ui/primitives/buttons/Button'
 import { Input } from '@velaros-ai/ui/primitives/forms/Input'
 import type { DirectoryView, TextFileView } from '../../../packages/contracts/src/index.js'
@@ -17,30 +17,49 @@ export function Files({
   const [directory, setDirectory] = useState<DirectoryView | null>(null)
   const [file, setFile] = useState<TextFileView | null>(null)
   const [content, setContent] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [busy, setBusy] = useState(false)
+  // 同步接纳门保护同一轮渲染内的重复动作；busy 只投影给控件。
+  const inFlight = useRef(false)
   const openDirectory = async (target: string): Promise<void> => {
-    const value = await request<DirectoryView>(
-      `/api/files?path=${encodeURIComponent(target)}`,
-      csrf,
-    )
-    setDirectory(value)
-    setPath(value.path)
+    if (inFlight.current) return
+    inFlight.current = true
+    setBusy(true)
+    try {
+      const value = await request<DirectoryView>(
+        `/api/files?path=${encodeURIComponent(target)}`,
+        csrf,
+      )
+      setDirectory(value)
+      setPath(value.path)
+    } finally {
+      inFlight.current = false
+      setBusy(false)
+    }
   }
   useEffect(() => {
     void openDirectory(roots[0] ?? '').catch((error: Error) => onError(error.message))
   }, [csrf, roots.join('\0')])
   const openFile = async (target: string): Promise<void> => {
+    if (inFlight.current) return
     if (file && content !== file.content && !window.confirm('放弃当前未保存的修改？')) return
-    const value = await request<TextFileView>(
-      `/api/files/text?path=${encodeURIComponent(target)}`,
-      csrf,
-    )
-    setFile(value)
-    setContent(value.content)
+    inFlight.current = true
+    setBusy(true)
+    try {
+      const value = await request<TextFileView>(
+        `/api/files/text?path=${encodeURIComponent(target)}`,
+        csrf,
+      )
+      setFile(value)
+      setContent(value.content)
+    } finally {
+      inFlight.current = false
+      setBusy(false)
+    }
   }
   const save = async (): Promise<void> => {
-    if (!file || !window.confirm(`保存配置文件 ${file.path}？`)) return
-    setSaving(true)
+    if (inFlight.current || !file || !window.confirm(`保存配置文件 ${file.path}？`)) return
+    inFlight.current = true
+    setBusy(true)
     try {
       const value = await request<TextFileView>('/api/files/text', csrf, 'PUT', {
         path: file.path,
@@ -52,7 +71,8 @@ export function Files({
     } catch (error) {
       onError(error instanceof Error ? error.message : '保存失败')
     } finally {
-      setSaving(false)
+      inFlight.current = false
+      setBusy(false)
     }
   }
   return (
@@ -67,10 +87,11 @@ export function Files({
         >
           <Input
             aria-label="服务器目录"
+            disabled={busy}
             value={path}
             onChange={(event) => setPath(event.target.value)}
           />
-          <Button type="submit" variant="outline">
+          <Button type="submit" variant="outline" disabled={busy}>
             打开
           </Button>
         </form>
@@ -80,6 +101,7 @@ export function Files({
               key={root}
               size="sm"
               variant="ghost"
+              disabled={busy}
               onClick={() =>
                 void openDirectory(root).catch((error: Error) => onError(error.message))
               }
@@ -94,7 +116,7 @@ export function Files({
               key={entry.path}
               variant="ghost"
               size="block"
-              disabled={saving || entry.kind === 'other'}
+              disabled={busy || entry.kind === 'other'}
               onClick={() =>
                 void (
                   entry.kind === 'directory' ? openDirectory(entry.path) : openFile(entry.path)
@@ -114,7 +136,7 @@ export function Files({
               <span title={file.path}>{file.path}</span>
               <Button
                 size="sm"
-                disabled={saving || content === file.content}
+                disabled={busy || content === file.content}
                 onClick={() => void save()}
               >
                 保存修改
@@ -123,7 +145,7 @@ export function Files({
             <textarea
               aria-label="文件内容"
               spellCheck={false}
-              disabled={saving}
+              disabled={busy}
               value={content}
               onChange={(event) => setContent(event.target.value)}
             />

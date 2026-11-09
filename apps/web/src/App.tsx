@@ -138,12 +138,16 @@ export function App(): React.ReactElement {
         text,
       })
       if (pendingInput.current === input) pendingInput.current = null
-      await refresh()
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : '提交失败'
       setError(message)
       throw failure
     }
+    // POST 受理与投影读取是两件事；后者失败不能把已提交输入留成可再次执行的草稿。
+    await refresh().catch((failure: unknown) => {
+      const message = failure instanceof Error ? failure.message : '无法读取会话'
+      setError(`输入请求已受理，但页面刷新失败：${message}`)
+    })
   }
   const sidebar = (
     <aside className="sidebar">

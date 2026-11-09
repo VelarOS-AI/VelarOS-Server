@@ -15,6 +15,8 @@ function isWithin(root: string, path: string): boolean {
 
 /** 网页文件操作只接入宿主明确登记的根；状态和凭据目录始终不向网页开放。 */
 export class ServerFiles {
+  private readonly writes = new Map<string, Promise<void>>()
+
   private constructor(
     public readonly roots: readonly string[],
     private readonly protectedRoot: string,
@@ -96,8 +98,31 @@ export class ServerFiles {
   public async write(path: string, sha256: string, content: string): Promise<TextFileView> {
     if (Buffer.byteLength(content) > MaxTextBytes || content.includes('\0'))
       throw new HttpError(413, 'TEXT_LIMIT', '文本过大或含有二进制内容')
+    const actual = await this.resolve(path)
+    const write = (this.writes.get(actual) ?? Promise.resolve()).then(() =>
+      this.replaceFile(path, actual, sha256, content),
+    )
+    // 队列只等待前一次收尾；具体失败仍交给原请求，不阻断下一次独立的版本核对。
+    const settled = write.then(
+      () => {},
+      () => {},
+    )
+    this.writes.set(actual, settled)
+    try {
+      return await write
+    } finally {
+      if (this.writes.get(actual) === settled) this.writes.delete(actual)
+    }
+  }
+
+  private async replaceFile(
+    path: string,
+    actual: string,
+    sha256: string,
+    content: string,
+  ): Promise<TextFileView> {
     const baseline = await this.read(path)
-    if (baseline.sha256 !== sha256)
+    if (baseline.path !== actual || baseline.sha256 !== sha256)
       throw new HttpError(409, 'FILE_CHANGED', '文件已被其他操作修改，请重新读取并核对差异')
     const parent = await this.resolve(dirname(baseline.path))
     const metadata = await stat(baseline.path)

@@ -4,9 +4,9 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前源码的基础依赖固定为正式 Platform 0.9.4（tag v0.7.5），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。新增[真实消费接缝](docs/evidence/platform-094-seam.json)已通过：产品 HTTP 输入、observe 历史选择及下一轮动态交付、审批、真实 Node 写入与外部读取核对、完成及 Runtime/Host 关闭。只替代外部模型，未执行只读采集或重新构建网页。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前源码的基础依赖固定为正式 Platform 0.9.5（tag v0.7.6），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。[本次归档身份与严格类型验收](docs/evidence/platform-095-adoption.json)通过，产品装配源码与 fixture 未改。保留 [0.9.4 真实消费接缝](docs/evidence/platform-094-seam.json)的原身份：产品 HTTP 输入、observe 历史选择及下一轮动态交付、审批、真实 Node 写入与外部读取核对、完成及 Runtime/Host 关闭。该接缝只替代外部模型，未执行只读采集；0.9.5 本轮没有重跑 Agent 或构建网页。
 
-既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为 0.9.4 制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
+既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 
 本产品不依赖 Cloud 登录或生产服务，不复制 Desktop IPC、People/团队、Workbench 工作区，不新增 Agent 循环或命令执行 Host。
 
@@ -38,7 +38,7 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。本轮 0.9.4 源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
+已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。0.9.4/0.9.5 源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
 
 ```sh
 gh run download 42607896603 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42607896603 --dir server-download

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "kind": "server-foundation-adoption",
+  "sourceBaseCommit": "5ffceafe0cb3e98a6ca7932e662ba5ae7ae0bc0b",
+  "serverSourceFingerprint": "04844ebd8a0479cfaf3d7639928a2b8a9f19d8e30814abce21630b00d088559b",
+  "foundation": {
+    "name": "@velaros-ai/velaros",
+    "version": "0.9.5",
+    "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/velaros-ai-velaros-0.9.5.tgz",
+    "sha256": "8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b",
+    "integrity": "sha512-UZDd12Vw52+pFUSxAGVodf/91vuEBjXZobQmtW0Uc/Sx0D+dzrmBLzv9wT0S36lBi71zysl1EgqF3DPefpGepg==",
+    "bytes": 2256421,
+    "peerDependencies": {},
+    "engines": {
+      "node": ">=24.22.0"
+    },
+    "thirdPartyDependenciesUnchanged": true,
+    "verifiedBeforeInstall": true,
+    "ownerReceiptSha256": "38a4e45a6f4a831cbab596bd667ebe753f333629344501042f554767fa939c11",
+    "manifestSha256": "e2dda9fe98e382026d67bd5b2dc091f1a31ed860137a403aed1fd95766a4dfd1",
+    "ownerNodeEnvironmentQuery": true
+  },
+  "installedFoundationVersion": "0.9.5",
+  "baseOnly": true,
+  "capabilitiesInstalled": false,
+  "ui": {
+    "name": "@velaros-ai/ui",
+    "version": "1.1.0",
+    "file": "vendor/ui/velaros-ai-ui-1.1.0.tgz",
+    "sourceCommit": "131bab8178913bed8392c61c473693aa910e941f",
+    "sha256": "5561690111c8e9dbb806658c88473b8866364b02fdec2d39116588fedd0422c6",
+    "integrity": "sha512-Pt02hkaL/PZqAQtSZppM7lqXiZMBVc34za/3Z6cbq6V3MMfCGq3iRtJJmB7PzX/Ff5SEcbywMIlN1fZMmWLZbA==",
+    "kind": "sha-pinned-archive",
+    "provenance": "resources/ui-provenance.json"
+  },
+  "thirdPartyLockUnchanged": true,
+  "productSourceAndFixtureUnchanged": true,
+  "packageEnvironmentWrapperUsed": false,
+  "publicDeclarationDelta": {
+    "script": "NodeCodeRunnerApi extends CodeRunnerApi; createNodeCodeRunner now guarantees observationSupport()",
+    "nodeEnvironmentInputUnchanged": true,
+    "projectVersionLiteral": "0.9.5 (not consumed by Server)",
+    "consumerCallSiteChanges": false
+  },
+  "validation": {
+    "command": "node scripts/verify.mjs server-types",
+    "exitCode": 0,
+    "startedAt": "2026-11-09T16:51:12.5724129+00:00",
+    "durationMs": 8214.1466,
+    "platform": "win32",
+    "node": "24.22.0",
+    "strict": true,
+    "skipLibCheck": false,
+    "logSha256": "8514d3cf8e56395102532a9d08d3f6c97a6f870585b62b6cd5f5adff76635a40",
+    "runtimeTestsRepeated": false
+  },
+  "retainedAgent094": {
+    "sourceCommit": "5ffceafe0cb3e98a6ca7932e662ba5ae7ae0bc0b",
+    "foundationVersion": "0.9.4",
+    "foundationSha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
+    "evidence": "docs/evidence/platform-094-seam.json",
+    "originalEvidenceAndArchiveUnchanged": true
+  },
+  "retainedLinux093": {
+    "sourceCommit": "19d426196d43238f38d83ae1c3712438e1b0fd48",
+    "foundationVersion": "0.9.3",
+    "installationEvidence": "docs/evidence/linux-install-19d4261.json",
+    "agentEvidence": "docs/evidence/agent-chain-19d4261.json",
+    "originalEvidenceUnchanged": true
+  },
+  "retainedFileSha256": {
+    "apps/server/src/platform-composition.ts": "913c8fd8cf9692de5f0a124757fc55825a9ce70710c1953b02ba58d16ec38edd",
+    "apps/server/src/platform-execution.ts": "963d846e68c64ad89bd34b6f9e2cc1bb0b52442330a985430b20bc5a126ed5ee",
+    "tests/platform-seam.test.ts": "1c2a17980e4eaba4d56e2f14429ddb36bc537b9160365f1453ceaadb6e932620",
+    "docs/evidence/linux-install-19d4261.json": "d81afa6c384ebea5fa404bcbb93a3513048ed574ee6cb5c75b36f7d6a06f83ff",
+    "docs/evidence/agent-chain-19d4261.json": "9c993d1b4796087f8c6b0f5b45cb8d5163784c18edd9492a76452c5b01b84b72",
+    "docs/evidence/platform-094-seam.json": "c62e61c13d2edc0a73d5ce09cf698160438b2872a813bb2efcadc070fdba2112"
+  },
+  "limits": {
+    "providerApi": false,
+    "newAgentRun": false,
+    "readOnlyCapture": false,
+    "windowsPtyRepeated": false,
+    "webBuildRepeated": false,
+    "productionPackageRebuilt": false,
+    "linuxInstallRepeated": false,
+    "systemd": false,
+    "productionDeployed": false
+  }
+}

@@ -1,6 +1,6 @@
 # 当前验证与交接
 
-2026-11-09。区分产品协议、真实底座链与发行验收，不互相替代。
+2026-11-10 更新。区分产品协议、真实底座链与发行验收，不互相替代。
 
 - 四个轻量产品边界场景一次通过，Node 24.22.0，约 566 ms：SQLite、HTTP/SSE、文件路径与冲突、请求去重和未知状态。执行端口为测试注入；结果保留，不重复。
 - Server 严格类型/编译和 Web 严格类型通过，`strict=true`、`skipLibCheck=false`。Server 添加 DOM 声明以消费供应商 HTTP 类型；未启用额外的 exactOptionalPropertyTypes 模式，该模式暴露了 ai 依赖自身的声明错误，没有用 skipLibCheck 掩盖。
@@ -56,3 +56,9 @@ Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做�
 该接缝仅替代外部模型为确定性 ModelDriver，实际走产品 HTTP 登录/输入、Foundation Agent/Kernel、真实 LocalShellHost。模型先单独提交 `observe('', { history: { kind: 'list' } })`；第二轮核对真实 selected/selectionRef/next-model-turn/executed:false 回执、空历史目录与完整原生 call/result 同处 dynamic 尾区，未进入普通可保留历史；第三轮确认选择已经消费。随后原 HTTP 审批仍在文件不存在时等待，按原交互身份授权后真实 Node 写入，模型与产品外部读取核对，再 done/completed。总计 3 次模型调用；应用、Runtime、Host、环境及存储关闭后才打印成功回执并自然退出。
 
 fixture 用正式公开 `modelRequestEncoder.layout()` 检查完整消息，不把旧 compiledPrompt 当作完整请求。实际运行的控制 schema 与 dynamic availability 均报告当前 Windows read-only 后端不可用并给出真实原因，仍允许历史选择；没有提交观察源码，没有用 exec 冒充只读采集，也没有创建产品观察索引。精简证据见 [evidence/platform-094-seam.json](evidence/platform-094-seam.json)，含基础归档身份、源码指纹及 fixture SHA、命令与单例回执。此证明不覆盖真实供应商、只读采集、网页重建、Linux 新安装、systemd 或生产部署；既有 19d4261 / 0.9.3 制品及 bf62940 所保存的证明保留原身份。
+
+2026-11-10 最终固定基础 0.9.5 / tag v0.7.6，源 `70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7`，SHA-256 `8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b`。安装前再次独立下载实际官方归档，核对 SHA-256、SHA-512 integrity、2,256,421 bytes、包名/版本/代际及空 peer；GitHub target、asset digest/size、manifest/validation 与本仓字节一致。正式同基础 SHA 的 JS、strictDeclarations、nodeEnvironmentQuery 均为 true。一次离线安装更新基础 pin/lock/snapshot/provenance，第三方 lock 内容与 UI 1.1.0 不变，不安装 capabilities。
+
+Core 本批修复 withPackageEnvironment 与 RuntimeBootstrap 的 observationSupport 转发，公开 Node 工厂返回类型细化为 NodeCodeRunnerApi；参数和旧调用不变。Server 没有 packageEnvironment 装配，不经过 npm 包环境包装；产品源码及既有 fixture 均未改。因公开声明有实际变化，仅补一次 `node scripts/verify.mjs server-types`，2026-11-10 00:51:12（北京时间）开始，8,214.15 ms，通过，strict=true、skipLibCheck=false。首次共享锁占用时 helper 以 23 退出且未启动检查；释放后才进行上述唯一一次实际类型/编译，未抢占其他 owner。
+
+0.9.4 的 HTTP/Agent/history/dynamic/审批/真实 Node/关闭证明继续以 5ffceaf 和原归档 SHA 保存；旧 19d4261 / 0.9.3 Linux 安装和 bf62940 所保存的 Agent 证明也未改身份。0.9.5 不新增运行整链证明，不重复 Agent、PTY、网页、生产打包或 Linux 安装。最低静态检查确认当前安装版本、归档字节、仅基础依赖、UI、产品装配和旧证据一致；新消费证据为 [evidence/platform-095-adoption.json](evidence/platform-095-adoption.json)。Core 官方查询证明不是 Server 新增只读采集或真实供应商 API 证明；本轮仍未生产部署。

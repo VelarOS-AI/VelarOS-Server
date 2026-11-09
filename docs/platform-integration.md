@@ -2,7 +2,7 @@
 
 组合根按 ADR 0028 消费 `@velaros-ai/velaros/node`、`/execution/local`、`/execution` 与公开合同类型。没有兄弟仓源码导入、私有 dist 路径、能力扩展、旧 workspace 配置或 Host 副本。
 
-当前基础归档为 `vendor/runtime/velaros-ai-velaros-0.9.4.tgz`，SHA-256 `ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250`，源码 `1b0004d773ac54c9f20f3748f9f4baed021a6481`，正式 tag v0.7.5。安装前独立下载并核本仓字节、归档包名/版本/代际、空 peer、上游正式 manifest/receipt 与 GitHub asset digest，第三方依赖与 UI 不变。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧 0.9.3 及更早归档、安装和 Agent 回执保持原字节、源码与版本身份。
+当前基础归档为 `vendor/runtime/velaros-ai-velaros-0.9.5.tgz`，SHA-256 `8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b`，源码 `70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7`，正式 tag v0.7.6。安装前独立下载并核本仓字节、归档包名/版本/代际、空 peer、上游正式 manifest/receipt 与 GitHub asset digest，第三方依赖与 UI 不变。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧 0.9.4 及更早归档、安装和 Agent 回执保持原字节、源码与版本身份。
 
 生产 manifest 与 bun.lock 已切到本仓固定正式基础文件，直接 `bun install --frozen-lockfile`。基础没有 UI 宿主 peer；不安装 capabilities，不从兄弟仓或 `.cache/integration` 解析依赖。早期 no-save 联调脚本已退役。打包前再次核对归档 SHA 和 manifest 指向，最终 UI 同样由本仓固定归档提供。
 
@@ -25,5 +25,7 @@ UI 已切到本仓固定的正式 v1.1.0 同字节归档。聊天从 `@velaros-a
 随后同一 19d4261 安装包在独立 [run 42610262328](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328) 通过当前 0.9.3 的真实 Agent 整链：产品 HTTP 创建会话与输入、两次审批、Agent/Kernel 真实 Node 读写并完成、第二次运行取消、SSE 变化，以及 Host/服务关闭后的自有 Node 资源回收。只替代外部模型为本地确定性兼容 Chat Completions 的 HTTP/SSE 服务，没有替代底座执行或复用旧 0.9.0 结果。先核原制品 SHA，未重装依赖或重建产物；脚本源 `b2e791b` 与产品源 `19d4261` 分别记录于 `docs/evidence/agent-chain-19d4261.json`。取消接口受理不等于进程关闭，后者以实际 child close 和进程身份检查为准；不覆盖供应商 API、网页交互、bubblewrap、systemd 或生产部署。
 
 正式 0.9.4 消费后仅补一次 Server 严格类型/编译和既有 `platform-seam`，全部通过。确定性模型先单独选择空历史目录，下一轮核对真实 selected 回执、dynamic 目录、完整原生往返及一次性交付，再经原 HTTP 审批执行真实 Node 写入、外部读取核对、done 与 Runtime/Host 关闭。fixture 使用官方 `modelRequestEncoder.layout()`；稳定 compiledPrompt、本轮 protocol 和动态尾区按完整编码检查，不用旧字段拼接替代。实际 Windows 后端报告 read-only 不可用，历史控制仍正常；没有执行观察程序，不把此结果当只读采集成功。证据见 `docs/evidence/platform-094-seam.json`。旧 19d4261 / 0.9.3 安装包及其回执未改；本轮不重建网页、生产包或 Linux 安装矩阵。
+
+最终 0.9.5 修复 Core 内部 npm 包环境及 RuntimeBootstrap 的查询转发，并将 `/script` 的 `createNodeCodeRunner` 返回值细化为保证查询存在的 `NodeCodeRunnerApi`；输入与既有调用合同不变。Server 未配置 packageEnvironment，不经过 npm 环境包装，不添加产品兼容层。正式同归档的查询转发证明由 Core 持有，覆盖状态、原因、receiver 和方法替换且零命令，不代表只读采集成功。本仓仅补一次 `server-types`，严格类型/编译通过，约 8.21 秒；产品源码、fixture、UI、第三方依赖与旧证明未改，0.9.4 Agent 及 0.9.3 Linux 结果不重跑、不重标。精确消费证据见 `docs/evidence/platform-095-adoption.json`。
 
 实际有消息场景已核对中文、列表、普通代码与表格，浏览器无新错误。静态总产物从 404 文件、16,029,876 bytes 变为 16 文件、3,020,832 bytes，减少 81.15%；该数字不是首屏下载。总产物还含约 1.13 MB 主 JS 和代码格式化等基础资源，不宣称已完成所有体积优化。

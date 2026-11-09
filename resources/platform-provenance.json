@@ -1,38 +1,39 @@
 {
   "kind": "verified-published-release",
   "frozen": true,
-  "version": "0.9.4",
+  "version": "0.9.5",
   "platformGeneration": "0.7",
-  "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
+  "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
   "source": {
-    "commitTree": "3595343501b1887e97c98f614f70dadf84078949",
-    "tag": "v0.7.5",
-    "tagObject": "009794f077c103a986cf21a11d8f415e09733368"
+    "commitTree": "7dad6ddcd24a6f1e33fc6a4f7cb0fe99ae53707b",
+    "tag": "v0.7.6",
+    "tagObject": "87fb641763c6cadb960293a8533bd4fa5f3bc802"
   },
   "archive": {
     "name": "@velaros-ai/velaros",
-    "version": "0.9.4",
-    "file": "vendor/runtime/velaros-ai-velaros-0.9.4.tgz",
-    "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
-    "sha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
-    "integrity": "sha512-drlAS61V6o/j0l+EP/1vrNRirSZDlTGZmY6kWbFOO2d0YcVly7RfGwLVdSC1X9ucnMSBBf2VLD4TUgnnBiBiMQ==",
+    "version": "0.9.5",
+    "file": "vendor/runtime/velaros-ai-velaros-0.9.5.tgz",
+    "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
+    "sha256": "8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b",
+    "integrity": "sha512-UZDd12Vw52+pFUSxAGVodf/91vuEBjXZobQmtW0Uc/Sx0D+dzrmBLzv9wT0S36lBi71zysl1EgqF3DPefpGepg==",
     "kind": "published-release",
     "provenance": "resources/platform-provenance.json",
-    "bytes": 2255841
+    "bytes": 2256421
   },
-  "ownerReceiptSha256": "74c6bff71b0ea7faa40398a721bbad1ac075d545b05980837b31c5e873ba716f",
+  "ownerReceiptSha256": "38a4e45a6f4a831cbab596bd667ebe753f333629344501042f554767fa939c11",
   "publication": {
     "published": true,
-    "tag": "v0.7.5",
-    "version": "0.9.4",
-    "publishedAt": "2026-11-09T15:42:15Z",
-    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/velaros-ai-velaros-0.9.4.tgz",
-    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.5",
-    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/release-manifest.json",
-    "manifestSha256": "8add6b99e576aca376f980dfca1e0ce8ea0f22f5dae4afb7882a44f6ee75cb19",
-    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.5/release-validation.json",
-    "sha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
-    "sourceCommit": "1b0004d773ac54c9f20f3748f9f4baed021a6481",
+    "tag": "v0.7.6",
+    "version": "0.9.5",
+    "publishedAt": "2026-11-09T16:43:49Z",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/velaros-ai-velaros-0.9.5.tgz",
+    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.6",
+    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/42657223815",
+    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/release-manifest.json",
+    "manifestSha256": "e2dda9fe98e382026d67bd5b2dc091f1a31ed860137a403aed1fd95766a4dfd1",
+    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/release-validation.json",
+    "sha256": "8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b",
+    "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
     "githubTargetMatchesSourceCommit": true,
     "githubAssetDigestMatches": true,
     "downloadedArchiveHashMatches": true
@@ -42,7 +43,8 @@
     "foundationStrictDeclarations": true,
     "sourceReleaseCheck": true,
     "providerApi": false,
-    "linuxNewPty": false
+    "linuxNewPty": false,
+    "foundationNodeEnvironmentQuery": true
   },
   "retainedConsumerEvidence": {
     "windowsTerminal": {
@@ -74,6 +76,12 @@
       "foundationVersion": "0.9.3",
       "installationEvidence": "docs/evidence/linux-install-19d4261.json",
       "agentEvidence": "docs/evidence/agent-chain-19d4261.json"
+    },
+    "server094": {
+      "sourceCommit": "5ffceafe0cb3e98a6ca7932e662ba5ae7ae0bc0b",
+      "foundationVersion": "0.9.4",
+      "foundationSha256": "ad28c5dc3b6499140a2e176481df7decc0eb80e8c73658fa7982ba6eccfa0250",
+      "evidence": "docs/evidence/platform-094-seam.json"
     }
   },
   "linuxProductInstall": false

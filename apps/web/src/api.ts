@@ -5,9 +5,11 @@ export async function request<T>(
   csrf: string,
   method = 'GET',
   body?: unknown,
+  signal?: AbortSignal,
 ): Promise<T> {
   const response = await fetch(path, {
     method,
+    signal,
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', 'X-VelarOS-CSRF': csrf },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),

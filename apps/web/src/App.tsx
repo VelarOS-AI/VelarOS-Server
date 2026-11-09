@@ -26,54 +26,103 @@ export function App(): React.ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [page, setPage] = useState<Page>('chat')
   const [error, setError] = useState<string | null>(null)
+  const [authenticating, setAuthenticating] = useState(false)
+  const authPending = useRef(false)
+  // 同步身份只由 changeAuthentication 更新；csrf 是供界面渲染的投影。
+  const authentication = useRef<string | null>(null)
+  const refreshing = useRef<AbortController | null>(null)
   const pendingInput = useRef<{ id: string; text: string; sessionId: string } | null>(null)
   const cursor = useRef(0)
-  const refresh = useCallback(async (): Promise<void> => {
-    if (!csrf) return
-    const [nextInfo, nextSessions] = await Promise.all([
-      request<ServerInfo>('/api/info', csrf),
-      request<SessionView[]>('/api/sessions', csrf),
-    ])
-    setInfo(nextInfo)
-    setSessions(nextSessions)
-    setSelectedId((current) =>
-      current && nextSessions.some((item) => item.id === current)
-        ? current
-        : (nextSessions[0]?.id ?? null),
-    )
-  }, [csrf])
-  useEffect(() => {
-    void request<{ csrf: string | null }>('/api/auth', '')
-      .then((value) => setCsrf(value.csrf))
-      .catch((error: Error) => setError(error.message))
-      .finally(() => setChecking(false))
+  const cancelRefresh = useCallback((): void => {
+    refreshing.current?.abort()
+    refreshing.current = null
   }, [])
+  const changeAuthentication = useCallback(
+    (value: string | null): void => {
+      cancelRefresh()
+      authentication.current = value
+      setCsrf(value)
+      setInfo(null)
+      setSessions([])
+      setSelectedId(null)
+      cursor.current = 0
+      pendingInput.current = null
+    },
+    [cancelRefresh],
+  )
+  const refresh = useCallback(async (): Promise<void> => {
+    if (!csrf || authentication.current !== csrf) return
+    cancelRefresh()
+    const controller = new AbortController()
+    refreshing.current = controller
+    try {
+      const [nextInfo, nextSessions] = await Promise.all([
+        request<ServerInfo>('/api/info', csrf, 'GET', undefined, controller.signal),
+        request<SessionView[]>('/api/sessions', csrf, 'GET', undefined, controller.signal),
+      ])
+      if (refreshing.current !== controller || authentication.current !== csrf) return
+      setInfo(nextInfo)
+      setSessions(nextSessions)
+      setSelectedId((current) =>
+        current && nextSessions.some((item) => item.id === current)
+          ? current
+          : (nextSessions[0]?.id ?? null),
+      )
+    } catch (failure) {
+      if (refreshing.current !== controller || authentication.current !== csrf) return
+      const message = failure instanceof Error ? failure.message : '无法读取会话'
+      // 刷新只负责读取投影，失败不能反转已经受理的输入、回答或设置变更。
+      setError(`页面刷新失败：${message}`)
+    } finally {
+      controller.abort()
+      if (refreshing.current === controller) refreshing.current = null
+    }
+  }, [csrf, cancelRefresh])
+  useEffect(() => {
+    const controller = new AbortController()
+    void request<{ csrf: string | null }>('/api/auth', '', 'GET', undefined, controller.signal)
+      .then((value) => {
+        if (!controller.signal.aborted) changeAuthentication(value.csrf)
+      })
+      .catch((error: Error) => {
+        if (!controller.signal.aborted) setError(error.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setChecking(false)
+      })
+    return () => controller.abort()
+  }, [changeAuthentication])
   useEffect(() => {
     if (!csrf) return
     let disposed = false
+    let connected = false
     let refreshTimer: ReturnType<typeof setTimeout> | null = null
-    void refresh().catch((error: Error) => {
-      if (!disposed) setError(error.message)
-    })
+    const isCurrent = (): boolean => !disposed && authentication.current === csrf
+    void refresh()
     const events = new EventSource(`/api/events?after=${cursor.current}`)
+    events.onopen = () => {
+      if (!isCurrent()) return
+      if (connected) void refresh()
+      connected = true
+    }
     const schedule = (event: MessageEvent): void => {
+      if (!isCurrent()) return
       cursor.current = Number(event.lastEventId) || 0
       if (refreshTimer) return
       refreshTimer = setTimeout(() => {
         refreshTimer = null
-        void refresh().catch((error: Error) => {
-          if (!disposed) setError(error.message)
-        })
+        void refresh()
       }, 100)
     }
     events.addEventListener('change', schedule)
     events.addEventListener('reset', schedule)
     return () => {
       disposed = true
+      if (authentication.current === csrf) cancelRefresh()
       events.close()
       if (refreshTimer) clearTimeout(refreshTimer)
     }
-  }, [csrf, refresh])
+  }, [csrf, refresh, cancelRefresh])
 
   const selected = sessions.find((session) => session.id === selectedId) ?? null
   if (checking) return <div className="login-page">正在连接服务器…</div>
@@ -84,13 +133,20 @@ export function App(): React.ReactElement {
           className="login-card"
           onSubmit={(event) => {
             event.preventDefault()
+            if (authPending.current) return
+            authPending.current = true
+            setAuthenticating(true)
             setError(null)
             void request<{ csrf: string }>('/api/auth/login', '', 'POST', { token })
               .then((value) => {
                 setToken('')
-                setCsrf(value.csrf)
+                changeAuthentication(value.csrf)
               })
               .catch((error: Error) => setError(error.message))
+              .finally(() => {
+                authPending.current = false
+                setAuthenticating(false)
+              })
           }}
         >
           <div className="brand-mark">V</div>
@@ -100,6 +156,7 @@ export function App(): React.ReactElement {
             访问令牌
             <Input
               type="password"
+              disabled={authenticating}
               autoComplete="current-password"
               value={token}
               onChange={(event) => setToken(event.target.value)}
@@ -111,21 +168,33 @@ export function App(): React.ReactElement {
               {error}
             </p>
           )}
-          <Button type="submit">登录服务器</Button>
+          <Button type="submit" disabled={authenticating}>
+            登录服务器
+          </Button>
         </form>
       </div>
     )
 
   const createSession = async (): Promise<void> => {
-    const session = await request<SessionView>('/api/sessions', csrf, 'POST', {
-      title: '服务器维护',
-    })
-    setSessions((current) => [session, ...current])
-    setSelectedId(session.id)
-    setPage('chat')
+    if (authentication.current !== csrf) return
+    try {
+      const session = await request<SessionView>('/api/sessions', csrf, 'POST', {
+        title: '服务器维护',
+      })
+      if (authentication.current !== csrf) return
+      setSessions((current) =>
+        current.some((item) => item.id === session.id) ? current : [session, ...current],
+      )
+      setSelectedId(session.id)
+      setPage('chat')
+      void refresh()
+    } catch (failure) {
+      if (authentication.current === csrf)
+        setError(failure instanceof Error ? failure.message : '创建会话未确认')
+    }
   }
   const send = async (text: string): Promise<void> => {
-    if (!selected || !text.trim()) return
+    if (!selected || !text.trim() || authentication.current !== csrf) return
     const previous = pendingInput.current
     const input =
       previous && previous.text === text && previous.sessionId === selected.id
@@ -140,14 +209,11 @@ export function App(): React.ReactElement {
       if (pendingInput.current === input) pendingInput.current = null
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : '提交失败'
-      setError(message)
+      if (authentication.current === csrf) setError(message)
       throw failure
     }
     // POST 受理与投影读取是两件事；后者失败不能把已提交输入留成可再次执行的草稿。
-    await refresh().catch((failure: unknown) => {
-      const message = failure instanceof Error ? failure.message : '无法读取会话'
-      setError(`输入请求已受理，但页面刷新失败：${message}`)
-    })
+    await refresh()
   }
   const sidebar = (
     <aside className="sidebar">
@@ -174,11 +240,7 @@ export function App(): React.ReactElement {
       </nav>
       <div className="sidebar-heading">
         <span>维护会话</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => void createSession().catch((error: Error) => setError(error.message))}
-        >
+        <Button variant="ghost" size="sm" onClick={() => void createSession()}>
           ＋ 新建
         </Button>
       </div>
@@ -203,14 +265,19 @@ export function App(): React.ReactElement {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() =>
-            void request('/api/auth/logout', csrf, 'POST', {}).then(() => {
-              setCsrf(null)
-              setSessions([])
-              setSelectedId(null)
-              cursor.current = 0
-            })
-          }
+          disabled={authenticating}
+          onClick={() => {
+            if (authPending.current) return
+            authPending.current = true
+            setAuthenticating(true)
+            void request('/api/auth/logout', csrf, 'POST', {})
+              .then(() => changeAuthentication(null))
+              .catch((error: Error) => setError(error.message))
+              .finally(() => {
+                authPending.current = false
+                setAuthenticating(false)
+              })
+          }}
         >
           退出
         </Button>
@@ -279,13 +346,7 @@ export function App(): React.ReactElement {
             <div className="empty-state">
               <h1>开始一次服务器维护</h1>
               <p>创建会话后，可以检查服务、读取日志和处理配置。</p>
-              <Button
-                onClick={() =>
-                  void createSession().catch((error: Error) => setError(error.message))
-                }
-              >
-                新建维护会话
-              </Button>
+              <Button onClick={() => void createSession()}>新建维护会话</Button>
             </div>
           )}
         </div>

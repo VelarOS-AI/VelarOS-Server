@@ -1,0 +1,48 @@
+{
+  "name": "velaros-server",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "A focused, self-hosted server management product built on VelarOS Platform.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Server.git"
+  },
+  "type": "module",
+  "packageManager": "bun@1.4.3",
+  "engines": {
+    "node": ">=24.22.0"
+  },
+  "scripts": {
+    "dev": "vite --config apps/web/vite.config.ts",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:web": "vite build --config apps/web/vite.config.ts",
+    "build": "bun run build:server && bun run build:web",
+    "start": "node dist/apps/server/src/main.js",
+    "package": "node scripts/package.mjs",
+    "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p apps/web/tsconfig.json",
+    "test": "bun run build:server && node --test dist/tests/*.test.js",
+    "format": "prettier --write .",
+    "check:format": "prettier --check .",
+    "check": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "@lydell/node-pty": "1.2.0-beta.15",
+    "@velaros-ai/velaros": "file:./vendor/runtime/velaros-ai-velaros-0.9.2.tgz",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.3",
+    "@velaros-ai/ui": "file:./vendor/ui/velaros-ai-ui-1.1.0.tgz",
+    "@vitejs/plugin-react": "6.1.1",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/xterm": "6.0.0",
+    "prettier": "3.9.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "5.9.3",
+    "vite": "8.2.2"
+  }
+}

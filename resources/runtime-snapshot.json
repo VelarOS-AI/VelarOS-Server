@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "platformGeneration": "0.7",
+  "platform": {
+    "name": "@velaros-ai/velaros",
+    "version": "0.9.2",
+    "file": "vendor/runtime/velaros-ai-velaros-0.9.2.tgz",
+    "sourceCommit": "ae20dcebf5d086d99ff7d8df1701d71a91574efe",
+    "sha256": "285083f64db4f31869af25d2f8cbd944f82eed8bbea03fa08fb1deaea6fec5b2",
+    "integrity": "sha512-pzMDQOCmZUtqaKSCKrn3pnHGYC+j1Pyyevez/vNF5GrvUtFOo6A+gd2jlBCFN2zor1PZXeLrMOpHjuB7TCMZig==",
+    "kind": "published-release",
+    "provenance": "resources/platform-provenance.json"
+  },
+  "ui": {
+    "name": "@velaros-ai/ui",
+    "version": "1.1.0",
+    "file": "vendor/ui/velaros-ai-ui-1.1.0.tgz",
+    "sourceCommit": "131bab8178913bed8392c61c473693aa910e941f",
+    "sha256": "5561690111c8e9dbb806658c88473b8866364b02fdec2d39116588fedd0422c6",
+    "integrity": "sha512-Pt02hkaL/PZqAQtSZppM7lqXiZMBVc34za/3Z6cbq6V3MMfCGq3iRtJJmB7PzX/Ff5SEcbywMIlN1fZMmWLZbA==",
+    "kind": "sha-pinned-archive",
+    "provenance": "resources/ui-provenance.json"
+  }
+}

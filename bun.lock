@@ -6,7 +6,7 @@
       "name": "velaros-server",
       "dependencies": {
         "@lydell/node-pty": "1.2.0-beta.15",
-        "@velaros-ai/velaros": "file:./vendor/runtime/velaros-ai-velaros-0.9.2.tgz",
+        "@velaros-ai/velaros": "file:./vendor/runtime/velaros-ai-velaros-0.9.3.tgz",
         "zod": "4.4.3",
       },
       "devDependencies": {
@@ -322,7 +322,7 @@
 
     "@velaros-ai/ui": ["@velaros-ai/ui@./vendor/ui/velaros-ai-ui-1.1.0.tgz", { "dependencies": { "@lezer/highlight": "^1.2.3", "@lezer/javascript": "^1.5.4", "@lezer/json": "^1.0.3", "@phosphor-icons/react": "^2.1.10", "@radix-ui/react-dialog": "^1.1.15", "@radix-ui/react-label": "^2.1.8", "@radix-ui/react-select": "^2.2.6", "@radix-ui/react-separator": "^1.1.8", "@radix-ui/react-slot": "^1.2.4", "@radix-ui/react-switch": "^1.2.6", "@radix-ui/react-tabs": "^1.1.13", "@radix-ui/react-tooltip": "^1.2.8", "@streamdown/cjk": "^1.0.3", "@streamdown/code": "^1.1.1", "@streamdown/math": "^1.0.2", "@streamdown/mermaid": "^1.0.2", "ahooks": "^3.9.7", "class-variance-authority": "^0.7.1", "clsx": "^2.1.1", "prettier": "^3.9.10", "react-day-picker": "^9.14.0", "streamdown": "^2.5.0", "tailwind-merge": "^3.5.0", "type-fest": "^4.41.0" }, "peerDependencies": { "react": "^19.0.0", "react-dom": "^19.0.0" } }, "sha512-Pt02hkaL/PZqAQtSZppM7lqXiZMBVc34za/3Z6cbq6V3MMfCGq3iRtJJmB7PzX/Ff5SEcbywMIlN1fZMmWLZbA=="],
 
-    "@velaros-ai/velaros": ["@velaros-ai/velaros@./vendor/runtime/velaros-ai-velaros-0.9.2.tgz", { "dependencies": { "@ai-sdk/anthropic": "3.0.103", "@ai-sdk/google": "3.0.102", "@ai-sdk/openai": "3.0.89", "@ai-sdk/provider": "3.0.8", "@modelcontextprotocol/sdk": "1.32.1", "@types/json-schema": "7.0.15", "@types/ws": "8.18.1", "@vscode/ripgrep": "1.18.0", "ai": "6.0.237", "ajv": "8.20.0", "diff": "8.0.4", "execa": "9.6.1", "globby": "16.2.4", "gpt-tokenizer": "3.4.0", "iconv-lite": "0.7.3", "picomatch": "4.0.5", "typescript": "5.9.3", "ws": "8.21.3", "zod": "4.6.6" }, "bin": { "velaros-kernel-daemon": "./modules/kernel/bin/velaros-kernel-daemon.mjs" } }, "sha512-pzMDQOCmZUtqaKSCKrn3pnHGYC+j1Pyyevez/vNF5GrvUtFOo6A+gd2jlBCFN2zor1PZXeLrMOpHjuB7TCMZig=="],
+    "@velaros-ai/velaros": ["@velaros-ai/velaros@./vendor/runtime/velaros-ai-velaros-0.9.3.tgz", { "dependencies": { "@ai-sdk/anthropic": "3.0.103", "@ai-sdk/google": "3.0.102", "@ai-sdk/openai": "3.0.89", "@ai-sdk/provider": "3.0.8", "@modelcontextprotocol/sdk": "1.32.1", "@types/json-schema": "7.0.15", "@types/ws": "8.18.1", "@vscode/ripgrep": "1.18.0", "ai": "6.0.237", "ajv": "8.20.0", "diff": "8.0.4", "execa": "9.6.1", "globby": "16.2.4", "gpt-tokenizer": "3.4.0", "iconv-lite": "0.7.3", "picomatch": "4.0.5", "typescript": "5.9.3", "ws": "8.21.3", "zod": "4.6.6" }, "bin": { "velaros-kernel-daemon": "./modules/kernel/bin/velaros-kernel-daemon.mjs" } }, "sha512-4QmjiiPMjHXO1MDn46I8iyVcr6kgmj1k/KaGDV82ImRP3BBR65D6TWng9C5dWaHjypzl6dfoB1T0M2mF+lOA7A=="],
 
     "@vercel/oidc": ["@vercel/oidc@3.2.0", "", {}, "sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug=="],
 

@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。真实 Runtime、网页确认和 Node 执行短链已通过；终端使用同一 Host。最终基础依赖为正式 Platform 0.9.2（tag v0.7.3），原 Windows PTY 停止缺口保留 0.9.1 的单独通过证据。网页使用正式 UI 1.1.0 的基础会话入口，有消息的中文/列表/代码/表格检查通过。[Linux 产品安装验收已通过](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981)，覆盖生产依赖、HTTP、样例文件读写、原生 PTY 和主进程退出；准确源码、产物与证明范围见 docs/verification.md。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。基础依赖固定为正式 Platform 0.9.3（tag v0.7.4），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。真实 Runtime、网页确认与中文/列表/代码/表格的既有证明保持原依赖身份。[历史 Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 对应 Platform 0.9.2 和源码 165139c；当前 0.9.3 的生产制品与安装证明正在生成，准确范围见 docs/verification.md。
 
 本产品不依赖 Cloud 登录或生产服务，不复制 Desktop IPC、People/团队、Workbench 工作区，不新增 Agent 循环或命令执行 Host。
 
@@ -34,7 +34,7 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-已验证的 Linux x64 生产包包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。下载并核对本次 CI 产物：
+历史 Linux x64 生产包使用 Platform 0.9.2，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。以下命令仍对应历史 CI 产物：
 
 ```sh
 gh run download 42581492981 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42581492981 --dir server-download

@@ -2,7 +2,7 @@
 
 组合根按 ADR 0028 消费 `@velaros-ai/velaros/node`、`/execution/local`、`/execution` 与公开合同类型。没有兄弟仓源码导入、私有 dist 路径、能力扩展、旧 workspace 配置或 Host 副本。
 
-最终基础归档为 `vendor/runtime/velaros-ai-velaros-0.9.2.tgz`，SHA-256 `285083f64db4f31869af25d2f8cbd944f82eed8bbea03fa08fb1deaea6fec5b2`，源码 `ae20dcebf5d086d99ff7d8df1701d71a91574efe`，正式 tag v0.7.3。已核本仓字节、归档包名/版本/代际、上游正式 receipt 与 GitHub asset digest。干净发布来源及实际 URL 登记于 `resources/platform-provenance.json`；失效的 v0.7.2 流程没有被当作资产来源。
+当前基础归档为 `vendor/runtime/velaros-ai-velaros-0.9.3.tgz`，SHA-256 `7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59`，源码 `308b3f306f103ba1942b6fd383ab558c441f82f0`，正式 tag v0.7.4。已核本仓字节、归档包名/版本/代际、上游正式 receipt 与 GitHub asset digest。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧 0.9.2 归档及安装回执保持原字节、源码与版本身份。
 
 生产 manifest 与 bun.lock 已切到本仓固定正式基础文件，直接 `bun install --frozen-lockfile`。基础没有 UI 宿主 peer；不安装 capabilities，不从兄弟仓或 `.cache/integration` 解析依赖。早期 no-save 联调脚本已退役。打包前再次核对归档 SHA 和 manifest 指向，最终 UI 同样由本仓固定归档提供。
 

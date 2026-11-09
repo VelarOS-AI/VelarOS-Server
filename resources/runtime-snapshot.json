@@ -3,11 +3,11 @@
   "platformGeneration": "0.7",
   "platform": {
     "name": "@velaros-ai/velaros",
-    "version": "0.9.2",
-    "file": "vendor/runtime/velaros-ai-velaros-0.9.2.tgz",
-    "sourceCommit": "ae20dcebf5d086d99ff7d8df1701d71a91574efe",
-    "sha256": "285083f64db4f31869af25d2f8cbd944f82eed8bbea03fa08fb1deaea6fec5b2",
-    "integrity": "sha512-pzMDQOCmZUtqaKSCKrn3pnHGYC+j1Pyyevez/vNF5GrvUtFOo6A+gd2jlBCFN2zor1PZXeLrMOpHjuB7TCMZig==",
+    "version": "0.9.3",
+    "file": "vendor/runtime/velaros-ai-velaros-0.9.3.tgz",
+    "sourceCommit": "308b3f306f103ba1942b6fd383ab558c441f82f0",
+    "sha256": "7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59",
+    "integrity": "sha512-4QmjiiPMjHXO1MDn46I8iyVcr6kgmj1k/KaGDV82ImRP3BBR65D6TWng9C5dWaHjypzl6dfoB1T0M2mF+lOA7A==",
     "kind": "published-release",
     "provenance": "resources/platform-provenance.json"
   },

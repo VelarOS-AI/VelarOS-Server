@@ -10,7 +10,7 @@ SQLite 只保存产品索引、请求指纹与绑定、序号、事实引用和�
 
 SSE 发送变更引用，网页随后读取最新投影；通知保留 512 条。游标已淘汰时发送 reset。订阅写失败和慢连接只移除网络订阅，不能传播到运行事实路径。EventDelivery 不被当成历史库或 ACK 库。
 
-已按 ADR 0028 固定本仓 vendor 中正式发布的 0.9.2 基础归档，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型设置改变不会热替换正在运行的 Runtime。
+已按 ADR 0028 固定本仓 vendor 中正式发布的 0.9.3 基础归档，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型设置改变不会热替换正在运行的 Runtime。
 
 首版 API：`/api/auth`、`/api/info`、`/api/sessions`、`/api/sessions/:id/inputs|cancel|answers|interaction`、`/api/files`、`/api/files/text`、`/api/settings/model`、`/api/events` 和 `/api/terminal`。JSON 入参在 HTTP 边界校验；网页变更需登录、CSRF 和匹配来源。后端持有模型密钥，前端仅收到 hasApiKey。
 

@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。基础依赖固定为正式 Platform 0.9.3（tag v0.7.4），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。[当前 Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 已通过，制品源码为 19d4261，包含终端重连、审批提交及文件保存保护修复。真实 Runtime、网页确认与中文/列表/代码/表格的既有证明保持原依赖身份，准确范围见 docs/verification.md。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。基础依赖固定为正式 Platform 0.9.3（tag v0.7.4），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。[当前 Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 已通过，制品源码为 19d4261，包含终端重连、审批提交及文件保存保护修复。同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328) 也已通过：产品 HTTP、审批、真实 Node 读写与完成、第二次运行取消及服务关闭后的资源回收。模型使用本地确定性 HTTP 服务，未调用真实供应商。网页确认与中文/列表/代码/表格的既有证明保持原依赖身份，准确范围见 docs/verification.md。
 
 本产品不依赖 Cloud 登录或生产服务，不复制 Desktop IPC、People/团队、Workbench 工作区，不新增 Agent 循环或命令执行 Host。
 

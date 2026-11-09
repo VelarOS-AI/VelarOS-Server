@@ -41,4 +41,10 @@ Platform 0.9.0 的 Ubuntu/Node 24 基础 CI 由 owner 持有；这里不复做�
 
 新产品归档 `velaros-server-0.1.0-linux-x64.tar.gz` 为 40,298,499 bytes，SHA-256 `23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e`。GitHub artifact ID `13668329136`，ZIP 40,236,715 bytes，digest `sha256:4cf4faf51df3ad25beeea439ced9d4b8b18048a027ca5443cea3d2ed314f9a37`，本机下载实算一致。清单源、两份安装回执、基础归档 SHA、服务及网页入口哈希一致，清单 12,439 文件，包含 LICENSE，生产依赖没有 UI/React/Electron/capabilities，也没有携带旧 0.9.2 vendor。精简持久证明为 [evidence/linux-install-19d4261.json](evidence/linux-install-19d4261.json)。
 
-该轮真实安装验证 HTTP 登录与静态网页、文件读取/修改及模式保留、原生 PTY 实际输出、按原 taskId 停止并观察 exited、主服务 SIGTERM 自然退出码 0。权限模式为 danger-full-access；供应商 API、Agent 整链、bubblewrap、systemd 及真实生产部署未实测。后续证据提交只更新文档与该回执，归档仍准确对应上述构建源，不改称证据提交本身的产物。原 165139c/0.9.2 的归档和回执保持不变。
+该轮真实安装验证 HTTP 登录与静态网页、文件读取/修改及模式保留、原生 PTY 实际输出、按原 taskId 停止并观察 exited、主服务 SIGTERM 自然退出码 0。权限模式为 danger-full-access；该安装轮次没有执行供应商 API、Agent 整链、bubblewrap、systemd 或真实生产部署。后续证据提交只更新文档与该回执，归档仍准确对应上述构建源，不改称证据提交本身的产物。原 165139c/0.9.2 的归档和回执保持不变。
+
+同一 19d4261 / Platform 0.9.3 安装包的独立 [Agent 整链 run 42610262328](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328) 于 2026-11-09 19:35:50（北京时间）完成，测试正文约 2 秒，通过。验证脚本源为 `b2e791be69ee19bd0aeb1fdcbee0f3d28cffe025`；先核对原 artifact ZIP 与生产归档的 SHA，再直接运行原编译入口，没有重装依赖、重建网页或重新打包。精简持久证明见 [evidence/agent-chain-19d4261.json](evidence/agent-chain-19d4261.json)。
+
+一个真实产品 HTTP 会话中先后运行两条任务。第一条通过原审批身份授权，真实 Foundation Agent/Kernel 启动 Node 写入并读回文件，实际工具结果经本地 HTTP/SSE 模型服务返回真实 `done`，进入 completed。第二条再次审批，真实 Node 启动等待程序，产品取消接口受理后观察到 cancelled。模型共收到 3 次请求，产品 SSE 观察到 26 次变化。随后 SIGTERM 产品，等待实际 child close、退出码 0，并核对所记录的自有 Node 进程身份全部消失，最后关闭模型服务与订阅、移除临时目录。取消受理与 cancelled 不单独视为进程已回收；资源关闭结论来自 Host/服务关闭后的独立检查。
+
+此独立用例仅以确定性本地模型 HTTP 服务替代供应商，产品 HTTP、审批、Agent/Kernel、Node 执行、完成/取消状态与资源关闭均走真实安装包。仍未验证真实供应商 API、网页交互、bubblewrap、systemd 或生产部署。此前首次尝试 `42610108736` 因验证脚本缺少 `tmpdir` 导入，在 Server/Agent 启动前失败；只修复该脚本导入后补原用例，没有改变产品或依赖。

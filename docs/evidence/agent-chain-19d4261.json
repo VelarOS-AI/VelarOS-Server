@@ -1,0 +1,59 @@
+{
+  "artifactSourceCommit": "19d426196d43238f38d83ae1c3712438e1b0fd48",
+  "foundationVersion": "0.9.3",
+  "foundationSha256": "7e65c6627a046aecc937e13b0442cd14dcf3e323bc583147eae8b0b072f0ca59",
+  "platform": "linux",
+  "node": "24.22.0",
+  "modelProtocol": "local-openai-compatible-chat-http-sse",
+  "modelRequests": 3,
+  "productHttpSession": true,
+  "approvalRoundTrips": 2,
+  "distinctRunIds": true,
+  "agentKernel": true,
+  "realNodeReadWrite": true,
+  "modelObservedRealToolResult": true,
+  "completed": true,
+  "cancelRequestAccepted": true,
+  "cancelledStateObserved": true,
+  "sseChanges": 26,
+  "providerApi": false,
+  "artifactRebuilt": false,
+  "dependenciesReinstalled": false,
+  "confinement": "danger-full-access",
+  "productionDeployed": false,
+  "ownedNodeProcessesObserved": 1,
+  "ownedNodeResourcesClosedAfterHostClose": true,
+  "serverExitCode": 0,
+  "serverCloseConfirmed": true,
+  "consumedArtifact": {
+    "sourceCommit": "19d426196d43238f38d83ae1c3712438e1b0fd48",
+    "installationRunId": 42607896603,
+    "artifactId": 13668329136,
+    "archiveBytes": 40298499,
+    "archiveSha256": "23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e",
+    "zipSha256": "4cf4faf51df3ad25beeea439ced9d4b8b18048a027ca5443cea3d2ed314f9a37",
+    "bothChecksumsVerifiedBeforeExtraction": true
+  },
+  "validation": {
+    "sourceCommit": "b2e791be69ee19bd0aeb1fdcbee0f3d28cffe025",
+    "runId": 42610262328,
+    "runUrl": "https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328",
+    "jobId": 129136556130,
+    "conclusion": "success",
+    "completedAt": "2026-11-09T11:35:50Z",
+    "caseDurationSeconds": 2,
+    "artifactId": 13668619557,
+    "downloadedReceiptSha256": "0c4992689a0507f5344c8d22966317c145c3dfeadcffc106bd9f01fd7a214e9b",
+    "priorHarnessFailure": {
+      "runId": 42610108736,
+      "reason": "Missing tmpdir import; failed before Server or Agent startup"
+    }
+  },
+  "limits": {
+    "realSupplier": false,
+    "uiInteractionRepeated": false,
+    "systemd": false,
+    "bubblewrap": false,
+    "cancellationReceiptAloneIsProcessClose": false
+  }
+}

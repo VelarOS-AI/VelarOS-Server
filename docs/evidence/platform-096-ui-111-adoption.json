@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "kind": "server-final-formal-adoption",
+  "checkedAt": "2026-11-10T02:21:25.301Z",
+  "productBaselineCommit": "04c6a96665ba009e52525dd885aff09b945ffd7c",
+  "dependencies": {
+    "schemaVersion": 1,
+    "platformGeneration": "0.7",
+    "platform": {
+      "name": "@velaros-ai/velaros",
+      "version": "0.9.6",
+      "file": "vendor/runtime/velaros-ai-velaros-0.9.6.tgz",
+      "sourceCommit": "eb6b7310aafe3e788f5131c304c2c727372e5268",
+      "sha256": "de2a4ae3b11f93abb5ce66516007c3234037cde0ba5c2a8f47be9f8825f82726",
+      "integrity": "sha512-9JjgO9rBGns2O7ZWh4K4KAJS93GLsaYuApT8Vl5sZvD1s5C+YgXi9TY/DpNKApS+TeuWpg7EwRjCXmXQfM/2DA==",
+      "kind": "published-release",
+      "provenance": "resources/platform-provenance.json"
+    },
+    "ui": {
+      "name": "@velaros-ai/ui",
+      "version": "1.1.1",
+      "file": "vendor/ui/velaros-ai-ui-1.1.1.tgz",
+      "sourceCommit": "c6c89b13c9ffbe47bcdaf375765b4ac4a6a235ab",
+      "sha256": "2e4134f72adb1088cfad51eb47753bc73aaf30f079d1fa1153f67bfc8cc2e8c3",
+      "integrity": "sha512-L0EkP+qfKa3cQjPL1ueJ44FI7VX9TaCwoFyo/b1OC4hY65wv/UX/RxEwJQB3D70JpvSOM63el4gcGKXW8HPOkA==",
+      "kind": "published-release",
+      "provenance": "resources/ui-provenance.json"
+    }
+  },
+  "productionDependencyPolicy": {
+    "directVerifiedVendorArchives": true,
+    "overrides": false,
+    "localLinks": false,
+    "capabilitiesInstalled": false,
+    "thirdPartyLockUnchanged": true
+  },
+  "source": {
+    "server": "5e35a007904375ec8df6aba4f11af750461f801152c5c2f75d4f304e91043296",
+    "web": "32cee01e2e44a422e63efce5df289ab756944af8d7f7b0d1072855eeede5ca51",
+    "platformSeamSha256": "1c2a17980e4eaba4d56e2f14429ddb36bc537b9160365f1453ceaadb6e932620"
+  },
+  "validation": {
+    "command": "public-entry-check; node scripts/verify.mjs server-types web-types platform-seam web-build",
+    "exitCode": 0,
+    "startedAt": "2026-11-10T02:08:54.9905496+00:00",
+    "durationMs": 22085.8671,
+    "serverStrictTypes": true,
+    "webStrictTypes": true,
+    "publicEntries": {
+      "foundation": "0.9.6",
+      "ui": "1.1.1",
+      "archiveHashes": true,
+      "installedVersions": true,
+      "nodePublicImports": true,
+      "uiEntryTargets": [
+        "conversation/basic",
+        "conversation/composer",
+        "product/layout/AppShell",
+        "styles/components/conversation-basic.css",
+        "styles/tokens/theme-light.css"
+      ],
+      "capabilitiesInstalled": false,
+      "node": "24.22.0",
+      "platform": "win32"
+    },
+    "runtimeProof": {
+      "input": true,
+      "observationSupport": {
+        "available": false,
+        "reason": "进程约束模式“read-only”在当前 win32 宿主不可用，已拒绝以裸进程继续执行。"
+      },
+      "historySelection": true,
+      "historyExecuted": false,
+      "nextTurnDynamicHistory": true,
+      "completeNativeExchangeInDynamicTail": true,
+      "officialRequestEncoder": true,
+      "selectionConsumedOnce": true,
+      "approval": true,
+      "nodeFile": true,
+      "completed": true,
+      "modelCalls": 3,
+      "host": "win32",
+      "node": "24.22.0",
+      "runtimeHostClosed": true,
+      "providerApi": false,
+      "readOnlyCaptureTested": false,
+      "linuxInstallRepeated": false,
+      "webBuildRepeated": false
+    },
+    "runtimeTestMs": 2082.1078,
+    "runtimeRunnerMs": 4091.5587
+  },
+  "build": {
+    "validatedSource": {
+      "web": {
+        "fingerprint": "1e9756bbfae1055a34d6b75608be52871526f1ae014ae355aaae5316c7bf0eb3",
+        "passedAt": "2026-11-10T02:09:17.062Z"
+      },
+      "server": {
+        "fingerprint": "0f9a0ae818fd12288c4e3100dce7aa332a5773a318c3a7a40ca5ccbc7446952a",
+        "passedAt": "2026-11-10T02:09:06.389Z"
+      }
+    },
+    "finalMetadataChange": "Removed the redundant development-only override per user instruction; ordinary dependency sources, installed versions and package graph are unchanged. Retained green types, Runtime and web build.",
+    "webFiles": [
+      {
+        "path": "assets/babel-BaOs8qJH.js",
+        "bytes": 315988,
+        "sha256": "26cb2fa36ab55d18f1b3615d63d3d8d5b1ba5b6cfae8c95f21444ba922f596d0"
+      },
+      {
+        "path": "assets/clsx-XxiTmSaO.js",
+        "bytes": 8933,
+        "sha256": "181c7b1595b2eeb95bf25cff39b65340450eca6e99ed1ddbf6922bc808c21207"
+      },
+      {
+        "path": "assets/estree-Cw-tQG5d.js",
+        "bytes": 210376,
+        "sha256": "6e1383f1d2c19bfafb2c0c896c69af2add7f0d71bb1ad32514d0381be32d1462"
+      },
+      {
+        "path": "assets/executionStepTokenize-DdBK8TXv.js",
+        "bytes": 133304,
+        "sha256": "f35d00eadd7f0fa8ed35ecff7d05ff7234d5fb8d1f84b83c6538b8b583fc8762"
+      },
+      {
+        "path": "assets/highlighted-body-JLMTFACH-stA-Fdyp.js",
+        "bytes": 615,
+        "sha256": "2a2d1f64e0671d06b0827fc37fab236e5c3fc4e22aa98554ba39d93a70bddf98"
+      },
+      {
+        "path": "assets/index-CmsHcUJG.css",
+        "bytes": 276101,
+        "sha256": "ddfaeabfbbb5cac434c4cdf91547e32df25eac9f10b3b6c24569f928ad9f4ea6"
+      },
+      {
+        "path": "assets/index-DWH-lxN7.js",
+        "bytes": 1131908,
+        "sha256": "58fb47d185d197bfcbc2fe321daf54435a0aa03bc666088bf422b8b311d28b8a"
+      },
+      {
+        "path": "assets/mermaid-WFAXDIZX-BfOboBLn.js",
+        "bytes": 62,
+        "sha256": "f1941006645191d73b3455305faeac52ad311f7532b1b6e0d129435888477f95"
+      },
+      {
+        "path": "assets/MessageMarkdownBlocks-hkg_ghfw.js",
+        "bytes": 502139,
+        "sha256": "b0fbfc14f4ba1fac5ecd0738b82bef465ec75913eeb25d55dafdb9747e88e572"
+      },
+      {
+        "path": "assets/PlanToolRender-BNwQlWSF.css",
+        "bytes": 8179,
+        "sha256": "7f78298c29516ffac68a92e24d3431b8786d15e3525aad4053b0a2681e3fece9"
+      },
+      {
+        "path": "assets/PlanToolRender-CwatQS6T.js",
+        "bytes": 12246,
+        "sha256": "1ffcc7d648fbd3c1118b1a5ef8f12d1196c20ae7c2c2f97c87479e2e0ea36765"
+      },
+      {
+        "path": "assets/runtime-CHifRNzd.js",
+        "bytes": 4525,
+        "sha256": "93aab2b6f99238bb0a67121a564e2fa41943a250c3830b1c561c4cfda87b724f"
+      },
+      {
+        "path": "assets/standalone-YobQElH8.js",
+        "bytes": 80983,
+        "sha256": "4a1555f28dc980bfbf7444249a5be3e9bca04beda1f6736ac3d8124365d2bf2b"
+      },
+      {
+        "path": "assets/Terminal-BrP-ENHg.css",
+        "bytes": 3939,
+        "sha256": "0e5386f16cb4be78a2fe911e014a810da76ea2db47d8c8b2a966516b2fd5270b"
+      },
+      {
+        "path": "assets/Terminal-Bz-kVvJ-.js",
+        "bytes": 334837,
+        "sha256": "6afbe4dd84e467b453d3e810b906b5182aeaece319ef8b44c0d4688bae667024"
+      },
+      {
+        "path": "index.html",
+        "bytes": 602,
+        "sha256": "d33c6562d8d4abb2be1717e8bf7117b7546412d43f664227d66fef2ca8bdb051"
+      }
+    ],
+    "webBytes": 3024737,
+    "serverMainSha256": "f7c7a36e77c1d0270a343a49d7754047e155ee9502138a5b684fe21c833fc1fc"
+  },
+  "browser": {
+    "isolated": true,
+    "login": true,
+    "pages": ["conversation", "files", "terminal", "settings"],
+    "sampleFileRead": true,
+    "chineseListCodeTable": true,
+    "errors": [],
+    "screenshot": {
+      "path": ".cache/latest-adoption/server-ui-111.jpg",
+      "sha256": "33153a27f28870517d896de96cc543690a79485de5f3599691ef238892910dd6"
+    },
+    "terminalProcessStarted": false,
+    "supplierCredentialsConfigured": false
+  },
+  "fixtureClose": {
+    "command": "node .cache/latest-adoption/browser-fixture.mjs --close-check",
+    "exitCode": 0,
+    "startedAt": "2026-11-10T02:17:26.7611569+00:00",
+    "durationMs": 4299.0161,
+    "applicationClosed": true,
+    "runtimeHostEnvironmentClosed": true,
+    "naturalExitCode": 0,
+    "initialBrowserFixtureControl": "stdin was closed by the command transport; only the verified disposable fixture PID was terminated. No graceful-close proof claimed for that first fixture. Added a self-closing harness mode and repeated only HTTP/static startup plus resource close."
+  },
+  "limits": {
+    "providerApi": false,
+    "readOnlyCapture": false,
+    "newLinuxProductInstall": false,
+    "productionPackageBuilt": false,
+    "productionDeployed": false,
+    "fullRegressionRepeated": false
+  },
+  "retainedEvidence": [
+    "docs/evidence/linux-install-19d4261.json",
+    "docs/evidence/agent-chain-19d4261.json",
+    "docs/evidence/platform-094-seam.json",
+    "docs/evidence/platform-095-adoption.json"
+  ]
+}

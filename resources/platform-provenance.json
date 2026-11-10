@@ -1,39 +1,40 @@
 {
   "kind": "verified-published-release",
   "frozen": true,
-  "version": "0.9.5",
+  "version": "0.9.6",
   "platformGeneration": "0.7",
-  "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
+  "sourceCommit": "eb6b7310aafe3e788f5131c304c2c727372e5268",
   "source": {
-    "commitTree": "7dad6ddcd24a6f1e33fc6a4f7cb0fe99ae53707b",
-    "tag": "v0.7.6",
-    "tagObject": "87fb641763c6cadb960293a8533bd4fa5f3bc802"
+    "commitTree": "96a954c14967879b86fa8824af9e9a82dec628d1",
+    "tag": "v0.7.7",
+    "tagObject": "697c7bd074d3b830d807f272c910c1c2e3bee15e"
   },
   "archive": {
     "name": "@velaros-ai/velaros",
-    "version": "0.9.5",
-    "file": "vendor/runtime/velaros-ai-velaros-0.9.5.tgz",
-    "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
-    "sha256": "8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b",
-    "integrity": "sha512-UZDd12Vw52+pFUSxAGVodf/91vuEBjXZobQmtW0Uc/Sx0D+dzrmBLzv9wT0S36lBi71zysl1EgqF3DPefpGepg==",
+    "version": "0.9.6",
+    "file": "vendor/runtime/velaros-ai-velaros-0.9.6.tgz",
+    "sourceCommit": "eb6b7310aafe3e788f5131c304c2c727372e5268",
+    "sha256": "de2a4ae3b11f93abb5ce66516007c3234037cde0ba5c2a8f47be9f8825f82726",
+    "integrity": "sha512-9JjgO9rBGns2O7ZWh4K4KAJS93GLsaYuApT8Vl5sZvD1s5C+YgXi9TY/DpNKApS+TeuWpg7EwRjCXmXQfM/2DA==",
     "kind": "published-release",
     "provenance": "resources/platform-provenance.json",
-    "bytes": 2256421
+    "bytes": 2265408
   },
-  "ownerReceiptSha256": "38a4e45a6f4a831cbab596bd667ebe753f333629344501042f554767fa939c11",
+  "ownerReceiptSha256": "41db5e41612595b1760294e5a3f902adf447d5028479fbead39a162f99f0b7ad",
   "publication": {
     "published": true,
-    "tag": "v0.7.6",
-    "version": "0.9.5",
-    "publishedAt": "2026-11-09T16:43:49Z",
-    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/velaros-ai-velaros-0.9.5.tgz",
-    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.6",
-    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/42657223815",
-    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/release-manifest.json",
-    "manifestSha256": "e2dda9fe98e382026d67bd5b2dc091f1a31ed860137a403aed1fd95766a4dfd1",
-    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.6/release-validation.json",
-    "sha256": "8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b",
-    "sourceCommit": "70e93a2b8c020ad7509a9fb2d8eb3f7a754664a7",
+    "tag": "v0.7.7",
+    "version": "0.9.6",
+    "publishedAt": "2026-11-10T02:03:15Z",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.7/velaros-ai-velaros-0.9.6.tgz",
+    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.7",
+    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/42739768527",
+    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.7/release-manifest.json",
+    "manifestSha256": "ed958f2abd98f640f6ac7b418379c39a2e84da9be78cecacee67539d3217c27c",
+    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.7/release-validation.json",
+    "validationSha256": "94e4a656e85cdc8ab412425e77fafc2495415be48dd073d931218e1fa3233986",
+    "sha256": "de2a4ae3b11f93abb5ce66516007c3234037cde0ba5c2a8f47be9f8825f82726",
+    "sourceCommit": "eb6b7310aafe3e788f5131c304c2c727372e5268",
     "githubTargetMatchesSourceCommit": true,
     "githubAssetDigestMatches": true,
     "downloadedArchiveHashMatches": true
@@ -46,7 +47,19 @@
     "linuxNewPty": false,
     "foundationNodeEnvironmentQuery": true
   },
+  "consumerPolicy": {
+    "directVerifiedVendorArchive": true,
+    "overrides": false,
+    "capabilitiesInstalled": false,
+    "evidence": "docs/evidence/platform-096-ui-111-adoption.json"
+  },
   "retainedConsumerEvidence": {
+    "server095": {
+      "sourceCommit": "fc32f883fc538b29fa219f91eb0981e7d9687d16",
+      "foundationVersion": "0.9.5",
+      "foundationSha256": "8d8bc25d98bda5ab207c6bae05151922df77c23d1494a6e5cab17273d3db3b2b",
+      "evidence": "docs/evidence/platform-095-adoption.json"
+    },
     "windowsTerminal": {
       "foundationVersion": "0.9.1",
       "foundationSha256": "7845f1e6c90fd93f90faf8d5c52203a7110580054365419acb1c38d72d0e93c2",

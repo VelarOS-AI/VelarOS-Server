@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前源码的基础依赖固定为正式 Platform 0.9.5（tag v0.7.6），只安装基础包；网页继续使用 UI 1.1.0 的基础会话入口。[本次归档身份与严格类型验收](docs/evidence/platform-095-adoption.json)通过，产品装配源码与 fixture 未改。保留 [0.9.4 真实消费接缝](docs/evidence/platform-094-seam.json)的原身份：产品 HTTP 输入、observe 历史选择及下一轮动态交付、审批、真实 Node 写入与外部读取核对、完成及 Runtime/Host 关闭。该接缝只替代外部模型，未执行只读采集；0.9.5 本轮没有重跑 Agent 或构建网页。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前固定正式 Platform 基础 0.9.6（tag v0.7.7）与 UI 1.1.1，不安装 capabilities；普通依赖直接指向本仓已验真正式归档，正式清单不使用 override。[本次实际接入证据](docs/evidence/platform-096-ui-111-adoption.json)记录严格类型、公开入口、真实 HTTP/审批/Node 写入与关闭、一次网页构建，以及隔离浏览器登录、四入口和基础消息展示。仅以确定性模型替代外部供应商，没有生产部署或重新生成 Linux 制品。
 
 既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 

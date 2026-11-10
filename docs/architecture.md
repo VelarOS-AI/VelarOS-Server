@@ -1,6 +1,6 @@
 # Server 产品边界与当前接入状态
 
-Server 管理本机单 Host；网页四入口是对话、文件、终端、设置。它不持有 Desktop People/团队、Workbench 工作区或 Desktop IPC。UI 固定消费公开 v1.1.0 同字节归档及基础会话入口，来源与 SHA 登记于 `resources/runtime-snapshot.json` 和 `resources/ui-provenance.json`。
+Server 管理本机单 Host；网页四入口是对话、文件、终端、设置。它不持有 Desktop People/团队、Workbench 工作区或 Desktop IPC。UI 固定消费正式 v1.1.1 归档及基础会话入口，来源与 SHA 登记于 `resources/runtime-snapshot.json` 和 `resources/ui-provenance.json`。正式依赖直接声明固定归档，不使用 override 或本地 link。
 
 `ExecutionPort` 是产品到 Platform 适配器的窄边界。`platform-composition.ts` 创建一个公开 LocalShellHost，同时注入 Node Runtime 和 HostTerminal；环境和 Host 归产品，模型循环、执行事实和进程生命周期归底座。Runtime 真正关闭后才释放 Host。没有创建第二个命令执行器。
 

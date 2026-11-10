@@ -2,6 +2,14 @@
 
 2026-11-10 更新。区分产品协议、真实底座链与发行验收，不互相替代。
 
+当前最终接入为正式 Platform 基础 0.9.6 / v0.7.7 与 UI 1.1.1 / v1.1.1。两份官方归档独立下载，核对 SHA-256、SHA-512、字节、tag 源提交及上游 receipt；普通依赖直接指向本仓固定归档，正式 package/lock 均无 override、link 或 capabilities。第三方 lock 和两包各自的依赖/peer 未变，因此没有触发新的 Linux 安装闭包验证。
+
+本次在原共享锁下一次执行公开入口、Server/Web 严格类型、既有真实 `platform-seam` 与一次网页构建，22,085.87 ms，全部通过。接缝正文 2,082.11 ms、Node runner 4,091.56 ms；真实产品 HTTP 受理、历史选择与下一轮 dynamic 交付、审批、实际 Node 写入及外部读取核对、completed 和 Runtime/Host 关闭通过，模型只有确定性驱动替代供应商。Windows read-only 后端仍明确不可用，没有采集源码或裸进程回落。
+
+新构建网页在独立数据目录和 loopback 端口的 Node 产品装配中实际启动，隐藏 IAB 登录、四入口、样例配置读取及中文/列表/代码/表格均核对；浏览器 error 日志为空，没有设置供应商密钥或启动手动终端进程。当前静态总产物 16 文件、3,024,737 bytes，记录实际文件哈希；该数不是首屏下载量。
+
+首次网页 fixture 的命令 stdin 未保持开放，只结束了已核对 PID/命令行的一次性进程，不据此宣称正常收尾。临时 harness 增加自行关闭模式后，仅补 HTTP/静态网页与关闭步骤，4,299.02 ms，应用、Host、环境关闭并自然退出码 0。期间按用户新规则移除冗余 override，普通依赖再次安装后身份与第三方 lock 不变，仅复核实际公开入口；已绿类型、Runtime 和网页检查保留，不重复构建。精确身份、源码/构建指纹、图片哈希、实际回执及该范围差别见 [evidence/platform-096-ui-111-adoption.json](evidence/platform-096-ui-111-adoption.json)。以下历史证据保持各自原身份；本次没有生产打包、供应商 API、systemd、生产部署或旧 Linux/PTY 矩阵。
+
 - 四个轻量产品边界场景一次通过，Node 24.22.0，约 566 ms：SQLite、HTTP/SSE、文件路径与冲突、请求去重和未知状态。执行端口为测试注入；结果保留，不重复。
 - Server 严格类型/编译和 Web 严格类型通过，`strict=true`、`skipLibCheck=false`。Server 添加 DOM 声明以消费供应商 HTTP 类型；未启用额外的 exactOptionalPropertyTypes 模式，该模式暴露了 ai 依赖自身的声明错误，没有用 skipLibCheck 掩盖。
 - 随后修正模型协议接线：显式区分 OpenAI Responses 与兼容 Chat Completions，使用现有 UI Select 和底座适配器。只补 Server/Web 类型，两项通过；未重复 Agent 绿项或网页构建。当前协议选项与后续固定依赖将在最终交付窗口合并构建，现有网页产物不冒称包含这项后续改动。

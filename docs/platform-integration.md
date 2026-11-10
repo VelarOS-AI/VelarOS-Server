@@ -2,9 +2,9 @@
 
 组合根按 ADR 0028 消费 `@velaros-ai/velaros/node`、`/execution/local`、`/execution` 与公开合同类型。没有兄弟仓源码导入、私有 dist 路径、能力扩展、旧 workspace 配置或 Host 副本。
 
-当前基础归档为 `vendor/runtime/velaros-ai-velaros-0.9.6.tgz`，SHA-256 `de2a4ae3b11f93abb5ce66516007c3234037cde0ba5c2a8f47be9f8825f82726`，源码 `eb6b7310aafe3e788f5131c304c2c727372e5268`，正式 tag v0.7.7。安装前独立下载并核本仓字节、归档包名/版本/代际、空 peer、上游正式 manifest/receipt 与 GitHub asset digest。基础和 UI 的第三方依赖、peer 与原固定版本分别相同，未扩大生产闭包。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧归档、安装和 Agent 回执保持原字节、源码与版本身份。
+当前基础归档为正式 0.9.7 / tag v0.7.8，本仓核验副本为 `vendor/runtime/velaros-ai-velaros-0.9.7.tgz`，SHA-256 `d4f3e502eb59e4a3d42e5ca66a8aa55d3da06586e7ce79e699644cdbe51a9d69`，源码 `30982bfc1ae92912aa734ea5be2acf01687d87ed`。安装前独立下载并核本仓字节、归档包名/版本/代际、空 peer、上游正式 manifest/receipt 与 GitHub asset digest。基础和 UI 的第三方依赖、peer 与上一固定版本分别相同，未扩大生产闭包。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧归档、安装和 Agent 回执保持原字节、源码与版本身份。
 
-生产 manifest 与 bun.lock 直接声明本仓固定正式基础文件，UI 直接声明固定正式构建归档，不使用 override、数字版本映射或本地 link。安装使用 `bun install --frozen-lockfile`。基础没有 UI 宿主 peer；不安装 capabilities，不从兄弟仓或 `.cache/integration` 解析依赖。早期 no-save 联调脚本已退役。打包前再次核对归档 SHA 和 manifest 指向。
+生产 manifest 与 bun.lock 直接声明基础和 UI 的固定官方 GitHub Release 归档 URL；vendor 文件是核验副本，不参与依赖解析。产品清单和两份发布包均无 overrides/resolutions，不使用数字版本映射或本地 link。安装使用 `bun install --frozen-lockfile`。基础没有 UI 宿主 peer；不安装 capabilities，不从兄弟仓或 `.cache/integration` 解析依赖。早期 no-save 联调脚本已退役。打包前再次核对归档 SHA 和 manifest 的正式 URL。
 
 一个 ShellEnvironment 和一个 LocalShellHost 同时供 Node 执行和交互终端使用。Host 注入 Node 装配后仍归 Server；先 Runtime.close，再 Host.dispose，再环境释放。close 失败保留资源所有权，不把退出期限当作真实回收。状态目录必须在执行 cwd 之外。
 
@@ -18,7 +18,7 @@ Server 将 `createLocalShellHost()` 的真实实例直接交给 `createNodeRunti
 
 Server 早期真实 Node/网页确认绿项保留于 0.9.0 原身份。0.9.1 原终端失败路径的 PID 对齐、实际输出、停止、exited 和 Node 自然退出通过证据保留。0.9.2 的实际增量为通用只读 trace，未以此重复 Agent、Windows PTY 或网页场景。基础 Linux 证明沿用 owner 原单轮；Server 最终 0.9.2 的独立生产安装、HTTP、文件读写、原生 PTY 输出/停止/exited 和主 SIGTERM 零退出码已在本仓 [run 42581492981](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 通过。systemd 与真实供应商 API 不在本轮证明内。
 
-UI 已切到本仓固定的正式 v1.1.1 归档，公开入口、props、样式和依赖合同保持不变，无需产品迁移。聊天从 `@velaros-ai/ui/conversation/basic` 消费同一 ChatConversationPane，使用配套 conversation-basic.css；AppShell、Input/Button、Select 与 Composer 继续用已有公开入口。显式挂载公开 ConversationBlockHooksProvider 与中立 hooks，避免仅空会话可用、有消息时因漏装配崩溃。终端 xterm 按页加载，不修改库或复制渲染器。
+UI 已切到正式 v1.1.2 官方归档，公开入口、props、样式和依赖合同保持不变，无需产品迁移。聊天从 `@velaros-ai/ui/conversation/basic` 消费同一 ChatConversationPane，使用配套 conversation-basic.css；AppShell、Input/Button、Select 与 Composer 继续用已有公开入口。显式挂载公开 ConversationBlockHooksProvider 与中立 hooks，避免仅空会话可用、有消息时因漏装配崩溃。终端 xterm 按页加载，不修改库或复制渲染器。
 
 此前 0.9.3 的独立 Linux 产品安装已在 [run 42607896603](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 通过，制品源为 `19d426196d43238f38d83ae1c3712438e1b0fd48`，包括此前 2eb7622 的全部服务与网页修复。网页仅在该 Linux 轮次冷构建一次；原 UI 交互、Agent 与 Windows PTY 证明未重跑、未重标为新归档执行。此次证明覆盖生产安装、HTTP、文件读写及模式、原生 PTY 输出/停止/exited 和主服务 SIGTERM 零退出码；精确摘要见 `docs/evidence/linux-install-19d4261.json`。provenance 中的 `linuxProductInstall: false` 记录相应依赖采用时的状态，不替代独立产品回执。
 
@@ -30,4 +30,6 @@ UI 已切到本仓固定的正式 v1.1.1 归档，公开入口、props、样式�
 
 此前 UI 1.1.0 的有消息场景已核对中文、列表、普通代码与表格，浏览器无新错误。该轮静态总产物从 404 文件、16,029,876 bytes 变为 16 文件、3,020,832 bytes，减少 81.15%；这是原身份下的总产物，不是首屏下载。
 
-0.9.6 与 UI 1.1.1 的最终接入只消费公开正式归档。实际入口、严格声明、HTTP/审批/真实 Node 文件/关闭、当前网页构建及隔离浏览器效果见 `docs/evidence/platform-096-ui-111-adoption.json`；没有复制底座或 UI 内部修复。旧 Linux 制品没有重建或重标。
+此前 0.9.6 与 UI 1.1.1 的接入只消费公开正式归档。实际入口、严格声明、HTTP/审批/真实 Node 文件/关闭、网页构建及隔离浏览器效果见 `docs/evidence/platform-096-ui-111-adoption.json`；没有复制底座或 UI 内部修复。旧 Linux 制品没有重建或重标。
+
+最终 0.9.7 / UI 1.1.2 仅改变发行元数据和根说明文档。逐文件核验基础 2,668 个文件、UI 1,464 个文件，运行代码、声明、样式及其余资源均相同，第三方 lock 内容未变。普通安装、冻结安装及现有产品编译入口的外部 SDK 身份检查一次通过，约 19.96 秒；实际基础实例只有一个。现有网页 16 个文件及 Server 主入口哈希保持不变，保留前一版本的类型/HTTP/网页证明，不重建或重播。最终 URL、哈希、比较与安装记录见 `docs/evidence/platform-097-ui-112-adoption.json`。

@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前固定正式 Platform 基础 0.9.6（tag v0.7.7）与 UI 1.1.1，不安装 capabilities；普通依赖直接指向本仓已验真正式归档，正式清单不使用 override。[本次实际接入证据](docs/evidence/platform-096-ui-111-adoption.json)记录严格类型、公开入口、真实 HTTP/审批/Node 写入与关闭、一次网页构建，以及隔离浏览器登录、四入口和基础消息展示。仅以确定性模型替代外部供应商，没有生产部署或重新生成 Linux 制品。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前固定正式 Platform 基础 0.9.7（tag v0.7.8）与 UI 1.1.2，不安装 capabilities；普通依赖直接声明官方归档 URL，产品清单和两份发布包均无 overrides/resolutions。本仓 vendor 保留核对过的同字节归档。[最终接入证据](docs/evidence/platform-097-ui-112-adoption.json)记录普通安装、冻结安装和现有编译入口实际解析到新 SDK。新包仅发行元数据及根说明文档变化，运行代码、声明、资源和第三方依赖未变，因此保留 [0.9.6 / UI 1.1.1 的类型、真实 HTTP/审批/Node 写入与关闭、网页构建及浏览器验证](docs/evidence/platform-096-ui-111-adoption.json)，没有重跑或改写其原身份。模型验证使用确定性驱动，没有生产部署或重新生成 Linux 制品。
 
 既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 
@@ -12,7 +12,7 @@
 
 ## 本地运行
 
-需要 Node.js 24.22 或更新版本、Bun 1.4.3。基础 Runtime 由本仓 vendor 固定归档提供，生产依赖和当前 UI 由 bun.lock 固定，身份见 `resources/runtime-snapshot.json`。安装不需要兄弟仓源码或临时联调路径。
+需要 Node.js 24.22 或更新版本、Bun 1.4.3。基础 Runtime 与 UI 从固定的官方 GitHub Release 归档安装，依赖由 bun.lock 锁定；URL、哈希与本仓核验副本见 `resources/runtime-snapshot.json`。首次安装需要下载正式依赖，不需要兄弟仓源码或临时联调路径。
 
 ```powershell
 bun install --frozen-lockfile
@@ -40,7 +40,7 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。0.9.4/0.9.5 源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
+已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。后续至 0.9.7 的源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
 
 ```sh
 gh run download 42607896603 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42607896603 --dir server-download

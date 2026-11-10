@@ -28,14 +28,14 @@
   },
   "dependencies": {
     "@lydell/node-pty": "1.2.0-beta.15",
-    "@velaros-ai/velaros": "file:./vendor/runtime/velaros-ai-velaros-0.9.6.tgz",
+    "@velaros-ai/velaros": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.8/velaros-ai-velaros-0.9.7.tgz",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/node": "24.10.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.3",
-    "@velaros-ai/ui": "file:./vendor/ui/velaros-ai-ui-1.1.1.tgz",
+    "@velaros-ai/ui": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.2/velaros-ai-ui-1.1.2.tgz",
     "@vitejs/plugin-react": "6.1.1",
     "@xterm/addon-fit": "0.11.0",
     "@xterm/xterm": "6.0.0",

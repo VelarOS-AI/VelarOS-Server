@@ -2,11 +2,13 @@
 
 2026-11-10 更新。区分产品协议、真实底座链与发行验收，不互相替代。
 
-当前最终接入为正式 Platform 基础 0.9.6 / v0.7.7 与 UI 1.1.1 / v1.1.1。两份官方归档独立下载，核对 SHA-256、SHA-512、字节、tag 源提交及上游 receipt；普通依赖直接指向本仓固定归档，正式 package/lock 均无 override、link 或 capabilities。第三方 lock 和两包各自的依赖/peer 未变，因此没有触发新的 Linux 安装闭包验证。
+当前最终接入为正式 Platform 基础 0.9.7 / v0.7.8 与 UI 1.1.2 / v1.1.2。两份官方归档独立下载，核对 SHA-256、SHA-512、字节、tag 源提交及上游 receipt；产品 package/lock 直接声明官方归档 URL，vendor 保留核验副本。产品清单和两份发布包均无 overrides/resolutions，不使用 link 或 capabilities。
 
-本次在原共享锁下一次执行公开入口、Server/Web 严格类型、既有真实 `platform-seam` 与一次网页构建，22,085.87 ms，全部通过。接缝正文 2,082.11 ms、Node runner 4,091.56 ms；真实产品 HTTP 受理、历史选择与下一轮 dynamic 交付、审批、实际 Node 写入及外部读取核对、completed 和 Runtime/Host 关闭通过，模型只有确定性驱动替代供应商。Windows read-only 后端仍明确不可用，没有采集源码或裸进程回落。
+最终补丁逐文件比较基础 0.9.6 → 0.9.7 共 2,668 个文件，仅 package.json 变化；UI 1.1.1 → 1.1.2 共 1,464 个文件，仅 package.json、README.md、CHANGELOG.md 变化。运行代码、声明、CSS、其余资源、依赖/peer 和第三方 lock 内容均不变。在原共享锁下集中完成一次普通安装（14,687 ms）、冻结离线安装（1,424 ms）及实际安装入口身份检查（3,823 ms），总 19,962 ms，通过。lock 中仅一个基础实例，现有编译产品的外部 SDK 入口实际解析到基础 0.9.7，UI 实装为 1.1.2。Server 主入口及 16 个网页文件哈希与前次证明相同；没有重建、重跑类型/HTTP/浏览器或重新生成 Linux 制品。精确记录见 [evidence/platform-097-ui-112-adoption.json](evidence/platform-097-ui-112-adoption.json)。
 
-新构建网页在独立数据目录和 loopback 端口的 Node 产品装配中实际启动，隐藏 IAB 登录、四入口、样例配置读取及中文/列表/代码/表格均核对；浏览器 error 日志为空，没有设置供应商密钥或启动手动终端进程。当前静态总产物 16 文件、3,024,737 bytes，记录实际文件哈希；该数不是首屏下载量。
+以下保留 0.9.6 / UI 1.1.1 的实际证明，不改写为本轮重新执行：当轮在原共享锁下一次执行公开入口、Server/Web 严格类型、既有真实 `platform-seam` 与一次网页构建，22,085.87 ms，全部通过。接缝正文 2,082.11 ms、Node runner 4,091.56 ms；真实产品 HTTP 受理、历史选择与下一轮 dynamic 交付、审批、实际 Node 写入及外部读取核对、completed 和 Runtime/Host 关闭通过，模型只有确定性驱动替代供应商。Windows read-only 后端仍明确不可用，没有采集源码或裸进程回落。
+
+当轮构建网页在独立数据目录和 loopback 端口的 Node 产品装配中实际启动，隐藏 IAB 登录、四入口、样例配置读取及中文/列表/代码/表格均核对；浏览器 error 日志为空，没有设置供应商密钥或启动手动终端进程。当前静态总产物仍为 16 文件、3,024,737 bytes，记录实际文件哈希；该数不是首屏下载量。
 
 首次网页 fixture 的命令 stdin 未保持开放，只结束了已核对 PID/命令行的一次性进程，不据此宣称正常收尾。临时 harness 增加自行关闭模式后，仅补 HTTP/静态网页与关闭步骤，4,299.02 ms，应用、Host、环境关闭并自然退出码 0。期间按用户新规则移除冗余 override，普通依赖再次安装后身份与第三方 lock 不变，仅复核实际公开入口；已绿类型、Runtime 和网页检查保留，不重复构建。精确身份、源码/构建指纹、图片哈希、实际回执及该范围差别见 [evidence/platform-096-ui-111-adoption.json](evidence/platform-096-ui-111-adoption.json)。以下历史证据保持各自原身份；本次没有生产打包、供应商 API、systemd、生产部署或旧 Linux/PTY 矩阵。
 

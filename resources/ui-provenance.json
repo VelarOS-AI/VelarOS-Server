@@ -1,25 +1,25 @@
 {
   "originKind": "verified-published-release",
   "name": "@velaros-ai/ui",
-  "version": "1.1.1",
-  "sourceCommit": "c6c89b13c9ffbe47bcdaf375765b4ac4a6a235ab",
-  "bytes": 945134,
-  "sha256": "2e4134f72adb1088cfad51eb47753bc73aaf30f079d1fa1153f67bfc8cc2e8c3",
-  "integrity": "sha512-L0EkP+qfKa3cQjPL1ueJ44FI7VX9TaCwoFyo/b1OC4hY65wv/UX/RxEwJQB3D70JpvSOM63el4gcGKXW8HPOkA==",
-  "ownerReceiptSha256": "5587a8017b88c2e04d407ced91b879514a1d585975e991a08e78d27374506a88",
+  "version": "1.1.2",
+  "sourceCommit": "5d208907105cedde577976c4eda9787e5ac1227f",
+  "bytes": 944464,
+  "sha256": "20cbe8a35301920bbe0de7d5f21710c39fe5dae79783b477a866ede3e0adad1d",
+  "integrity": "sha512-ZfbgnA8zjc14GNZhn5Ldy7yjGZZmT9yLE+BZIHy1RI63bhb8SRapzrZ1FAC47FkD0cc3z2MfVv/VKx5+4lUJqw==",
+  "ownerReceiptSha256": "b18b8c1a21ba7256c8c03b623c37b5973598ccb3a438d19bd7e584b86ed07369",
   "publicationAtAdoption": true,
   "publicEntry": "@velaros-ai/ui/conversation/basic",
   "publicStyles": "@velaros-ai/ui/styles/components/conversation-basic.css",
   "publication": {
     "published": true,
-    "tag": "v1.1.1",
-    "tagObject": "88f3b47a67fac8c82f2ac70a0457199fd60f28f5",
-    "sourceTree": "7d0054dc5ab5d034732adb303f8e44e36bc28976",
-    "publishedAt": "2026-11-10T01:51:33Z",
-    "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.1/velaros-ai-ui-1.1.1.tgz",
-    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-UI/releases/tag/v1.1.1",
-    "sha256": "2e4134f72adb1088cfad51eb47753bc73aaf30f079d1fa1153f67bfc8cc2e8c3",
-    "sourceCommit": "c6c89b13c9ffbe47bcdaf375765b4ac4a6a235ab",
+    "tag": "v1.1.2",
+    "tagObject": "96bc895e07314c1decc8addc7a2fae628899613a",
+    "sourceTree": "2f20e393ecf438d341bc620274600b3924a03cfc",
+    "publishedAt": "2026-11-10T02:53:11Z",
+    "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.2/velaros-ai-ui-1.1.2.tgz",
+    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-UI/releases/tag/v1.1.2",
+    "sha256": "20cbe8a35301920bbe0de7d5f21710c39fe5dae79783b477a866ede3e0adad1d",
+    "sourceCommit": "5d208907105cedde577976c4eda9787e5ac1227f",
     "githubAssetDigestMatches": true,
     "githubTagMatchesSourceCommit": true,
     "downloadedArchiveHashMatches": true
@@ -30,11 +30,18 @@
     "peersUnchanged": true,
     "sourceMigrationRequired": false,
     "overrides": false,
-    "evidence": "docs/evidence/platform-096-ui-111-adoption.json"
+    "evidence": "docs/evidence/platform-097-ui-112-adoption.json",
+    "resolutions": false,
+    "compiledFilesByteIdenticalTo111": 1457
   },
   "retainedConsumerEvidence": {
     "version": "1.1.0",
     "sha256": "5561690111c8e9dbb806658c88473b8866364b02fdec2d39116588fedd0422c6",
-    "record": "docs/verification.md"
+    "record": "docs/verification.md",
+    "runtimeEquivalent111": {
+      "version": "1.1.1",
+      "sha256": "2e4134f72adb1088cfad51eb47753bc73aaf30f079d1fa1153f67bfc8cc2e8c3",
+      "evidence": "docs/evidence/platform-096-ui-111-adoption.json"
+    }
   }
 }

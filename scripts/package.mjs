@@ -18,8 +18,8 @@ for (const asset of [runtime.platform, runtime.ui]) {
   if (createHash('sha256').update(bytes).digest('hex') !== asset.sha256)
     throw new Error(`${asset.name} 的固定归档 SHA-256 不匹配`)
 }
-if (manifest.dependencies['@velaros-ai/velaros'] !== `file:./${runtime.platform.file}`)
-  throw new Error('生产依赖未指向已登记的本仓基础归档')
+if (manifest.dependencies['@velaros-ai/velaros'] !== runtime.platform.url)
+  throw new Error('生产依赖未指向已登记的正式基础归档 URL')
 const builds = JSON.parse(await readFile(join(cache, 'build-state.json'), 'utf8'))
 for (const scope of ['server', 'web'])
   if (builds[scope]?.fingerprint !== (await sourceState(root, scope)))

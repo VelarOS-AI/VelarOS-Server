@@ -4,6 +4,7 @@ import type {
   RunStatus,
   ContextUsage,
   ThinkingDepth,
+  ExecutionMode,
 } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
 
@@ -21,12 +22,14 @@ export interface ExecutionInput {
   requestId: string
   text: string
   thinkingDepth?: ThinkingDepth
+  executionMode?: ExecutionMode
   images?: { type: 'image-data'; origin: 'user'; mediaType: string; data: string; label: string }[]
 }
 
 export interface ExecutionPort {
   readonly available: boolean
   readonly unavailableReason: string | null
+  validateSession?(sessionId: string): Promise<void>
   submit(input: ExecutionInput, observe: (notice: ExecutionNotice) => void): Promise<void>
   cancel(sessionId: string, runId: string): Promise<void>
   answer(sessionId: string, request: PendingInteraction, value: string | boolean): Promise<void>

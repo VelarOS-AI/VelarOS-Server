@@ -12,6 +12,9 @@ export const InputLimits = {
 export const ThinkingDepths = ['low', 'medium', 'high', 'xhigh', 'max'] as const
 export type ThinkingDepth = (typeof ThinkingDepths)[number]
 
+export const ExecutionModes = ['standard', 'full', 'ask'] as const
+export type ExecutionMode = (typeof ExecutionModes)[number]
+
 export interface AttachmentSummary {
   name: string
   kind: 'text' | 'image'
@@ -28,6 +31,7 @@ export interface InputContent {
   text: string
   attachments?: InputAttachment[]
   thinkingDepth?: ThinkingDepth
+  executionMode?: ExecutionMode
 }
 
 export interface ContextUsage {

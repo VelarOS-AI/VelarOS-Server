@@ -14,7 +14,7 @@ SSE 发送变更引用，网页随后读取最新投影；通知保留 512 条�
 
 网页刷新只接受当前认证下最新一次读取的结果；认证切换和卸载取消过期 GET，并清理本地展示投影，不能借此取消或重放已发出的变更请求。刷新失败单独报告，不反转已经受理的输入或回答；SSE 重连只重读投影。实际权限仍由服务器认证与 CSRF 校验负责。
 
-按 ADR 0028 固定 `resources/runtime-snapshot.json` 登记的官方正式基础归档 URL，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型设置改变不会热替换正在运行的 Runtime；初始化也只合并同一配置身份，不同配置的新提交沿用 MODEL_BUSY，等待原运行收束。关闭等待初始化结果；没有 Runtime 留存的初始化失败不重复阻断产品资源清理，旧 Runtime 的实际关闭失败仍保留原 owner 和错误。
+按 ADR 0028 固定 `resources/runtime-snapshot.json` 登记的官方正式基础归档 URL，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型或执行档位改变不会热替换正在运行的 Runtime；初始化只合并同一模型和档位身份，不同配置的新提交沿用 MODEL_BUSY，等待原运行收束。标准/每次询问借用部署约束 Host，完全访问借用独立的非沙箱 Host，两者由产品组合根持有并关闭。执行范围 `server-execution-v2` 登记三档授权，旧范围会话在 HTTP 接纳前拒绝恢复，保留原数据，要求新建会话。标准模式的不可恢复操作确认由模型指令要求调用正式 interaction 确认口，不宣称对任意 Node 程序做风险分类；每次询问的程序门与完全访问的确认自动批准在产品适配器落实，用户提问不自动作答。关闭等待初始化结果；没有 Runtime 留存的初始化失败不重复阻断产品资源清理，旧 Runtime 的实际关闭失败仍保留原 owner 和错误。
 
 首版 API：`/api/auth`、`/api/info`、`/api/sessions`、`/api/sessions/:id/inputs|cancel|answers|interaction`、`/api/files`、`/api/files/text`、`/api/settings/model`、`/api/settings/model/catalog`、`/api/events` 和 `/api/terminal`。JSON 入参在 HTTP 边界校验；网页变更需登录、CSRF 和匹配来源。后端持有模型密钥，前端仅收到 hasApiKey。
 

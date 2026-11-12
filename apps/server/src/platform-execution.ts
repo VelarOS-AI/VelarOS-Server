@@ -5,7 +5,11 @@ import { createNodeRuntime, type RuntimeModelConfiguration } from '@velaros-ai/v
 import type { VelarosRuntime, VelarosSession } from '@velaros-ai/velaros'
 import type { ModelDriver } from '@velaros-ai/velaros/kernel'
 import type { LocalShellHostApi } from '@velaros-ai/velaros/execution'
-import type { PendingInteraction, ThinkingDepth } from '../../../packages/contracts/src/index.js'
+import type {
+  ExecutionMode,
+  PendingInteraction,
+  ThinkingDepth,
+} from '../../../packages/contracts/src/index.js'
 import type { ExecutionInput, ExecutionNotice, ExecutionPort } from './execution.js'
 import type { ServerExecutionBinding } from './execution-binding.js'
 import { HttpError } from './errors.js'
@@ -14,6 +18,7 @@ import { ModelSettingsStore } from './model-settings.js'
 
 export interface PlatformExecutionOptions {
   host: LocalShellHostApi
+  fullAccessHost?: LocalShellHostApi
   cwd: string
   stateDirectory: string
   binding: ServerExecutionBinding
@@ -74,15 +79,19 @@ export class PlatformExecution implements ExecutionPort {
 
   private async getRuntime(
     model: RuntimeModelConfiguration | ModelDriver,
+    executionMode: ExecutionMode,
   ): Promise<VelarosRuntime> {
     if (this.closing) throw new HttpError(503, 'CLOSING', '执行环境正在收束')
-    const identity = this.options.model
+    const modelIdentity = this.options.model
       ? 'injected-driver'
       : createHash('sha256').update(JSON.stringify(model)).digest('hex')
+    const identity = `${modelIdentity}:${executionMode}`
+    if (executionMode === 'full' && !this.options.fullAccessHost)
+      throw new HttpError(403, 'FULL_ACCESS_UNAVAILABLE', '此部署未提供完全访问执行环境')
     if (this.opening?.identity === identity) return this.opening.promise
     if (!this.opening && this.runtime && this.modelIdentity === identity) return this.runtime
     if (this.opening || this.active.size)
-      throw new HttpError(409, 'MODEL_BUSY', '模型设置已改变，请等待现有运行收束后再开始')
+      throw new HttpError(409, 'MODEL_BUSY', '模型或执行档位已改变，请等待现有运行收束后再开始')
     const promise = (async () => {
       if (this.runtime) {
         await this.runtime.close()
@@ -92,17 +101,23 @@ export class PlatformExecution implements ExecutionPort {
         cwd: this.options.cwd,
         stateDirectory: this.options.stateDirectory,
         binding: this.options.binding,
-        host: this.options.host,
+        host: executionMode === 'full' ? this.options.fullAccessHost! : this.options.host,
         model,
         modules: [],
         context: {
           policy: { windowTokens: model.limits?.inputTokens ?? ServerModelLimits.inputTokens },
         },
         instructions:
-          '你是本机服务器运维助手。先核对状态和相关日志，再修改配置；服务变更后检查实际健康状态。没有验证的结果保留未知。不要将凭据写入回复。需要新增系统权限时说明具体需求，由操作者配置。',
+          '你是本机服务器运维助手。先核对状态和相关日志，再修改配置；服务变更后检查实际健康状态。没有验证的结果保留未知。不要将凭据写入回复。需要新增系统权限时说明具体需求，由操作者配置。' +
+          (executionMode === 'full'
+            ? '本轮为完全访问：使用服务账户的主机权限，不启用工作区沙箱，程序执行与确认请求自动批准。不得把当前账户权限描述为 root。'
+            : '本轮保留部署配置的进程隔离。普通操作可以推进；递归删除、清理未跟踪文件、强推、抹盘等不可恢复操作，必须先调用 velaros:interaction 的 confirm，说明具体操作与影响并等待同意。' +
+              (executionMode === 'ask'
+                ? '每个执行程序另由宿主要求用户确认。'
+                : '本轮为标准模式，普通程序不逐次弹卡。')),
         execution: {
           authorize: async (request, signal) => {
-            if (request.mode === 'observe' || this.options.approval === 'allow') return
+            if (request.mode === 'observe' || executionMode !== 'ask') return
             const session = request.sessionId ? this.active.get(request.sessionId) : null
             if (!session)
               throw new HttpError(403, 'EXECUTION_IDENTITY', '未绑定当前产品运行，拒绝程序执行')
@@ -130,7 +145,7 @@ export class PlatformExecution implements ExecutionPort {
     return promise
   }
 
-  private async validateBinding(sessionId: string): Promise<void> {
+  public async validateSession(sessionId: string): Promise<void> {
     this.store.getSession(sessionId)
     const directory = join(this.options.stateDirectory, 'product-bindings')
     await mkdir(directory, { recursive: true, mode: 0o700 })
@@ -156,9 +171,11 @@ export class PlatformExecution implements ExecutionPort {
     input: ExecutionInput,
     observe: (notice: ExecutionNotice) => void,
   ): Promise<void> {
-    await this.validateBinding(input.sessionId)
+    await this.validateSession(input.sessionId)
     const model = this.configuration(input.thinkingDepth ?? 'medium')
-    const runtime = await this.getRuntime(model)
+    const executionMode =
+      input.executionMode ?? (this.options.approval === 'allow' ? 'full' : 'ask')
+    const runtime = await this.getRuntime(model, executionMode)
     const session = await runtime.openSession(input.sessionId)
     this.active.set(input.sessionId, session)
     let terminalState = false
@@ -204,6 +221,10 @@ export class PlatformExecution implements ExecutionPort {
             },
           })
         } else if (event.type === 'interaction') {
+          if (executionMode === 'full' && event.request.kind === 'confirmation') {
+            await session.answer({ id: event.request.id, runId: event.runId, value: true })
+            continue
+          }
           observe({
             type: 'interaction',
             request: {

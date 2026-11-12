@@ -9,6 +9,7 @@ import { ModelSettingsStore } from './model-settings.js'
 import { PlatformExecution } from './platform-execution.js'
 import { ProductStore } from './store.js'
 import { HostTerminal } from './terminal.js'
+import { ExecutionModes } from '../../../packages/contracts/src/index.js'
 
 export async function composePlatform(options: {
   cwd: string
@@ -30,7 +31,12 @@ export async function composePlatform(options: {
     stateDirectory: options.dataDirectory,
     cwd,
     roots: options.roots,
-    policy: { mode: options.mode, network: true, revision: 'server-execution-v1' },
+    policy: {
+      mode: options.mode,
+      network: true,
+      revision: 'server-execution-v2',
+      profiles: ExecutionModes,
+    },
   })
   const environment = createShellEnvironment({
     env: () => {
@@ -46,9 +52,15 @@ export async function composePlatform(options: {
     processConfinement: { mode: options.mode, workspaceRoot: cwd, writeRoots: [...options.roots] },
     terminal: { spawn: (file, args, settings) => spawn(file, args, settings) },
   })
+  const fullAccessHost = createLocalShellHost({
+    cwd,
+    environment,
+    processConfinement: { mode: 'danger-full-access', workspaceRoot: cwd },
+  })
   const execution = new PlatformExecution(
     {
       host,
+      fullAccessHost,
       cwd,
       stateDirectory,
       binding,
@@ -65,6 +77,7 @@ export async function composePlatform(options: {
     close: async () => {
       await execution.close()
       await host.dispose()
+      await fullAccessHost.dispose()
       await environment.dispose()
     },
   }

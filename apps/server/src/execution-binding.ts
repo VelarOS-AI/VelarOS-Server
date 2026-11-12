@@ -22,6 +22,7 @@ export async function bindExecutionEnvironment(options: {
     mode: 'read-only' | 'workspace-write' | 'danger-full-access'
     network: boolean
     revision: string
+    profiles?: readonly string[]
   }
 }): Promise<ServerExecutionBinding> {
   const stateDirectory = await realpath(options.stateDirectory)

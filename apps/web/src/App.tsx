@@ -7,6 +7,7 @@ import {
   InputLimits,
   type InputContent,
   type ThinkingDepth,
+  type ExecutionMode,
   type ServerInfo,
   type SessionView,
 } from '../../../packages/contracts/src/index.js'
@@ -25,6 +26,7 @@ export function App(): React.ReactElement {
   const [draft, setDraft] = useState('')
   const [files, setFiles] = useState<File[]>([])
   const [thinkingDepth, setThinkingDepth] = useState<ThinkingDepth>('medium')
+  const [executionMode, setExecutionMode] = useState<ExecutionMode>('standard')
   const [submitting, setSubmitting] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 640)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +54,7 @@ export function App(): React.ReactElement {
       setDraft('')
       setFiles([])
       setThinkingDepth('medium')
+      setExecutionMode('standard')
       draftScope.current += 1
       submission.current = null
       setSubmitting(false)
@@ -214,6 +217,7 @@ export function App(): React.ReactElement {
         text,
         attachments: await encodeAttachments(attached),
         thinkingDepth,
+        executionMode,
       }
       if (authentication.current !== csrf) return
       const digest = await crypto.subtle.digest(
@@ -392,6 +396,8 @@ export function App(): React.ReactElement {
           }}
           thinkingDepth={thinkingDepth}
           onThinkingDepthChange={setThinkingDepth}
+          executionMode={executionMode}
+          onExecutionModeChange={setExecutionMode}
           submitting={submitting}
           available={info?.execution.available ?? false}
           modelSettings={

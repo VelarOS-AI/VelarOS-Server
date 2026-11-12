@@ -17,7 +17,12 @@ import {
   emptyConversationComposerPort,
   type ChatComposerControl,
 } from '@velaros-ai/ui/conversation/composer'
-import type { SessionView, ThinkingDepth } from '../../../packages/contracts/src/index.js'
+import {
+  ExecutionModes,
+  type ExecutionMode,
+  type SessionView,
+  type ThinkingDepth,
+} from '../../../packages/contracts/src/index.js'
 import { Interaction } from './Interaction.js'
 import { ContextUsageIndicator } from './ContextUsageIndicator.js'
 
@@ -118,6 +123,8 @@ export function Conversation({
   onFilesChange,
   thinkingDepth,
   onThinkingDepthChange,
+  executionMode,
+  onExecutionModeChange,
   submitting,
   available,
   modelSettings,
@@ -133,6 +140,8 @@ export function Conversation({
   onFilesChange(files: File[]): void
   thinkingDepth: ThinkingDepth
   onThinkingDepthChange(value: ThinkingDepth): void
+  executionMode: ExecutionMode
+  onExecutionModeChange(value: ExecutionMode): void
   submitting: boolean
   available: boolean
   modelSettings: React.ReactNode
@@ -148,6 +157,34 @@ export function Conversation({
   const control: ChatComposerControl = {
     scopeKey: session?.id ?? 'new-chat',
     leftSlot: modelSettings,
+    capabilityControls: [
+      {
+        id: 'execution-mode',
+        kind: 'choice',
+        placement: 'toolbar',
+        label: '执行',
+        value: executionMode,
+        disabled: submitting || active(session),
+        choices: [
+          {
+            id: 'standard',
+            label: '标准模式',
+            description: '工作区内自动执行；不可恢复的操作先确认。',
+          },
+          {
+            id: 'full',
+            label: '完全访问',
+            description: '使用服务账户的主机权限，不启用工作区沙箱，自动批准执行。',
+            tone: 'danger',
+          },
+          { id: 'ask', label: '每次询问', description: '保留工作区沙箱，每次执行程序前确认。' },
+        ],
+        onChange: (value) => {
+          if (ExecutionModes.some((mode) => mode === value))
+            onExecutionModeChange(value as ExecutionMode)
+        },
+      },
+    ],
     modelRunSummary: {
       primaryLabel: '思考深度',
       secondaryLabel: { low: '低', medium: '中', high: '高', xhigh: '极高', max: '最高' }[

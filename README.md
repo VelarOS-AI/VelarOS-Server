@@ -30,7 +30,7 @@ bun run start
 
 可用环境变量见 `deploy/server.env.example`。文件根使用 JSON 数组，生产时必须明确配置；默认只开放启动目录。开发 Vite 页面时，把后端 `VELAROS_SERVER_PUBLIC_ORIGIN` 设为实际 Vite origin，避免放宽来源检查。
 
-执行默认 `workspace-write` 与逐程序 `ask`。Linux 受约束模式需要可用 bubblewrap，底座不能落实约束时拒绝执行；`danger-full-access` 是管理员明确选择的进程权限模式，仍受服务用户的操作系统权限约束。模型协议由 Platform 对应适配器提供，型号来自远端目录或用户明确输入，设置变更在活动运行收束后应用。
+输入框的执行下拉提供「标准模式 / 完全访问 / 每次询问」，默认标准模式。标准模式自动执行普通程序，并在模型指令中要求不可恢复操作先请求确认；每次询问在每个执行程序前显示确认卡。两者使用部署配置的进程隔离（默认 `workspace-write`）；Linux 需要可用 bubblewrap，底座不能落实约束时拒绝执行。完全访问使用独立的 `danger-full-access` Host，不启用工作区沙箱，自动批准程序和确认请求，仍受服务账户的操作系统权限约束；不会自行取得 root、sudo 或 Docker 权限。档位随输入冻结并参与去重，运行中不能切换；不同模型或档位的新运行等待原 Runtime 收束。未指定档位的 API 请求沿用部署的 `VELAROS_SERVER_APPROVAL` 默认值。
 
 只读观察能力由真实 Host 报告，不按操作系统推定支持，也不以普通执行代替只读采集。后端不可用时仍可选择已有观察历史或清除订阅；历史、动态材料和索引均由 Core 维护。当前 Windows 接缝实际报告只读程序不可用，不影响历史控制及明确审批的普通执行。
 

@@ -156,12 +156,14 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
         return json(response, 200, options.store.getSession(id))
       if (method === 'POST' && sessionRoute[2] === 'inputs') {
         const input = inputSchema.parse(await body(request, InputLimits.bodyBytes))
+        await execution.validateSession?.(id)
         return json(
           response,
           202,
           runs.submit(id, input.requestId, input.text, {
             attachments: input.attachments,
             thinkingDepth: input.thinkingDepth,
+            executionMode: input.executionMode,
           }),
         )
       }

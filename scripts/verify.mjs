@@ -44,6 +44,7 @@ if (handle) {
       ['auth-settings', '--test', 'dist/tests/auth-settings.test.js'],
       ['model-catalog', '--test', 'dist/tests/model-catalog.test.js'],
       ['composer-input', '--test', 'dist/tests/composer-input.test.js'],
+      ['execution-modes', '--test', 'dist/tests/execution-modes.test.js'],
       [
         'runtime-lifecycle',
         '--experimental-test-module-mocks',

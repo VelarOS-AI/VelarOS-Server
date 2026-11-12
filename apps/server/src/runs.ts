@@ -33,13 +33,16 @@ export class RunRequests {
         this.execution.unavailableReason ?? '执行不可用',
       )
     const decoded = decodeInput({ text, ...options })
-    // 默认纯文本的指纹保持兼容；附件和思考档位参与同一请求的内容身份。
+    // 默认纯文本的指纹保持兼容；附件、思考深度和执行档位参与请求身份。
     const identity =
-      options.attachments?.length || (options.thinkingDepth && options.thinkingDepth !== 'medium')
+      options.attachments?.length ||
+      (options.thinkingDepth && options.thinkingDepth !== 'medium') ||
+      options.executionMode
         ? JSON.stringify({
             text,
             attachments: options.attachments ?? [],
             thinkingDepth: options.thinkingDepth ?? 'medium',
+            executionMode: options.executionMode ?? null,
           })
         : text
     const admission = this.store.admitInput(requestId, sessionId, text, identity, decoded.summaries)
@@ -57,6 +60,7 @@ export class RunRequests {
             text: decoded.text,
             images: decoded.images,
             thinkingDepth: options.thinkingDepth ?? 'medium',
+            executionMode: options.executionMode,
           },
           (notice) => this.observe(sessionId, requestId, notice),
         ),

@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { InputLimits, ThinkingDepths } from '../../../packages/contracts/src/index.js'
+import {
+  ExecutionModes,
+  InputLimits,
+  ThinkingDepths,
+} from '../../../packages/contracts/src/index.js'
 import type { AttachmentSummary, InputContent } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
 
@@ -22,6 +26,7 @@ export const inputSchema = z
     text: z.string().max(InputLimits.textChars),
     attachments: z.array(attachmentSchema).max(InputLimits.attachments).optional(),
     thinkingDepth: z.enum(ThinkingDepths).optional(),
+    executionMode: z.enum(ExecutionModes).optional(),
   })
   .strict()
   .refine((value) => Boolean(value.text.trim() || value.attachments?.length), {

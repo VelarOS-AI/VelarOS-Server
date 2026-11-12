@@ -100,6 +100,13 @@ test('Runtime 初始化按模型身份装配并保留关闭 owner', async (conte
     let timeout: ReturnType<typeof setTimeout> | undefined
     try {
       await started.promise
+      await assert.rejects(
+        value.execution.submit(
+          { ...value.input, requestId: randomUUID(), executionMode: 'standard' },
+          () => {},
+        ),
+        { code: 'MODEL_BUSY', status: 409 },
+      )
       value.settings.save({ ...value.settings.read(), model: 'second-model' })
       rejection = assert.rejects(
         value.execution.submit({ ...value.input, requestId: randomUUID() }, () => {}),

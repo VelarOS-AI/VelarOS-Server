@@ -144,6 +144,7 @@ test(
         text: '检查附件',
         attachments: [text, image],
         thinkingDepth: 'high',
+        executionMode: 'standard',
       }
       assert.equal((await value.call(path, 'POST', input, { 'X-VelarOS-CSRF': '' })).status, 403)
       assert.equal((await value.call(path, 'POST', input)).status, 202)
@@ -153,6 +154,7 @@ test(
       assert.ok(value.captured[0]!.text.includes('服务器原始日志：service-ready\nsecond-line'))
       assert.equal(value.captured[0]!.images?.[0]?.data, png)
       assert.equal(value.captured[0]!.thinkingDepth, 'high')
+      assert.equal(value.captured[0]!.executionMode, 'standard')
       const projection = value.store.getSession(value.session.id)
       assert.equal(projection.messages[0]?.text, input.text)
       assert.equal(projection.messages[0]?.attachments?.[0]?.name, '服务.log')
@@ -164,6 +166,10 @@ test(
         true,
       )
       assert.equal((await value.call(path, 'POST', { ...input, thinkingDepth: 'low' })).status, 409)
+      assert.equal(
+        (await value.call(path, 'POST', { ...input, executionMode: 'full' })).status,
+        409,
+      )
       assert.equal(
         (
           await value.call(path, 'POST', {
@@ -212,6 +218,7 @@ test(
         415,
       )
       assert.equal((await submit([text], { thinkingDepth: 'unlimited' })).status, 400)
+      assert.equal((await submit([text], { executionMode: 'unlimited' })).status, 400)
       assert.equal(
         (await value.call(path, 'POST', { requestId: randomUUID(), text: '' })).status,
         400,

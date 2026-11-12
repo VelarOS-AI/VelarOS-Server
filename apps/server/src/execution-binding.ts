@@ -42,7 +42,12 @@ export async function bindExecutionEnvironment(options: {
   return {
     executionIdentity: fingerprint({
       instanceId,
-      principal: { username: principal.username, uid: principal.uid, gid: principal.gid },
+      principal: {
+        username: principal.username,
+        uid: principal.uid,
+        gid: principal.gid,
+        groups: (process.getgroups?.() ?? []).sort((left, right) => left - right),
+      },
       node: await realpath(process.execPath),
     }),
     authorizationScope: fingerprint({

@@ -32,7 +32,7 @@ function runtime(close: () => Promise<void>): VelarosRuntime {
   return { openSession: async () => session, close } as unknown as VelarosRuntime
 }
 
-async function fixture(Execution: ExecutionConstructor) {
+async function fixture(Execution: ExecutionConstructor, approval: 'ask' | 'allow' = 'ask') {
   const directory = await mkdtemp(join(tmpdir(), 'velaros-runtime-lifecycle-'))
   const cwd = join(directory, 'work')
   await mkdir(cwd)
@@ -44,13 +44,16 @@ async function fixture(Execution: ExecutionConstructor) {
     model: 'first-model',
     apiKey: 'lifecycle-test-key',
   })
+  const host = {} as LocalShellHostApi
+  const fullAccessHost = {} as LocalShellHostApi
   const execution = new Execution(
     {
-      host: {} as LocalShellHostApi,
+      host,
+      fullAccessHost,
       cwd,
       stateDirectory: join(directory, 'runtime'),
       binding: { executionIdentity: 'lifecycle-principal', authorizationScope: 'lifecycle-scope' },
-      approval: 'ask',
+      approval,
     },
     store,
     settings,
@@ -58,6 +61,8 @@ async function fixture(Execution: ExecutionConstructor) {
   const session = store.createSession('runtime lifecycle')
   return {
     execution,
+    host,
+    fullAccessHost,
     settings,
     input: { sessionId: session.id, requestId: randomUUID(), text: 'lifecycle probe' },
     dispose: async () => {
@@ -71,13 +76,36 @@ async function fixture(Execution: ExecutionConstructor) {
 }
 
 test('Runtime 初始化按模型身份装配并保留关闭 owner', async (context) => {
+  let selectedHost: LocalShellHostApi | undefined
   let createRuntime: () => Promise<VelarosRuntime> = async () => {
     throw new Error('本场景尚未配置 Runtime')
   }
   context.mock.module('@velaros-ai/velaros/node', {
-    namedExports: { createNodeRuntime: () => createRuntime() },
+    namedExports: {
+      createNodeRuntime: (options: { host?: LocalShellHostApi }) => {
+        selectedHost = options.host
+        return createRuntime()
+      },
+    },
   })
   const { PlatformExecution } = await import('../apps/server/src/platform-execution.js')
+
+  await context.test('部署 allow 不隐式撤销沙箱，完全访问必须由输入显式选择', async () => {
+    createRuntime = async () => runtime(async () => {})
+    const value = await fixture(PlatformExecution, 'allow')
+    try {
+      await value.execution.submit(value.input, () => {})
+      assert.equal(selectedHost, value.host)
+      await value.execution.submit(
+        { ...value.input, requestId: randomUUID(), executionMode: 'full' },
+        () => {},
+      )
+      assert.equal(selectedHost, value.fullAccessHost)
+    } finally {
+      await value.execution.close()
+      await value.dispose()
+    }
+  })
 
   await context.test('模型配置改变时新提交不能加入旧初始化', async () => {
     const opening = deferred<VelarosRuntime>()

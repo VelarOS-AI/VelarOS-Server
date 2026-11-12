@@ -174,7 +174,7 @@ export class PlatformExecution implements ExecutionPort {
     await this.validateSession(input.sessionId)
     const model = this.configuration(input.thinkingDepth ?? 'medium')
     const executionMode =
-      input.executionMode ?? (this.options.approval === 'allow' ? 'full' : 'ask')
+      input.executionMode ?? (this.options.approval === 'allow' ? 'standard' : 'ask')
     const runtime = await this.getRuntime(model, executionMode)
     const session = await runtime.openSession(input.sessionId)
     this.active.set(input.sessionId, session)

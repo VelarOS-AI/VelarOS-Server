@@ -1,68 +1,50 @@
 {
   "kind": "verified-published-release",
   "frozen": true,
-  "version": "0.9.7",
+  "version": "0.12.1",
   "platformGeneration": "0.7",
-  "sourceCommit": "30982bfc1ae92912aa734ea5be2acf01687d87ed",
+  "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
   "source": {
-    "commitTree": "e612287ddb832c367287e0e8d5375c94d90deef8",
-    "tag": "v0.7.8",
-    "tagObject": "55991e7c55c9a95faa2cdad9ffabf1b054b055ac"
+    "commitTree": "8e3dac70b4cfe66ece0ab0e0ceb204465bf9d92f",
+    "tag": "v0.7.13",
+    "tagObject": "dd6c646ba7462c27c241a2a66f7f77804c2a597f"
   },
   "archive": {
     "name": "@velaros-ai/velaros",
-    "version": "0.9.7",
-    "file": "vendor/runtime/velaros-ai-velaros-0.9.7.tgz",
-    "sourceCommit": "30982bfc1ae92912aa734ea5be2acf01687d87ed",
-    "sha256": "d4f3e502eb59e4a3d42e5ca66a8aa55d3da06586e7ce79e699644cdbe51a9d69",
-    "integrity": "sha512-4QsIvSopfwYW25nE6ZhqVOvQzLeSaJRkCU6GP0n/LjFSszj78syCkokJs0Ix1B1PdxBh/1gWmTrSUp3rDB2F4g==",
+    "version": "0.12.1",
+    "file": "vendor/runtime/velaros-ai-velaros-0.12.1.tgz",
+    "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+    "sha256": "191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c",
+    "integrity": "sha512-UyR1NsMtLK1dMo2mVlL3DwwfoDoWBpomF2u/W8ND3gkCxEzyY3R006oUhrudKWZDPHMiS8fV7FSe2+UV4wy0Tw==",
     "kind": "published-release",
     "provenance": "resources/platform-provenance.json",
-    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.8/velaros-ai-velaros-0.9.7.tgz",
-    "bytes": 2265406
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz",
+    "bytes": 2265153
   },
-  "ownerReceiptSha256": "2775dbd87e06ae85395e1a2da550c1065dfe8d5944f910b7b20f8813d957c5cf",
   "publication": {
     "published": true,
-    "tag": "v0.7.8",
-    "version": "0.9.7",
-    "publishedAt": "2026-11-10T03:09:53Z",
-    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.8/velaros-ai-velaros-0.9.7.tgz",
-    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.8",
-    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/42747321692",
-    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.8/release-manifest.json",
-    "manifestSha256": "f8a72604db65ea25b971fe9d14bfe852ce6d51722acf08c5cb19e018f0f8b4ad",
-    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.8/release-validation.json",
-    "validationSha256": "ca22d1e9b76b4481809f15fcac3ca89ae84ce8037c82404918d835d16e424ddc",
-    "sha256": "d4f3e502eb59e4a3d42e5ca66a8aa55d3da06586e7ce79e699644cdbe51a9d69",
-    "sourceCommit": "30982bfc1ae92912aa734ea5be2acf01687d87ed",
-    "githubTargetMatchesSourceCommit": true,
+    "tag": "v0.7.13",
+    "publishedAt": "2026-11-12T07:19:26Z",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz",
+    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/tag/v0.7.13",
+    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/43174058195",
+    "manifestUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/release-manifest.json",
+    "manifestSha256": "03f829daf3763f25d8f5cee380a48ab933497d72d65c00ddde9f75d3ef693112",
+    "validationUrl": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/release-validation.json",
+    "validationSha256": "d0102d9c16b96466dbea374712a6398344e184a8dfe1143d0174d3fd6c04ab2b",
     "githubAssetDigestMatches": true,
     "downloadedArchiveHashMatches": true
   },
   "ownerValidation": {
-    "foundationTraceJavascript": true,
-    "foundationStrictDeclarations": true,
     "sourceReleaseCheck": true,
-    "providerApi": false,
-    "linuxNewPty": false,
-    "foundationNodeEnvironmentQuery": true,
-    "ordinaryOfficialPair": {
-      "ordinaryInstall": true,
-      "frozenInstall": true,
-      "sameBaseInstance": true,
-      "strictDeclarations": true,
-      "actualProjectMutation": true,
-      "sourceIntegrity": true
-    }
+    "officialValidationReceipt": true
   },
   "consumerPolicy": {
     "directCanonicalOfficialUrl": true,
-    "vendorArchiveForVerification": true,
     "overrides": false,
     "resolutions": false,
     "capabilitiesInstalled": false,
-    "evidence": "docs/evidence/platform-097-ui-112-adoption.json"
+    "evidence": "docs/evidence/dynamic-models-20261112.json"
   },
   "retainedConsumerEvidence": {
     "server095": {
@@ -112,6 +94,31 @@
       "foundationVersion": "0.9.6",
       "foundationSha256": "de2a4ae3b11f93abb5ce66516007c3234037cde0ba5c2a8f47be9f8825f82726",
       "evidence": "docs/evidence/platform-096-ui-111-adoption.json"
+    },
+    "previousStaticModelProduct": {
+      "commit": "6ad6126",
+      "foundation": {
+        "name": "@velaros-ai/velaros",
+        "version": "0.9.7",
+        "file": "vendor/runtime/velaros-ai-velaros-0.9.7.tgz",
+        "sourceCommit": "30982bfc1ae92912aa734ea5be2acf01687d87ed",
+        "sha256": "d4f3e502eb59e4a3d42e5ca66a8aa55d3da06586e7ce79e699644cdbe51a9d69",
+        "integrity": "sha512-4QsIvSopfwYW25nE6ZhqVOvQzLeSaJRkCU6GP0n/LjFSszj78syCkokJs0Ix1B1PdxBh/1gWmTrSUp3rDB2F4g==",
+        "kind": "published-release",
+        "provenance": "resources/platform-provenance.json",
+        "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.8/velaros-ai-velaros-0.9.7.tgz"
+      },
+      "ui": {
+        "name": "@velaros-ai/ui",
+        "version": "1.1.2",
+        "file": "vendor/ui/velaros-ai-ui-1.1.2.tgz",
+        "sourceCommit": "5d208907105cedde577976c4eda9787e5ac1227f",
+        "sha256": "20cbe8a35301920bbe0de7d5f21710c39fe5dae79783b477a866ede3e0adad1d",
+        "integrity": "sha512-ZfbgnA8zjc14GNZhn5Ldy7yjGZZmT9yLE+BZIHy1RI63bhb8SRapzrZ1FAC47FkD0cc3z2MfVv/VKx5+4lUJqw==",
+        "kind": "published-release",
+        "provenance": "resources/ui-provenance.json",
+        "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.2/velaros-ai-ui-1.1.2.tgz"
+      }
     }
   },
   "linuxProductInstall": false

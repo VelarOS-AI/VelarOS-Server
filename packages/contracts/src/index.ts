@@ -65,6 +65,12 @@ export interface ModelSettings {
   hasApiKey: boolean
 }
 
+export interface ModelCatalogView {
+  models: { id: string; label: string }[]
+  error: string | null
+  fetchedAt: number
+}
+
 export interface ServerInfo {
   hostname: string
   platform: string

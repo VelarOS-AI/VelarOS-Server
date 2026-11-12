@@ -2,7 +2,7 @@
 
 组合根按 ADR 0028 消费 `@velaros-ai/velaros/node`、`/execution/local`、`/execution` 与公开合同类型。没有兄弟仓源码导入、私有 dist 路径、能力扩展、旧 workspace 配置或 Host 副本。
 
-当前基础归档为正式 0.9.7 / tag v0.7.8，本仓核验副本为 `vendor/runtime/velaros-ai-velaros-0.9.7.tgz`，SHA-256 `d4f3e502eb59e4a3d42e5ca66a8aa55d3da06586e7ce79e699644cdbe51a9d69`，源码 `30982bfc1ae92912aa734ea5be2acf01687d87ed`。安装前独立下载并核本仓字节、归档包名/版本/代际、空 peer、上游正式 manifest/receipt 与 GitHub asset digest。基础和 UI 的第三方依赖、peer 与上一固定版本分别相同，未扩大生产闭包。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧归档、安装和 Agent 回执保持原字节、源码与版本身份。
+当前基础归档为正式 0.12.1 / tag v0.7.13，本仓核验副本为 `vendor/runtime/velaros-ai-velaros-0.12.1.tgz`，SHA-256 `191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c`，源码 `4bdd09df58fd86898543992d6e36cdd5a5f64925`。安装前独立下载并核归档包名/版本/代际、SHA-256、SHA-512、字节数、上游正式 manifest/validation 与 GitHub asset digest。发布来源及实际 URL 登记于 `resources/platform-provenance.json`。旧归档、安装和 Agent 回执保持原字节、源码与版本身份。
 
 生产 manifest 与 bun.lock 直接声明基础和 UI 的固定官方 GitHub Release 归档 URL；vendor 文件是核验副本，不参与依赖解析。产品清单和两份发布包均无 overrides/resolutions，不使用数字版本映射或本地 link。安装使用 `bun install --frozen-lockfile`。基础没有 UI 宿主 peer；不安装 capabilities，不从兄弟仓或 `.cache/integration` 解析依赖。早期 no-save 联调脚本已退役。打包前再次核对归档 SHA 和 manifest 的正式 URL。
 
@@ -14,11 +14,11 @@ Server 将 `createLocalShellHost()` 的真实实例直接交给 `createNodeRunti
 
 产品 requestId 只提交一次并作 SDK inputId 关联，真正接纳使用 input 事实及其 ref；SDK accepted 只投影已接纳模型正文。text/program 预览不当作执行结果。取消只发意图，等待真实终态。Session 的 pending、answer 和 request 提供确认/问答原身份，浏览器不会自行构造新运行来回答旧请求。
 
-模型从与 Desktop 同源的 Platform 内置目录选择，协议由对应底座适配器处理；允许为已选服务商指定自定义地址和模型名。服务端只接纳该目录中的内置身份，不按地址猜协议，也不安装 Cloud 登录或脚本适配器。活动运行继续使用原连接，结束后下次输入才重建 Runtime。运行事实和程序原文留在底座，产品只保有界投影与事实引用。
+模型服务商从 Platform 内置运营清单选择，型号通过公开 `createModelRuntimeComposition().providerModelCatalogService` 按服务商、地址与密钥动态获取；允许指定自定义地址和模型名。同步 ModelCatalog 不再提供可选型号或默认型号，远端失败和空结果不回填预置列表。服务端只接纳受支持的内置身份，不按地址猜协议，也不安装 Cloud 登录或脚本适配器。目录草稿查询不保存，旧密钥只在同连接下复用；客户端断开与产品关闭取消查询，SDK 持有鉴权作用域缓存。活动运行继续使用原连接，结束后下次输入才重建 Runtime。运行事实和程序原文留在底座，产品只保有界投影与事实引用。
 
 Server 早期真实 Node/网页确认绿项保留于 0.9.0 原身份。0.9.1 原终端失败路径的 PID 对齐、实际输出、停止、exited 和 Node 自然退出通过证据保留。0.9.2 的实际增量为通用只读 trace，未以此重复 Agent、Windows PTY 或网页场景。基础 Linux 证明沿用 owner 原单轮；Server 最终 0.9.2 的独立生产安装、HTTP、文件读写、原生 PTY 输出/停止/exited 和主 SIGTERM 零退出码已在本仓 [run 42581492981](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42581492981) 通过。systemd 与真实供应商 API 不在本轮证明内。
 
-UI 已切到正式 v1.1.2 官方归档，公开入口、props、样式和依赖合同保持不变，无需产品迁移。聊天从 `@velaros-ai/ui/conversation/basic` 消费同一 ChatConversationPane，使用配套 conversation-basic.css；AppShell、Input/Button、Select 与 Composer 继续用已有公开入口。显式挂载公开 ConversationBlockHooksProvider 与中立 hooks，避免仅空会话可用、有消息时因漏装配崩溃。终端 xterm 按页加载，不修改库或复制渲染器。
+UI 已切到正式 v1.1.3 官方归档。聊天从 `@velaros-ai/ui/conversation/basic` 消费同一 ChatConversationPane，使用配套 conversation-basic.css；AppShell、Input/Button、Select、Dialog 与 Composer 继续用已有公开入口。显式挂载公开 ConversationBlockHooksProvider 与中立 hooks，避免仅空会话可用、有消息时因漏装配崩溃。网页已移除独立终端页面及 xterm 依赖，不修改库或复制渲染器。
 
 此前 0.9.3 的独立 Linux 产品安装已在 [run 42607896603](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603) 通过，制品源为 `19d426196d43238f38d83ae1c3712438e1b0fd48`，包括此前 2eb7622 的全部服务与网页修复。网页仅在该 Linux 轮次冷构建一次；原 UI 交互、Agent 与 Windows PTY 证明未重跑、未重标为新归档执行。此次证明覆盖生产安装、HTTP、文件读写及模式、原生 PTY 输出/停止/exited 和主服务 SIGTERM 零退出码；精确摘要见 `docs/evidence/linux-install-19d4261.json`。provenance 中的 `linuxProductInstall: false` 记录相应依赖采用时的状态，不替代独立产品回执。
 
@@ -32,4 +32,6 @@ UI 已切到正式 v1.1.2 官方归档，公开入口、props、样式和依赖�
 
 此前 0.9.6 与 UI 1.1.1 的接入只消费公开正式归档。实际入口、严格声明、HTTP/审批/真实 Node 文件/关闭、网页构建及隔离浏览器效果见 `docs/evidence/platform-096-ui-111-adoption.json`；没有复制底座或 UI 内部修复。旧 Linux 制品没有重建或重标。
 
-最终 0.9.7 / UI 1.1.2 仅改变发行元数据和根说明文档。逐文件核验基础 2,668 个文件、UI 1,464 个文件，运行代码、声明、样式及其余资源均相同，第三方 lock 内容未变。普通安装、冻结安装及现有产品编译入口的外部 SDK 身份检查一次通过，约 19.96 秒；实际基础实例只有一个。现有网页 16 个文件及 Server 主入口哈希保持不变，保留前一版本的类型/HTTP/网页证明，不重建或重播。最终 URL、哈希、比较与安装记录见 `docs/evidence/platform-097-ui-112-adoption.json`。
+此前 0.9.7 / UI 1.1.2 仅改变发行元数据和根说明文档。逐文件核验基础 2,668 个文件、UI 1,464 个文件，运行代码、声明、样式及其余资源均相同，第三方 lock 内容未变。普通安装、冻结安装及现有产品编译入口的外部 SDK 身份检查一次通过，约 19.96 秒；实际基础实例只有一个。当轮网页 16 个文件及 Server 主入口哈希保持不变，保留前一版本的类型/HTTP/网页证明，不重建或重播。URL、哈希、比较与安装记录见 `docs/evidence/platform-097-ui-112-adoption.json`。
+
+2026-11-12 已从 main 发布的 Platform 0.12.1 和正式 UI 1.1.3 重新接入。普通安装、冻结离线安装、实际公开 SDK 身份、Server/Web 严格类型、5 项认证设置与 2 项动态目录 HTTP 测试、既有真实 Runtime/审批/Node 接缝及一次网页构建全部通过；本轮目录列表在实际浏览器经本地供应商接口验证，未调用真实供应商。具体身份、耗时与范围见 `docs/evidence/dynamic-models-20261112.json`，不改写旧 Linux 制品身份。

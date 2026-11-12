@@ -12,6 +12,7 @@ import {
 import type { ModelSettings } from '../../../packages/contracts/src/index.js'
 import { ModelProviderPresets } from '../../../packages/model-config/src/providers.js'
 import { request } from './api.js'
+import { useModelCatalog } from './useModelCatalog.js'
 
 const CustomModel = '__custom_model__'
 
@@ -30,25 +31,37 @@ export function ModelDialog({
   const [name, setName] = useState(model.model)
   const [customAddress, setCustomAddress] = useState(false)
   const [customModel, setCustomModel] = useState(false)
+  const [editingConnection, setEditingConnection] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pending = useRef(false)
   const preset = ModelProviderPresets.find((entry) => entry.id === provider)
   const keepKey = model.hasApiKey && provider === model.provider && baseUrl.trim() === model.baseUrl
+  const catalog = useModelCatalog({
+    open: open && !editingConnection,
+    csrf,
+    provider,
+    baseUrl,
+    apiKey,
+    keepKey,
+    catalogWithoutKey: preset?.catalogWithoutKey ?? false,
+  })
+  const usingCustomModel =
+    customModel || Boolean(name && !catalog.models.some((entry) => entry.id === name))
   const changeOpen = (next: boolean): void => {
     if (pending.current) return
     if (next) {
       setProvider(model.provider)
       setBaseUrl(model.baseUrl)
       const current = ModelProviderPresets.find((entry) => entry.id === model.provider)
-      const selected = model.model || current?.defaultModel || ''
-      setName(selected)
-      setCustomModel(!current?.models.includes(selected))
+      setName(model.model)
+      setCustomModel(false)
       setCustomAddress(Boolean(current?.customEndpoint || model.baseUrl !== current?.baseUrl))
       setError(null)
     }
     setApiKey('')
+    setEditingConnection(false)
     setOpen(next)
   }
   return (
@@ -144,9 +157,9 @@ export function ModelDialog({
                 if (!next) return
                 setProvider(next.id)
                 setBaseUrl(next.baseUrl)
-                setName(next.defaultModel)
+                setName('')
                 setCustomAddress(next.customEndpoint)
-                setCustomModel(!next.models.length)
+                setCustomModel(false)
                 setApiKey('')
                 setError(null)
               }}
@@ -163,21 +176,59 @@ export function ModelDialog({
                 type="url"
                 required
                 value={baseUrl}
+                onFocus={() => setEditingConnection(true)}
+                onBlur={() => setEditingConnection(false)}
                 disabled={saving}
                 onChange={(event) => setBaseUrl(event.target.value)}
               />
             </label>
           )}
+          <label>
+            API 密钥
+            <Input
+              type="password"
+              required={!keepKey}
+              autoComplete="off"
+              maxLength={4096}
+              value={apiKey}
+              onFocus={() => setEditingConnection(true)}
+              onBlur={() => setEditingConnection(false)}
+              disabled={saving}
+              placeholder={keepKey ? '已配置，留空保留' : '输入此服务商的 API 密钥'}
+              onChange={(event) => setApiKey(event.target.value)}
+            />
+          </label>
           <div className="model-field">
-            <label htmlFor="model-name">模型</label>
+            <div className="model-field-heading">
+              <label htmlFor="model-name">模型</label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="model-custom-address"
+                disabled={saving || !catalog.ready || catalog.loading}
+                onClick={catalog.refresh}
+              >
+                {catalog.loading ? '获取中…' : '刷新列表'}
+              </Button>
+            </div>
             <Select
               id="model-name"
-              value={customModel ? CustomModel : name}
+              value={usingCustomModel ? CustomModel : name || undefined}
+              placeholder={
+                editingConnection
+                  ? '完成填写后获取模型'
+                  : catalog.loading
+                    ? '获取中…'
+                    : catalog.ready
+                      ? '选择模型'
+                      : '先填写密钥'
+              }
               disabled={saving}
               searchable
               searchPlaceholder="搜索模型"
               options={[
-                ...(preset?.models ?? []).map((id) => ({ value: id, label: id })),
+                ...catalog.models.map((entry) => ({ value: entry.id, label: entry.label })),
                 { value: CustomModel, label: '自定义模型…' },
               ]}
               onChange={(value) => {
@@ -185,8 +236,13 @@ export function ModelDialog({
                 setName(value === CustomModel ? '' : value)
               }}
             />
+            {catalog.error && (
+              <span role="status" className="model-catalog-error">
+                {catalog.error}
+              </span>
+            )}
           </div>
-          {customModel && (
+          {usingCustomModel && (
             <label>
               自定义模型
               <Input
@@ -199,19 +255,6 @@ export function ModelDialog({
               />
             </label>
           )}
-          <label>
-            API 密钥
-            <Input
-              type="password"
-              required={!keepKey}
-              autoComplete="off"
-              maxLength={4096}
-              value={apiKey}
-              disabled={saving}
-              placeholder={keepKey ? '已配置，留空保留' : '输入此服务商的 API 密钥'}
-              onChange={(event) => setApiKey(event.target.value)}
-            />
-          </label>
           {error && (
             <p role="alert" className="error-text">
               {error}
@@ -226,7 +269,7 @@ export function ModelDialog({
             >
               取消
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || !name.trim()}>
               {saving ? '保存中…' : '保存'}
             </Button>
           </div>

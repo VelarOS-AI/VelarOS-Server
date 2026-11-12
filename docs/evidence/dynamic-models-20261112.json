@@ -1,0 +1,294 @@
+{
+  "recordedAt": "2026-11-12T07:45:31.352Z",
+  "kind": "official-dependency-adoption-and-dynamic-model-catalog",
+  "product": {
+    "repository": "VelarOS-AI/VelarOS-Server",
+    "branch": "main",
+    "basedOn": "6ad61266bdcf2d129a7abb080d2cf975e800dd58",
+    "buildState": {
+      "web": {
+        "fingerprint": "739b3e3b3ebb4207eaa9d5ff883933b1d0921d4513852894236b0bb3f65dba17",
+        "passedAt": "2026-11-12T07:27:59.841Z"
+      },
+      "server": {
+        "fingerprint": "85dea01355ba3cd3ab00de4b5318a42d9b2a88946969fe8b36edd6644fabb0a3",
+        "passedAt": "2026-11-12T07:27:34.107Z"
+      }
+    }
+  },
+  "dependencies": {
+    "schemaVersion": 1,
+    "platformGeneration": "0.7",
+    "platform": {
+      "name": "@velaros-ai/velaros",
+      "version": "0.12.1",
+      "file": "vendor/runtime/velaros-ai-velaros-0.12.1.tgz",
+      "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+      "sha256": "191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c",
+      "integrity": "sha512-UyR1NsMtLK1dMo2mVlL3DwwfoDoWBpomF2u/W8ND3gkCxEzyY3R006oUhrudKWZDPHMiS8fV7FSe2+UV4wy0Tw==",
+      "kind": "published-release",
+      "provenance": "resources/platform-provenance.json",
+      "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz"
+    },
+    "ui": {
+      "name": "@velaros-ai/ui",
+      "version": "1.1.3",
+      "file": "vendor/ui/velaros-ai-ui-1.1.3.tgz",
+      "sourceCommit": "ba5f9c506f9e05a57b748671f7d0ed522b1e84bc",
+      "sha256": "e4477df9d3964dd3f0070a67aaeb9d1dfcb974e7275a37c21e2c09c840ecea39",
+      "integrity": "sha512-onuztDwSyVSrlbpSHItQPj5M7ENpKapRAFswM/jdQtvj6uCYdAq1unRXt2a7xECKN/ZhY7d6ZLpdHTaW5dbh8w==",
+      "kind": "published-release",
+      "provenance": "resources/ui-provenance.json",
+      "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.3/velaros-ai-ui-1.1.3.tgz"
+    }
+  },
+  "officialPlatformRelease": {
+    "tag": "v0.7.13",
+    "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+    "workflow": "https://github.com/VelarOS-AI/VelarOS-Platform/actions/runs/43174058195",
+    "conclusion": "success",
+    "manifestSha256": "03f829daf3763f25d8f5cee380a48ab933497d72d65c00ddde9f75d3ef693112",
+    "validationSha256": "d0102d9c16b96466dbea374712a6398344e184a8dfe1143d0174d3fd6c04ab2b"
+  },
+  "installed": {
+    "platform": "0.12.1",
+    "ui": "1.1.3",
+    "ordinaryCanonicalUrls": true,
+    "overridesAndResolutionsAbsent": true,
+    "capabilitiesInstalled": false,
+    "baseInstances": 1,
+    "actualSdkDoesNotSuggestStaticModels": true,
+    "explicitSelectionPreserved": true
+  },
+  "checks": [
+    {
+      "label": "ordinary-install",
+      "exitCode": 0,
+      "durationMs": 19579,
+      "logSha256": "0c8f99589adc9b7da25b9823d6fab7c51e2c5b06f1091bcc39e11da15fe2d692"
+    },
+    {
+      "label": "frozen-install",
+      "exitCode": 0,
+      "durationMs": 2029,
+      "logSha256": "fe4d52c25351c1d8461d475e37878f80219ac85136dbd32d663c9abfcc31b31d"
+    },
+    {
+      "label": "installed-identity",
+      "exitCode": 0,
+      "durationMs": 4366,
+      "logSha256": "4e5d5ed16934d208dc428286f4f8a970adb91cf78d3709c0d6bc101379887461"
+    },
+    {
+      "label": "affected-server-and-web",
+      "exitCode": 0,
+      "durationMs": 42227,
+      "logSha256": "bb7ac9571ae33b95e0aaf5e81fb8f1d3d15d63e722c79d1edbdb4ac107df21cc"
+    }
+  ],
+  "checkLimits": {
+    "perStepTimeoutMs": 45000,
+    "nodeHeapMiB": 2048,
+    "sharedExclusiveLock": true,
+    "newProductMatrix": false
+  },
+  "assertions": {
+    "authSettingsTests": {
+      "passed": 5,
+      "failed": 0
+    },
+    "catalogHttpTests": {
+      "passed": 2,
+      "failed": 0,
+      "actualOfficialSdk": true,
+      "isolatedLocalProvider": true,
+      "authenticationAndCsrf": true,
+      "sameConnectionStoredKeyOnly": true,
+      "draftDoesNotPersist": true,
+      "errorsAndEmptyDoNotFillPresets": true,
+      "applicationCloseCancelsPendingCatalog": true
+    },
+    "platformSeam": {
+      "input": true,
+      "observationSupport": {
+        "available": false,
+        "reason": "进程约束模式“read-only”在当前 win32 宿主不可用，已拒绝以裸进程继续执行。"
+      },
+      "historySelection": true,
+      "historyExecuted": false,
+      "nextTurnDynamicHistory": true,
+      "completeNativeExchangeInDynamicTail": true,
+      "officialRequestEncoder": true,
+      "selectionConsumedOnce": true,
+      "approval": true,
+      "nodeFile": true,
+      "completed": true,
+      "modelCalls": 3,
+      "host": "win32",
+      "node": "24.22.0",
+      "runtimeHostClosed": true,
+      "providerApi": false,
+      "readOnlyCaptureTested": false,
+      "linuxInstallRepeated": false,
+      "webBuildRepeated": false
+    }
+  },
+  "browser": {
+    "target": "compiled product HTTP and official SDK against isolated local provider",
+    "remoteModelsSeen": ["live-alpha-model", "live-beta-model"],
+    "changedAddressModelsSeen": ["live-next-model"],
+    "errorDropdownOnlyCustom": true,
+    "savedKeyNotEchoed": true,
+    "storedKeyWorksOnlyOnOriginalConnection": true,
+    "manualRefreshReachedProvider": true,
+    "errors": [],
+    "wire": {
+      "source": "actual product HTTP and official SDK catalog against isolated local provider; no real credentials/provider API/Agent execution",
+      "calls": [
+        {
+          "path": "/v1/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/v1/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/v2/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/v1/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/slow/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/error/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/v1/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        },
+        {
+          "path": "/v1/models",
+          "keyPresent": true,
+          "expectedFixtureKey": true
+        }
+      ],
+      "slowAborted": false,
+      "closed": true
+    },
+    "inFlightRemoteAbortProvenByBrowser": false,
+    "inFlightAbortLimit": "Slow provider request completed before the browser address switch; do not claim wire cancellation from this run. Application-close cancellation is covered by the HTTP test.",
+    "fixtureNaturalExitCode": 0,
+    "actualPreview": "http://127.0.0.1:8787",
+    "userConfigurationChanged": false,
+    "existingUnsavedDraftPreserved": true,
+    "screenshots": [
+      {
+        "file": ".cache/dynamic-models-20261112/model-config.png",
+        "sha256": "bd9cd2fceb2fa925779c2a019ff11d7020af29ea7a47ca3fb83c1ed001727bf9"
+      },
+      {
+        "file": ".cache/dynamic-models-20261112/dynamic-dropdown.png",
+        "sha256": "cbad7323f023784015bb6d8fad552d386f85a901ea943bd86ea7505179a2cdfc"
+      }
+    ]
+  },
+  "outputs": {
+    "serverMainSha256": "f7c7a36e77c1d0270a343a49d7754047e155ee9502138a5b684fe21c833fc1fc",
+    "web": [
+      {
+        "file": "dist/web/assets/babel-BaOs8qJH.js",
+        "bytes": 315988,
+        "sha256": "26cb2fa36ab55d18f1b3615d63d3d8d5b1ba5b6cfae8c95f21444ba922f596d0"
+      },
+      {
+        "file": "dist/web/assets/bundle-mjs-IAt97Kob.js",
+        "bytes": 36136,
+        "sha256": "20f20fcdd3611c522c9c20426542c0928ed733fc6b625b41123ad41d5c309152"
+      },
+      {
+        "file": "dist/web/assets/estree-Cw-tQG5d.js",
+        "bytes": 210376,
+        "sha256": "6e1383f1d2c19bfafb2c0c896c69af2add7f0d71bb1ad32514d0381be32d1462"
+      },
+      {
+        "file": "dist/web/assets/executionStepTokenize-DdBK8TXv.js",
+        "bytes": 133304,
+        "sha256": "f35d00eadd7f0fa8ed35ecff7d05ff7234d5fb8d1f84b83c6538b8b583fc8762"
+      },
+      {
+        "file": "dist/web/assets/highlighted-body-JLMTFACH-D56Ifg7u.js",
+        "bytes": 621,
+        "sha256": "7968675e80dd9b8f2896673c991490bde32275075820d05af9de50fdd866c16e"
+      },
+      {
+        "file": "dist/web/assets/index-CBU9BmS0.css",
+        "bytes": 275092,
+        "sha256": "4e1b4ef92c8c9d50d077838ef8511b900634756355805165fb263260c9b13014"
+      },
+      {
+        "file": "dist/web/assets/index-M1XgYYvI.js",
+        "bytes": 1117592,
+        "sha256": "0d2b93cebdc5179185accbd7ea3b6cb902ace3589996a9d00b246b3dbc12222f"
+      },
+      {
+        "file": "dist/web/assets/mermaid-WFAXDIZX-C0Hp0lqG.js",
+        "bytes": 62,
+        "sha256": "2ed94b627baf2f1820a5bc00fda901c2928b021f8b05b3cd724cfb442b38c851"
+      },
+      {
+        "file": "dist/web/assets/MessageMarkdownBlocks-CCRLuAAH.js",
+        "bytes": 502131,
+        "sha256": "b86c173cc16f1b1b76548fd3f00e8688f0d7130baaaa4151df1a16c016ed3aa3"
+      },
+      {
+        "file": "dist/web/assets/PlanToolRender-BNwQlWSF.css",
+        "bytes": 8179,
+        "sha256": "7f78298c29516ffac68a92e24d3431b8786d15e3525aad4053b0a2681e3fece9"
+      },
+      {
+        "file": "dist/web/assets/PlanToolRender-CCedsnsk.js",
+        "bytes": 12225,
+        "sha256": "7385ab3ee620e658f006f6b1c45d5789f5d863ced38c82fcbc6f1c3c65b69cc3"
+      },
+      {
+        "file": "dist/web/assets/standalone-YobQElH8.js",
+        "bytes": 80983,
+        "sha256": "4a1555f28dc980bfbf7444249a5be3e9bca04beda1f6736ac3d8124365d2bf2b"
+      },
+      {
+        "file": "dist/web/index.html",
+        "bytes": 530,
+        "sha256": "7e98cd60efeaf4b0f3e4e50f56f04043792744b6a058c9f04f64df1cdf9aafdf"
+      }
+    ]
+  },
+  "retainedEvidence": [
+    "docs/evidence/platform-097-ui-112-adoption.json",
+    "docs/evidence/linux-install-19d4261.json",
+    "docs/evidence/agent-chain-19d4261.json"
+  ],
+  "scope": {
+    "realProviderCredentials": false,
+    "realProviderApi": false,
+    "paidModelCalls": false,
+    "linuxProductInstall": false,
+    "newProductionArtifact": false,
+    "systemd": false,
+    "productionDeployment": false,
+    "oldEvidenceRelabeled": false
+  }
+}

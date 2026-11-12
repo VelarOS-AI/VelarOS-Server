@@ -12,7 +12,8 @@ import { UnavailableExecution } from './execution.js'
 import { ServerFiles } from './files.js'
 import { RunRequests } from './runs.js'
 import { ProductStore } from './store.js'
-import { ModelSettingsStore, modelSettingsSchema } from './model-settings.js'
+import { ModelSettingsStore, modelSettingsSchema, modelCatalogSchema } from './model-settings.js'
+import { ServerModelCatalog } from './model-catalog.js'
 import type { TerminalPort } from './terminal.js'
 import { TerminalHttp } from './terminal-http.js'
 
@@ -75,6 +76,7 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
   const auth = new BrowserAuth(options.store, options.accessToken, origin.startsWith('https:'))
   const eventConnections = new Set<ServerResponse>()
   const settings = new ModelSettingsStore(options.store)
+  const catalogs = new ServerModelCatalog(settings)
   const terminal = new TerminalHttp(options.terminal, eventConnections, body, json)
 
   const serve = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
@@ -215,6 +217,23 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
         .parse(await body(request))
       return json(response, 200, await options.files.write(input.path, input.sha256, input.content))
     }
+    if (method === 'POST' && url.pathname === '/api/settings/model/catalog') {
+      const controller = new AbortController()
+      const cancel = (): void => controller.abort()
+      response.once('close', cancel)
+      try {
+        const value = await catalogs.list(
+          modelCatalogSchema.parse(await body(request)),
+          controller.signal,
+        )
+        if (!controller.signal.aborted) json(response, 200, value)
+      } catch (failure) {
+        if (!controller.signal.aborted) throw failure
+      } finally {
+        response.off('close', cancel)
+      }
+      return
+    }
     if (method === 'PUT' && url.pathname === '/api/settings/model') {
       return json(response, 200, settings.save(modelSettingsSchema.parse(await body(request))))
     }
@@ -309,6 +328,7 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
   return {
     server,
     close: async () => {
+      catalogs.close()
       const closed = new Promise<void>((resolveClose, reject) =>
         server.close((error) => (error ? reject(error) : resolveClose())),
       )

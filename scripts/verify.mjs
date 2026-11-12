@@ -42,6 +42,7 @@ if (handle) {
       ['file-concurrency', '--test', 'dist/tests/file-concurrency.test.js'],
       ['admission-atomicity', '--test', 'dist/tests/admission-atomicity.test.js'],
       ['auth-settings', '--test', 'dist/tests/auth-settings.test.js'],
+      ['model-catalog', '--test', 'dist/tests/model-catalog.test.js'],
       [
         'runtime-lifecycle',
         '--experimental-test-module-mocks',

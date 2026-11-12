@@ -1,6 +1,6 @@
 # Server 产品边界与当前接入状态
 
-Server 管理本机单 Host；网页只有左侧会话栏和右侧聊天，复用 Desktop 使用的共享会话及输入组件。新对话在首次发送时创建，标题取首条输入；窄屏会话栏按需展开。文件、终端和模型设置保留已有服务端接口，网页不再提供独立页面、主机指标或常驻说明。它不持有 Desktop People/团队、Workbench 工作区或 Desktop IPC。UI 固定消费正式 v1.1.2 归档及基础会话入口，来源与 SHA 登记于 `resources/runtime-snapshot.json` 和 `resources/ui-provenance.json`。正式依赖直接声明官方归档 URL，不使用 overrides、resolutions 或本地 link。
+Server 管理本机单 Host；网页只有左侧会话栏和右侧聊天，复用 Desktop 使用的共享会话及输入组件。新对话在首次发送时创建，标题取首条输入；窄屏会话栏按需展开。文件、终端和模型设置保留已有服务端接口，网页不再提供独立页面、主机指标或常驻说明。它不持有 Desktop People/团队、Workbench 工作区或 Desktop IPC。UI 固定消费正式 v1.1.3 归档及基础会话入口，来源与 SHA 登记于 `resources/runtime-snapshot.json` 和 `resources/ui-provenance.json`。正式依赖直接声明官方归档 URL，不使用 overrides、resolutions 或本地 link。
 
 `ExecutionPort` 是产品到 Platform 适配器的窄边界。`platform-composition.ts` 创建一个公开 LocalShellHost，同时注入 Node Runtime 和 HostTerminal；环境和 Host 归产品，模型循环、执行事实和进程生命周期归底座。Runtime 真正关闭后才释放 Host。没有创建第二个命令执行器。
 
@@ -16,7 +16,9 @@ SSE 发送变更引用，网页随后读取最新投影；通知保留 512 条�
 
 按 ADR 0028 固定 `resources/runtime-snapshot.json` 登记的官方正式基础归档 URL，只消费公开 Node/Execution 入口，显式 binding/executionIdentity/authorizationScope，modules 为空，不安装能力扩展。状态目录与执行根分离；恢复产品会话前核对原实例、执行用户、Node、授权根和策略身份。模型设置改变不会热替换正在运行的 Runtime；初始化也只合并同一配置身份，不同配置的新提交沿用 MODEL_BUSY，等待原运行收束。关闭等待初始化结果；没有 Runtime 留存的初始化失败不重复阻断产品资源清理，旧 Runtime 的实际关闭失败仍保留原 owner 和错误。
 
-首版 API：`/api/auth`、`/api/info`、`/api/sessions`、`/api/sessions/:id/inputs|cancel|answers|interaction`、`/api/files`、`/api/files/text`、`/api/settings/model`、`/api/events` 和 `/api/terminal`。JSON 入参在 HTTP 边界校验；网页变更需登录、CSRF 和匹配来源。后端持有模型密钥，前端仅收到 hasApiKey。
+首版 API：`/api/auth`、`/api/info`、`/api/sessions`、`/api/sessions/:id/inputs|cancel|answers|interaction`、`/api/files`、`/api/files/text`、`/api/settings/model`、`/api/settings/model/catalog`、`/api/events` 和 `/api/terminal`。JSON 入参在 HTTP 边界校验；网页变更需登录、CSRF 和匹配来源。后端持有模型密钥，前端仅收到 hasApiKey。
+
+模型配置按需打开弹窗。服务商身份与默认地址来自 Platform 运营清单；可选型号只来自官方 ProviderModelCatalogService 的远端结果或用户输入，不再消费同步预置型号。目录 POST 按当前连接解析已存密钥，草稿查询不写 SQLite。网页在完成地址/密钥输入后延迟查询，关闭、认证或连接变化取消旧请求，并按连接身份隔离迟到结果；服务端在客户端断开与应用关闭时取消对应查询。鉴权作用域缓存、协议和响应解析归 Platform，Server 不维护第二套供应商模型协议。
 
 默认每次执行经原 Session 的 confirmation；网页按需读取待执行原文，不另存正文。回答绑定 id/runId 并单次消费。终端采用 Host 输出缓冲→SSE、浏览器按键→HTTP，不增加 WebSocket 服务或第二份输出档案。输入不自动重试，断开订阅不停止任务；停止调用 Host 的原 taskId。
 

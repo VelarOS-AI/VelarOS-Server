@@ -1,47 +1,42 @@
 {
   "originKind": "verified-published-release",
   "name": "@velaros-ai/ui",
-  "version": "1.1.2",
-  "sourceCommit": "5d208907105cedde577976c4eda9787e5ac1227f",
-  "bytes": 944464,
-  "sha256": "20cbe8a35301920bbe0de7d5f21710c39fe5dae79783b477a866ede3e0adad1d",
-  "integrity": "sha512-ZfbgnA8zjc14GNZhn5Ldy7yjGZZmT9yLE+BZIHy1RI63bhb8SRapzrZ1FAC47FkD0cc3z2MfVv/VKx5+4lUJqw==",
-  "ownerReceiptSha256": "b18b8c1a21ba7256c8c03b623c37b5973598ccb3a438d19bd7e584b86ed07369",
+  "version": "1.1.3",
+  "file": "vendor/ui/velaros-ai-ui-1.1.3.tgz",
+  "sourceCommit": "ba5f9c506f9e05a57b748671f7d0ed522b1e84bc",
+  "sha256": "e4477df9d3964dd3f0070a67aaeb9d1dfcb974e7275a37c21e2c09c840ecea39",
+  "integrity": "sha512-onuztDwSyVSrlbpSHItQPj5M7ENpKapRAFswM/jdQtvj6uCYdAq1unRXt2a7xECKN/ZhY7d6ZLpdHTaW5dbh8w==",
+  "kind": "published-release",
+  "provenance": "resources/ui-provenance.json",
+  "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.3/velaros-ai-ui-1.1.3.tgz",
+  "bytes": 944574,
   "publicationAtAdoption": true,
-  "publicEntry": "@velaros-ai/ui/conversation/basic",
-  "publicStyles": "@velaros-ai/ui/styles/components/conversation-basic.css",
   "publication": {
     "published": true,
-    "tag": "v1.1.2",
-    "tagObject": "96bc895e07314c1decc8addc7a2fae628899613a",
-    "sourceTree": "2f20e393ecf438d341bc620274600b3924a03cfc",
-    "publishedAt": "2026-11-10T02:53:11Z",
-    "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.2/velaros-ai-ui-1.1.2.tgz",
-    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-UI/releases/tag/v1.1.2",
-    "sha256": "20cbe8a35301920bbe0de7d5f21710c39fe5dae79783b477a866ede3e0adad1d",
-    "sourceCommit": "5d208907105cedde577976c4eda9787e5ac1227f",
+    "tag": "v1.1.3",
+    "tagObject": "4e15bd9bad88a8d5860787e83d2d667b9d600900",
+    "sourceCommit": "ba5f9c506f9e05a57b748671f7d0ed522b1e84bc",
+    "publishedAt": "2026-11-10T08:16:49Z",
+    "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.3/velaros-ai-ui-1.1.3.tgz",
+    "releaseUrl": "https://github.com/VelarOS-AI/VelarOS-UI/releases/tag/v1.1.3",
     "githubAssetDigestMatches": true,
-    "githubTagMatchesSourceCommit": true,
-    "downloadedArchiveHashMatches": true
+    "githubTagMatchesSourceCommit": true
   },
   "consumerContract": {
-    "publicEntriesAvailable": true,
-    "thirdPartyDependenciesUnchanged": true,
-    "peersUnchanged": true,
-    "sourceMigrationRequired": false,
+    "publicEntry": "@velaros-ai/ui/conversation/basic",
     "overrides": false,
-    "evidence": "docs/evidence/platform-097-ui-112-adoption.json",
     "resolutions": false,
-    "compiledFilesByteIdenticalTo111": 1457
+    "evidence": "docs/evidence/dynamic-models-20261112.json"
   },
   "retainedConsumerEvidence": {
-    "version": "1.1.0",
-    "sha256": "5561690111c8e9dbb806658c88473b8866364b02fdec2d39116588fedd0422c6",
-    "record": "docs/verification.md",
-    "runtimeEquivalent111": {
-      "version": "1.1.1",
-      "sha256": "2e4134f72adb1088cfad51eb47753bc73aaf30f079d1fa1153f67bfc8cc2e8c3",
-      "evidence": "docs/evidence/platform-096-ui-111-adoption.json"
-    }
+    "name": "@velaros-ai/ui",
+    "version": "1.1.2",
+    "file": "vendor/ui/velaros-ai-ui-1.1.2.tgz",
+    "sourceCommit": "5d208907105cedde577976c4eda9787e5ac1227f",
+    "sha256": "20cbe8a35301920bbe0de7d5f21710c39fe5dae79783b477a866ede3e0adad1d",
+    "integrity": "sha512-ZfbgnA8zjc14GNZhn5Ldy7yjGZZmT9yLE+BZIHy1RI63bhb8SRapzrZ1FAC47FkD0cc3z2MfVv/VKx5+4lUJqw==",
+    "kind": "published-release",
+    "provenance": "resources/ui-provenance.json",
+    "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.2/velaros-ai-ui-1.1.2.tgz"
   }
 }

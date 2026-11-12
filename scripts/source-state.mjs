@@ -14,6 +14,7 @@ export async function sourceState(root, scope) {
   }
   await collect(join(root, 'apps', scope === 'server' ? 'server' : 'web'))
   await collect(join(root, 'packages/contracts'))
+  await collect(join(root, 'packages/model-config'))
   for (const path of ['package.json', 'bun.lock', 'resources/runtime-snapshot.json'])
     files.push(join(root, path))
   if (scope === 'server') files.push(join(root, 'tsconfig.server.json'))

@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写和模型设置接口。当前固定正式 Platform 基础 0.9.7（tag v0.7.8）与 UI 1.1.2，不安装 capabilities；普通依赖直接声明官方归档 URL，产品清单和两份发布包均无 overrides/resolutions。本仓 vendor 保留核对过的同字节归档。[最终接入证据](docs/evidence/platform-097-ui-112-adoption.json)记录普通安装、冻结安装和现有编译入口实际解析到新 SDK。新包仅发行元数据及根说明文档变化，运行代码、声明、资源和第三方依赖未变，因此保留 [0.9.6 / UI 1.1.1 的类型、真实 HTTP/审批/Node 写入与关闭、网页构建及浏览器验证](docs/evidence/platform-096-ui-111-adoption.json)，没有重跑或改写其原身份。模型验证使用确定性驱动，没有生产部署或重新生成 Linux 制品。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写和动态模型设置。当前固定正式 Platform 基础 0.12.1（tag v0.7.13）与 UI 1.1.3，不安装 capabilities；普通依赖直接声明官方归档 URL，产品清单和两份发布包均无 overrides/resolutions。本仓 vendor 保留核对过的同字节归档。[接入证据](docs/evidence/dynamic-models-20261112.json)记录普通安装、冻结安装、实际 SDK 身份、严格类型、动态目录 HTTP、真实 Runtime/审批/Node 写入与关闭、网页构建及隔离浏览器验证。模型目录使用本地供应商测试接口，执行验证使用确定性驱动；没有生产部署或重新生成 Linux 制品。
 
 既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 
@@ -20,13 +20,13 @@ bun run build
 bun run start
 ```
 
-模型在输入框左下角的「配置模型」中设置。服务商和模型从可搜索的下拉框选择，使用与 Desktop 同源的 Platform 内置目录；默认地址自动带入，可展开「自定义地址」或选择「自定义模型」。同一服务商与地址下，已有密钥留空保留；切换服务商或地址需填写对应密钥。配置保存在服务器，网页不回显密钥。
+模型在输入框左下角的「配置模型」中设置。服务商从 Platform 内置适配器下拉选择，默认地址自动带入；完成地址与密钥填写后，模型下拉通过 Platform 动态目录服务获取当前接口的实际列表，可搜索或手动刷新。获取失败显示错误，不补预置型号，仍可选择「自定义模型」。同一服务商与地址下，已有密钥留空保留；切换服务商或地址需填写对应密钥。查询草稿不保存配置，网页不回显已存密钥。
 
 访问 `http://127.0.0.1:8787`。初次启动在数据目录的 `access-token` 写入访问令牌，仅打印文件位置。Linux 默认数据目录是 `$XDG_STATE_HOME/velaros-server`，未设置时为 `~/.local/state/velaros-server`；Windows 开发使用 `%LOCALAPPDATA%/VelarOS-Server`。数据目录必须在执行根之外，并从文件 API 排除。
 
 可用环境变量见 `deploy/server.env.example`。文件根使用 JSON 数组，生产时必须明确配置；默认只开放启动目录。开发 Vite 页面时，把后端 `VELAROS_SERVER_PUBLIC_ORIGIN` 设为实际 Vite origin，避免放宽来源检查。
 
-执行默认 `workspace-write` 与逐程序 `ask`。Linux 受约束模式需要可用 bubblewrap，底座不能落实约束时拒绝执行；`danger-full-access` 是管理员明确选择的进程权限模式，仍受服务用户的操作系统权限约束。模型服务商与建议模型来自 Platform 内置目录，协议由对应适配器提供，设置变更在活动运行收束后应用。
+执行默认 `workspace-write` 与逐程序 `ask`。Linux 受约束模式需要可用 bubblewrap，底座不能落实约束时拒绝执行；`danger-full-access` 是管理员明确选择的进程权限模式，仍受服务用户的操作系统权限约束。模型协议由 Platform 对应适配器提供，型号来自远端目录或用户明确输入，设置变更在活动运行收束后应用。
 
 只读观察能力由真实 Host 报告，不按操作系统推定支持，也不以普通执行代替只读采集。后端不可用时仍可选择已有观察历史或清除订阅；历史、动态材料和索引均由 Core 维护。当前 Windows 接缝实际报告只读程序不可用，不影响历史控制及明确审批的普通执行。
 
@@ -42,7 +42,7 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。后续至 0.9.7 的源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
+已验收的 Linux x64 生产包仍使用 Platform 0.9.3，包含编译后的服务、网页和原生生产依赖，目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。后续至 0.12.1 的源码消费没有重新打包或执行 Linux 安装。下载并核对既有 CI 产物：
 
 ```sh
 gh run download 42607896603 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-42607896603 --dir server-download

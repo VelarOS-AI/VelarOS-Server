@@ -22,10 +22,17 @@ const storedModelSettingsSchema = z
   })
   .strict()
 
-export const modelSettingsSchema = storedModelSettingsSchema.refine(
-  ({ apiKey }) => apiKey === undefined || apiKey === '' || apiKey.trim().length > 0,
-  { path: ['apiKey'], message: 'API 密钥不能只包含空白字符' },
-)
+const validKey = ({ apiKey }: { apiKey?: string }): boolean =>
+  apiKey === undefined || apiKey === '' || apiKey.trim().length > 0
+
+export const modelSettingsSchema = storedModelSettingsSchema.refine(validKey, {
+  path: ['apiKey'],
+  message: 'API 密钥不能只包含空白字符',
+})
+
+export const modelCatalogSchema = storedModelSettingsSchema
+  .pick({ provider: true, baseUrl: true, apiKey: true })
+  .refine(validKey, { path: ['apiKey'], message: 'API 密钥不能只包含空白字符' })
 
 export class ModelSettingsStore {
   public constructor(private readonly store: ProductStore) {}
@@ -56,14 +63,11 @@ export class ModelSettingsStore {
   }
 
   public save(value: z.infer<typeof modelSettingsSchema>): ModelSettings {
-    const previous = this.read()
-    const sameConnection =
-      previous.provider === value.provider && previous.baseUrl === value.baseUrl
+    const connection = this.resolveConnection(value)
     const next = {
-      provider: value.provider,
-      baseUrl: value.baseUrl,
+      ...connection,
       model: value.model,
-      apiKey: value.clearApiKey ? '' : value.apiKey || (sameConnection ? previous.apiKey : ''),
+      apiKey: value.clearApiKey ? '' : connection.apiKey,
     }
     this.store.db
       .prepare(
@@ -71,5 +75,20 @@ export class ModelSettingsStore {
       )
       .run(JSON.stringify(next))
     return this.view()
+  }
+
+  public resolveConnection(value: z.infer<typeof modelCatalogSchema>): {
+    provider: z.infer<typeof modelCatalogSchema>['provider']
+    baseUrl: string
+    apiKey: string
+  } {
+    const previous = this.read()
+    const sameConnection =
+      previous.provider === value.provider && previous.baseUrl === value.baseUrl
+    return {
+      provider: value.provider,
+      baseUrl: value.baseUrl,
+      apiKey: value.apiKey || (sameConnection ? previous.apiKey : ''),
+    }
   }
 }

@@ -33,11 +33,11 @@
 
 网页的执行档位随每次输入交付。标准模式和每次询问使用 `VELAROS_SERVER_EXECUTION_MODE` 指定的 Host，完全访问使用不启用沙箱的独立 Host；它开放的是当前服务账户已有的系统权限，文件 HTTP API 仍按管理员配置的根目录授权。`VELAROS_SERVER_APPROVAL` 只决定未传执行档位的 API 请求默认行为。部署账户需要读系统 journal 时，可由管理员在 systemd unit 的 `[Service]` 中设置 `SupplementaryGroups=systemd-journal`，核对系统存在该组后重启空闲服务；这只授予日志读取，不包含 root 或服务管理权限。进程全貌需在完全访问档位检查，沙箱里的 PID 视图不能视为宿主机进程排行。
 
-本次执行权限合同增加三档 Host/审批配置，授权范围推进到 `server-execution-v2`。升级后旧会话仍可查看，恢复旧运行前的范围核对会拒绝扩大授权；请用新会话开始新的运维任务，不改写旧绑定或自动重放旧命令。
+执行权限合同使用三档 Host/审批配置，授权范围为 `server-execution-v2`。当前产品数据仅支持 schema 2，不提供 schema 1 会话兼容或迁移，旧数据会拒绝启动。试用实例按用户明确要求清理了旧会话、请求、通知与 Runtime 上下文，同时保留配置、令牌、登录和工作文件；详情见部署记录。新的运维任务从新会话开始，不改写旧绑定或自动重放旧命令。
 
 产品诊断写到标准输出和错误输出，由 systemd/journald 或实际进程管理器负责日志轮转与保留；没有另建产品日志归档。SQLite 的变更通知和展示投影有界，请求去重记录保留原身份，不随日志清理删除，以免历史命令被重复执行。数据目录及其备份包含访问与模型凭据，应沿用该目录的访问限制。
 
-更新先停止服务并等待真实运行收束，保存数据目录，解压新产物再启动。不要将同一数据根同时交给两个服务实例；unknown 结果先核对原操作，不自动重放。这里只提供单机交付流程，不加入自更新代理或产品版本兼容层。
+同 schema 更新先等待真实运行收束、停止服务，保存数据目录，解压新产物再启动。不要将同一数据根同时交给两个服务实例；unknown 结果先核对原操作，不自动重放。这里只提供单机交付流程，不加入自更新代理或产品版本兼容层。
 
 ## 单轮 Linux 安装验证
 
@@ -45,6 +45,6 @@
 
 此脚本消费真实生产目录和原生依赖，核对基础归档与主入口哈希，确认不安装 UI/React/Electron/capabilities 开发或扩展包，再启动真实产品 main，验证 HTTP 登录、静态网页、样例文件、PTY 输出与停止、SIGTERM 后零退出码。测试使用一次性目录和 loopback，不配置供应商密钥，不重跑已通过 Agent 链；进程退出未知时报告并保留现场，不增加强杀兜底。
 
-最近一次已验收的 Linux 制品来自 [run 43207284707](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43207284707)，准确源码为 `f618d502f50fba87f9f43a141351d5df51002462`，使用基础 0.12.1 / UI 1.1.3 构建。已下载产物并核对 SHA-256 `354dbfef5f731e97733bb7d682b58a309be2198f4eee8ed0d4bbd735cbd54867`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，43,067,617 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-f618d50.json`。旧版本回执保持原身份。
+最近一次已验收的 Linux 制品来自 [run 43214638113](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43214638113)，准确源码为 `75957d038494bb016e4cbc447c4092ab7cac65ad`，使用基础 0.12.1 / UI 1.1.3 构建。已下载产物并核对 SHA-256 `921de6d86b356269d184620d0a65e753b5ce56b64a199ed64917ff247c91544f`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，43,079,463 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-75957d0.json`。旧版本回执保持原身份。
 
-CI 安装验证使用显式 danger-full-access 验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。独立试用实例的真实 systemd 启动、专用用户、workspace-write 隔离与网页登录已在目标云主机另外验证；初次隔离证明见 `docs/evidence/server-trial-20261112.json`，HTTPS 首次接入见 `docs/evidence/server-public-console-20261112.json`，当前执行权限及渲染部署见 `docs/evidence/server-execution-render-20261112.json`。模型服务和实际运维任务由用户随后配置与确认，不用 CI 或 Windows 结果代替。
+CI 安装验证使用显式 danger-full-access 验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。独立试用实例的真实 systemd 启动、专用用户、workspace-write 隔离与网页登录已在目标云主机另外验证；初次隔离证明见 `docs/evidence/server-trial-20261112.json`，HTTPS 首次接入见 `docs/evidence/server-public-console-20261112.json`，执行权限首次验证见 `docs/evidence/server-execution-render-20261112.json`，当前会话交互及清理部署见 `docs/evidence/server-chat-flow-20261112.json`。模型服务和实际运维任务由用户随后配置与确认，不用 CI 或 Windows 结果代替。

@@ -51,13 +51,13 @@ Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI
 当前 Linux x64 安装包使用 Platform 0.12.1，包含编译后的服务、网页和原生生产依赖，已通过一次独立安装验收。目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。下载并核对 CI 产物：
 
 ```sh
-gh run download 43196294103 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-43196294103 --dir server-download
+gh run download 43207284707 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-43207284707 --dir server-download
 (cd server-download/artifacts && sha256sum --check velaros-server-0.1.0-linux-x64.tar.gz.sha256)
 mkdir server-install
 tar -xzf server-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz -C server-install
 ```
 
-进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `2a1eca4b79fc578def21e13d31a14c15d7dccb4c`，安装包 SHA-256 `8146039740dc1f6fbeab5eb02918aeca78952e4a58252ef1380d913730089c6e`，保留至 2026-11-15 17:59:57（北京时间）。持久安装回执见 `docs/evidence/linux-install-2a1eca4.json`；旧版本回执保持原身份。真实试用部署与 CI 安装的范围分别记录，不互相替代。
+进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `f618d502f50fba87f9f43a141351d5df51002462`，安装包 SHA-256 `354dbfef5f731e97733bb7d682b58a309be2198f4eee8ed0d4bbd735cbd54867`，保留至 2026-11-15 19:14:06（北京时间）。持久安装回执见 `docs/evidence/linux-install-f618d50.json`；旧版本回执保持原身份。真实试用部署与 CI 安装的范围分别记录，不互相替代。
 
 ## 许可证
 

@@ -1,6 +1,16 @@
 # 云主机独立试用实例
 
-## 当前 HTTPS 控制台
+## 当前执行档位与 Desktop 渲染
+
+当前产品源码为 `f618d502f50fba87f9f43a141351d5df51002462`，继续通过 HTTPS `/server/` 提供网页与 API。输入区复用共享 UI 的选择控件，提供「标准模式 / 完全访问 / 每次询问」。标准模式和每次询问使用部署的 workspace-write Host；完全访问借用独立的 danger-full-access Host，使用服务账户已有权限，不启用工作区沙箱并自动批准程序和确认请求。旧 API 的 allow 默认仍使用原 Host，不隐式撤销沙箱。执行档位参与请求去重和 Runtime 配置身份，活动运行不被热切换。
+
+按用户反馈，systemd 服务增加 `SupplementaryGroups=systemd-journal`，实际进程补充组为 984/999；没有授予 sudo、Docker 或 root。真实服务身份调用同一正式 SDK Host，核对标准模式保持 bubblewrap 约束、拒绝工作区外写入，完全访问按账户权限允许该测试写入；两档均可读取系统与内核 journal。标准沙箱只看到 2 个进程，完全访问看到 141 个进程，证明不能把隔离 PID 视图当宿主排行。仅保留布尔权限结果和数量，不归档日志原文或进程明细。此检查在 `28f5d91` 执行，后续 Host 装配及 SDK 身份保持一致；最终服务组再次核对。
+
+消息链路按 Desktop 补齐：正式事件投影器区分正文预览与接纳，思考摘要按开关显示；程序事件建立脚本卡，实际 trace 补充源码、进程输出、Kernel 回执、状态及耗时。网页使用同一完整会话 Markdown 门面与共享确认/提问卡，旧消息没有真实时间时不显示虚构时刻。具体差量和边界见 [Desktop 渲染接入差量](desktop-rendering-20261112.md)。新执行授权范围为 server-execution-v2，主体身份包含补充组；旧范围会话可查看，不能自动按新权限续跑，请新建会话。
+
+本轮保留已有模型设置、访问令牌和业务数据；所有切换前均确认没有活动运行，旧制品与配置备份保留，Cloud 未重新部署。最终 Linux 安装、逐文件校验、systemd、HTTPS/鉴权/实时事件、真实 Host 权限及本地/线上浏览器的分项证据见 `evidence/server-execution-render-20261112.json`；不把本地脚本化模型与真实 Node 验证当作付费供应商或生产运维验收。早先的安装、隔离和公网入口证明保持各自原源码身份。
+
+## HTTPS 控制台首次启用（历史）
 
 按用户追加的控制台部署请求，已升级到 `2a1eca4b79fc578def21e13d31a14c15d7dccb4c`，通过现有 Caddy 的 HTTPS `/server/` 提供网页和 API，无需本地 SSH 隧道。后端只监听 Caddy 容器可达的宿主桥接地址 `172.18.0.1:8890`，未开放公网 8890。公开 origin 绑定 HTTPS 站点，保留令牌登录、Secure/HttpOnly/SameSite Cookie、CSRF 和来源检查。实际站点地址交付给实例所有者，不写入公开回执。
 

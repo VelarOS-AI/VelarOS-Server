@@ -1,0 +1,202 @@
+{
+  "recordedAt": "2026-11-12T11:19:21.019Z",
+  "kind": "three-execution-modes-journal-read-and-desktop-rendering",
+  "productCommit": "f618d502f50fba87f9f43a141351d5df51002462",
+  "foundation": {
+    "name": "@velaros-ai/velaros",
+    "version": "0.12.1",
+    "file": "vendor/runtime/velaros-ai-velaros-0.12.1.tgz",
+    "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+    "sha256": "191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c",
+    "integrity": "sha512-UyR1NsMtLK1dMo2mVlL3DwwfoDoWBpomF2u/W8ND3gkCxEzyY3R006oUhrudKWZDPHMiS8fV7FSe2+UV4wy0Tw==",
+    "kind": "published-release",
+    "provenance": "resources/platform-provenance.json",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz"
+  },
+  "artifact": {
+    "file": "velaros-server-0.1.0-linux-x64.tar.gz",
+    "sha256": "354dbfef5f731e97733bb7d682b58a309be2198f4eee8ed0d4bbd735cbd54867",
+    "bytes": 43067617,
+    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43207284707",
+    "githubArtifactId": 13940340298,
+    "githubZipSha256": "aa94a56ccd31071724d3dc5cc7ef8131f183c3e04ba803829b6b1bb26ff4c087",
+    "filesVerifiedOnTarget": 12845
+  },
+  "installation": {
+    "os": "Ubuntu 24.04 x64",
+    "node": "24.22.0",
+    "service": "velaros-server.service",
+    "dedicatedUser": "velaros-server",
+    "group": "velaros-server",
+    "supplementaryGroups": ["systemd-journal"],
+    "actualGroupIds": [984, 999],
+    "active": true,
+    "enabled": true,
+    "releaseDirectory": "/opt/velaros-server/releases/f618d502f50fba87f9f43a141351d5df51002462/velaros-server",
+    "dataDirectory": "/var/lib/velaros-server",
+    "executionRoot": "/srv/velaros-server",
+    "publicPath": "/server/",
+    "bind": "172.18.0.1:8890",
+    "modelSettingsPreserved": true,
+    "accessTokenPreserved": true,
+    "noActiveRunAtCutover": true,
+    "previousReleasesRetained": true,
+    "sudoOrDockerOrRootGranted": false,
+    "cloudContainerHealth": "healthy",
+    "cloudReadiness": "ok"
+  },
+  "execution": {
+    "choices": ["standard", "full", "ask"],
+    "labels": ["标准模式", "完全访问", "每次询问"],
+    "default": "standard",
+    "standardAndAskHost": "deployment workspace-write",
+    "fullHost": "danger-full-access under service user",
+    "legacyAllowDoesNotUnconfine": true,
+    "approvalModeInRequestIdentity": true,
+    "modeInRuntimeIdentity": true,
+    "scopeRevision": "server-execution-v2",
+    "supplementaryGroupsInPrincipalIdentity": true,
+    "oldBindingsNotRewritten": true
+  },
+  "localVerification": {
+    "backendTestSourceCommit": "25c662e841360f9b547245edf207b93f79b41491",
+    "finalBackendAndTestsIdentical": true,
+    "serverTypes": true,
+    "webTypes": true,
+    "webBuild": true,
+    "executionModes": {
+      "passed": 5,
+      "realSdk": true,
+      "realNodeProcess": true,
+      "approvalAndDenial": true,
+      "acceptedThinkingAndText": true,
+      "realExecutionStatusAndOutput": true
+    },
+    "transcript": {
+      "passed": 2,
+      "acceptedPreviewReplacement": true,
+      "rejectedPreviewRemoval": true,
+      "boundedPresentation": true,
+      "sqliteRestartCleanup": true,
+      "unknownExecutionNotMarkedSucceeded": true
+    },
+    "runtimeLifecycle": {
+      "passed": 6,
+      "modeIdentityWhileOpening": true,
+      "legacyAllowKeepsDeploymentHost": true,
+      "closeOwnership": true
+    }
+  },
+  "hostPermissions": {
+    "testedProductCommit": "28f5d91f8dada5b39a3aa7249093cff4c66fbc67",
+    "finalHostCompositionIdentical": true,
+    "nativeSdk": true,
+    "profiles": [
+      {
+        "mode": "standard",
+        "confinement": {
+          "mode": "workspace-write",
+          "backend": "bubblewrap",
+          "enforcement": "full",
+          "reason": "enforced",
+          "writableRoots": ["/srv/velaros-server", "/tmp"]
+        },
+        "receipt": {
+          "uid": 990,
+          "groups": [984, 65534],
+          "outsideWorkspaceWrite": false,
+          "systemJournal": true,
+          "kernelJournal": true,
+          "processCount": 2
+        }
+      },
+      {
+        "mode": "full",
+        "confinement": {
+          "mode": "danger-full-access",
+          "enforcement": "none",
+          "backend": "none",
+          "reason": "explicit-danger-full-access",
+          "writableRoots": []
+        },
+        "receipt": {
+          "uid": 990,
+          "groups": [984, 999],
+          "outsideWorkspaceWrite": true,
+          "systemJournal": true,
+          "kernelJournal": true,
+          "processCount": 141
+        }
+      }
+    ],
+    "supplementaryJournalGroup": true,
+    "providerApiCalled": false
+  },
+  "liveHttp": {
+    "recordedAt": "2026-11-12T11:17:58.914Z",
+    "sourceCommit": "f618d502f50fba87f9f43a141351d5df51002462",
+    "path": "/server/",
+    "httpsVerified": true,
+    "redirect": 308,
+    "unauthenticatedApi": 401,
+    "login": true,
+    "secureCookie": true,
+    "csrfRejected": 403,
+    "originRejected": 403,
+    "serverPlatform": "linux",
+    "sessions": true,
+    "workspaceListing": true,
+    "stateFileExcluded": 403,
+    "compiledAssetSha256": "acaced80a1c4d10cded9273bc916365003508c731e58756778c3f8328f377cb7",
+    "compiledAssetMatchesManifest": true,
+    "eventStream": true,
+    "terminalAvailable": true,
+    "modelConfigured": true,
+    "providerApiCalled": false,
+    "existingCloudReadiness": "ok"
+  },
+  "browser": {
+    "localRender": {
+      "source": "local-built-Server",
+      "scriptedModel": true,
+      "providerApiCalled": false,
+      "sharedConfirmationCard": true,
+      "realNodeExecution": true,
+      "executionSourceAndOutputExpanded": true,
+      "fullMarkdownTableAndHighlightedCode": true,
+      "thinkingToggleAndBlock": true,
+      "errors": [],
+      "productSource": "25c662e841360f9b547245edf207b93f79b41491",
+      "screenshot": ".cache/server-execution-modes-20261112/desktop-render-preview.png",
+      "screenshotSha256": "dec01dc3b9f439f485547e9d9356d8a4f4b138c1cbfd585b433e49ac8b9ae8f9",
+      "ownedPreviewStopped": true
+    },
+    "online": {
+      "publicHttps": true,
+      "authenticated": true,
+      "existingModelConfigurationPreserved": true,
+      "historicalConversationVisible": true,
+      "historicalMarkdownTables": 1,
+      "historicalUnknownTimestampsHidden": true,
+      "newConversationReady": true,
+      "choices": ["标准模式", "完全访问", "每次询问"],
+      "errors": [],
+      "productionProviderApiCalled": false,
+      "productSource": "f618d502f50fba87f9f43a141351d5df51002462",
+      "screenshot": ".cache/server-execution-modes-20261112/online-latest.png",
+      "screenshotSha256": "919af7e9f6d8cb6090a168654dd5c43154b4cc7a1bcfaa9aa05bc087178eac1a"
+    }
+  },
+  "scope": {
+    "realProviderApiCalled": false,
+    "paidModel": false,
+    "modelConfigured": true,
+    "platformOrUiDependenciesChanged": false,
+    "cloudProductRedeployed": false,
+    "publicDnsOrCaddyChangedThisRound": false,
+    "originalDataRetained": true,
+    "oldEvidenceRelabeled": false,
+    "productionOperationalTaskRepeated": false
+  },
+  "installationEvidence": "docs/evidence/linux-install-f618d50.json"
+}

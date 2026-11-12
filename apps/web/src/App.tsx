@@ -1,21 +1,11 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppShell } from '@velaros-ai/ui/product/layout/AppShell'
 import { Button } from '@velaros-ai/ui/primitives/buttons/Button'
+import { IconButton } from '@velaros-ai/ui/primitives/buttons/IconButton'
 import { Input } from '@velaros-ai/ui/primitives/forms/Input'
 import type { ServerInfo, SessionView } from '../../../packages/contracts/src/index.js'
 import { request } from './api.js'
 import { Conversation } from './Conversation.js'
-import { Files } from './Files.js'
-import { Settings } from './Settings.js'
-const Terminal = lazy(() => import('./Terminal.js'))
-
-type Page = 'chat' | 'files' | 'terminal' | 'settings'
-const pages: { id: Page; label: string; icon: string }[] = [
-  { id: 'chat', label: '对话', icon: '◌' },
-  { id: 'files', label: '文件', icon: '▤' },
-  { id: 'terminal', label: '终端', icon: '›_' },
-  { id: 'settings', label: '设置', icon: '⚙' },
-]
 
 export function App(): React.ReactElement {
   const [csrf, setCsrf] = useState<string | null>(null)
@@ -24,10 +14,14 @@ export function App(): React.ReactElement {
   const [info, setInfo] = useState<ServerInfo | null>(null)
   const [sessions, setSessions] = useState<SessionView[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [page, setPage] = useState<Page>('chat')
+  const [draft, setDraft] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 640)
   const [error, setError] = useState<string | null>(null)
   const [authenticating, setAuthenticating] = useState(false)
   const authPending = useRef(false)
+  const draftScope = useRef(0)
+  const submission = useRef<object | null>(null)
   // 同步身份只由 changeAuthentication 更新；csrf 是供界面渲染的投影。
   const authentication = useRef<string | null>(null)
   const refreshing = useRef<AbortController | null>(null)
@@ -45,6 +39,10 @@ export function App(): React.ReactElement {
       setInfo(null)
       setSessions([])
       setSelectedId(null)
+      setDraft('')
+      draftScope.current += 1
+      submission.current = null
+      setSubmitting(false)
       cursor.current = 0
       pendingInput.current = null
     },
@@ -64,9 +62,7 @@ export function App(): React.ReactElement {
       setInfo(nextInfo)
       setSessions(nextSessions)
       setSelectedId((current) =>
-        current && nextSessions.some((item) => item.id === current)
-          ? current
-          : (nextSessions[0]?.id ?? null),
+        current && nextSessions.some((item) => item.id === current) ? current : null,
       )
     } catch (failure) {
       if (refreshing.current !== controller || authentication.current !== csrf) return
@@ -123,6 +119,12 @@ export function App(): React.ReactElement {
       if (refreshTimer) clearTimeout(refreshTimer)
     }
   }, [csrf, refresh, cancelRefresh])
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 640px)')
+    const resize = (): void => setSidebarOpen(!mobile.matches)
+    mobile.addEventListener('change', resize)
+    return () => mobile.removeEventListener('change', resize)
+  }, [])
 
   const selected = sessions.find((session) => session.id === selectedId) ?? null
   if (checking) return <div className="login-page">正在连接服务器…</div>
@@ -151,7 +153,6 @@ export function App(): React.ReactElement {
         >
           <div className="brand-mark">V</div>
           <h1>VelarOS Server</h1>
-          <p className="muted">连接你的服务器，开始管理。</p>
           <label>
             访问令牌
             <Input
@@ -169,80 +170,97 @@ export function App(): React.ReactElement {
             </p>
           )}
           <Button type="submit" disabled={authenticating}>
-            登录服务器
+            登录
           </Button>
         </form>
       </div>
     )
 
-  const createSession = async (): Promise<void> => {
-    if (authentication.current !== csrf) return
-    try {
-      const session = await request<SessionView>('/api/sessions', csrf, 'POST', {
-        title: '服务器维护',
-      })
-      if (authentication.current !== csrf) return
-      setSessions((current) =>
-        current.some((item) => item.id === session.id) ? current : [session, ...current],
-      )
-      setSelectedId(session.id)
-      setPage('chat')
-      void refresh()
-    } catch (failure) {
-      if (authentication.current === csrf)
-        setError(failure instanceof Error ? failure.message : '创建会话未确认')
-    }
+  const startNewChat = (): void => {
+    setSelectedId(null)
+    setDraft('')
+    setError(null)
+    draftScope.current += 1
+    if (window.innerWidth <= 640) setSidebarOpen(false)
   }
   const send = async (text: string): Promise<void> => {
-    if (!selected || !text.trim() || authentication.current !== csrf) return
-    const previous = pendingInput.current
-    const input =
-      previous && previous.text === text && previous.sessionId === selected.id
-        ? previous
-        : { id: crypto.randomUUID(), text, sessionId: selected.id }
-    pendingInput.current = input
+    if (!text.trim() || authentication.current !== csrf || submission.current) return
+    const owner = {}
+    const scope = draftScope.current
+    submission.current = owner
+    setSubmitting(true)
+    setError(null)
     try {
-      await request(`/api/sessions/${selected.id}/inputs`, csrf, 'POST', {
+      let session = selected
+      if (!session) {
+        session = await request<SessionView>('/api/sessions', csrf, 'POST', {
+          title: text.trim().split('\n')[0]!.slice(0, 40),
+        })
+        if (authentication.current !== csrf) return
+        const created = session
+        setSessions((current) => [created, ...current.filter((item) => item.id !== created.id)])
+        if (draftScope.current === scope) setSelectedId(created.id)
+      }
+      const previous = pendingInput.current
+      const input =
+        previous && previous.text === text && previous.sessionId === session.id
+          ? previous
+          : { id: crypto.randomUUID(), text, sessionId: session.id }
+      pendingInput.current = input
+      await request(`/api/sessions/${session.id}/inputs`, csrf, 'POST', {
         requestId: input.id,
         text,
       })
       if (pendingInput.current === input) pendingInput.current = null
+      if (authentication.current === csrf && draftScope.current === scope)
+        setDraft((current) => (current === text ? '' : current))
+      // POST 受理与投影读取分开；刷新失败不能把已受理输入留作可重发草稿。
+      await refresh()
     } catch (failure) {
       const message = failure instanceof Error ? failure.message : '提交失败'
       if (authentication.current === csrf) setError(message)
       throw failure
+    } finally {
+      if (submission.current === owner) {
+        submission.current = null
+        setSubmitting(false)
+      }
     }
-    // POST 受理与投影读取是两件事；后者失败不能把已提交输入留成可再次执行的草稿。
-    await refresh()
   }
   const sidebar = (
-    <aside className="sidebar">
-      <div className="brand">
-        <span className="brand-mark small">V</span>
-        <div>
-          <strong>VelarOS</strong>
-          <span>SERVER</span>
-        </div>
-      </div>
-      <nav aria-label="主导航">
-        {pages.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            size="block"
-            active={page === item.id}
-            onClick={() => setPage(item.id)}
+    <aside className="sidebar" id="sessions-sidebar" aria-label="会话栏" inert={!sidebarOpen}>
+      <div className="sidebar-header">
+        <span className="sidebar-brand">VelarOS Server</span>
+        <IconButton label="收起会话栏" size="icon-sm" onClick={() => setSidebarOpen(false)}>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
           >
-            <span className="nav-icon">{item.icon}</span>
-            {item.label}
-          </Button>
-        ))}
-      </nav>
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M9 4v16" />
+          </svg>
+        </IconButton>
+      </div>
       <div className="sidebar-heading">
-        <span>维护会话</span>
-        <Button variant="ghost" size="sm" onClick={() => void createSession()}>
-          ＋ 新建
-        </Button>
+        <span>会话</span>
+        <IconButton label="新建对话" size="icon-sm" onClick={startNewChat}>
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </IconButton>
       </div>
       <div className="session-list">
         {sessions.map((session) => (
@@ -250,121 +268,105 @@ export function App(): React.ReactElement {
             key={session.id}
             variant="ghost"
             size="block"
-            active={selectedId === session.id && page === 'chat'}
+            active={selectedId === session.id}
+            aria-current={selectedId === session.id ? 'page' : undefined}
+            title={session.title}
             onClick={() => {
+              if (selectedId === session.id) {
+                if (window.innerWidth <= 640) setSidebarOpen(false)
+                return
+              }
               setSelectedId(session.id)
-              setPage('chat')
+              setDraft('')
+              setError(null)
+              draftScope.current += 1
+              if (window.innerWidth <= 640) setSidebarOpen(false)
             }}
           >
-            {session.title}
+            <span>{session.title}</span>
           </Button>
         ))}
       </div>
-      <div className="sidebar-bottom">
-        <span className="muted">本机 · {info?.platform ?? '连接中'}</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={authenticating}
-          onClick={() => {
-            if (authPending.current) return
-            authPending.current = true
-            setAuthenticating(true)
-            void request('/api/auth/logout', csrf, 'POST', {})
-              .then(() => changeAuthentication(null))
-              .catch((error: Error) => setError(error.message))
-              .finally(() => {
-                authPending.current = false
-                setAuthenticating(false)
-              })
-          }}
-        >
-          退出
-        </Button>
-      </div>
     </aside>
   )
-  const header = (
-    <header className="topbar">
-      <div>
-        <strong>{info?.hostname ?? '服务器'}</strong>
-        <span className="status-dot" />
-        在线
-      </div>
-      {info && (
-        <span className="muted">
-          内存 {Math.round((1 - info.memory.availableBytes / info.memory.totalBytes) * 100)}% · 运行{' '}
-          {Math.floor(info.uptimeSeconds / 3600)}h
-        </span>
-      )}
-    </header>
-  )
   return (
-    <AppShell embedded className="server-shell" sidebar={sidebar} header={header}>
+    <AppShell
+      embedded
+      className={`server-shell ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}
+      sidebar={sidebar}
+      sidebarCollapsed={!sidebarOpen}
+    >
+      {!sidebarOpen && (
+        <IconButton
+          className="sidebar-reopen"
+          label="展开会话栏"
+          size="icon-sm"
+          aria-controls="sessions-sidebar"
+          onClick={() => setSidebarOpen(true)}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            aria-hidden="true"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M9 4v16" />
+          </svg>
+        </IconButton>
+      )}
+      {sidebarOpen && (
+        <button
+          className="sidebar-backdrop"
+          aria-label="关闭会话栏"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       {error && (
         <div role="alert" className="notice error">
           <span>{error}</span>
-          <Button variant="ghost" size="sm" onClick={() => setError(null)}>
-            关闭
-          </Button>
+          <IconButton label="关闭提示" size="icon-sm" onClick={() => setError(null)}>
+            ×
+          </IconButton>
         </div>
       )}
-      {page === 'chat' && (
-        <div className="chat-page">
-          {info && !info.execution.available && (
-            <div className="notice">Agent 暂不可用：{info.execution.reason}</div>
-          )}
-          {selected ? (
-            <Conversation
-              key={selected.id}
-              session={selected}
-              available={info?.execution.available ?? false}
-              onSend={send}
-              onStop={async () => {
-                await request(`/api/sessions/${selected.id}/cancel`, csrf, 'POST', {
-                  runId: selected.runId,
-                })
-                await refresh()
-              }}
-              onReview={async (requestId) => {
-                const value = await request<{ source: string | null }>(
-                  `/api/sessions/${selected.id}/interaction?requestId=${encodeURIComponent(requestId)}`,
-                  csrf,
-                )
-                return value.source
-              }}
-              onAnswer={async (requestId, runId, value) => {
-                await request(`/api/sessions/${selected.id}/answers`, csrf, 'POST', {
-                  requestId,
-                  runId,
-                  value,
-                })
-                await refresh()
-              }}
-            />
-          ) : (
-            <div className="empty-state">
-              <h1>开始一次服务器维护</h1>
-              <p>创建会话后，可以检查服务、读取日志和处理配置。</p>
-              <Button onClick={() => void createSession()}>新建维护会话</Button>
-            </div>
-          )}
-        </div>
-      )}
-      {page === 'files' && info && <Files csrf={csrf} roots={info.roots} onError={setError} />}
-      {page === 'terminal' && info && (
-        <Suspense fallback={<div className="empty-state">正在加载终端…</div>}>
-          <Terminal
-            csrf={csrf}
-            available={info.terminal.available}
-            reason={info.terminal.reason}
-            onError={setError}
-          />
-        </Suspense>
-      )}
-      {page === 'settings' && info && (
-        <Settings model={info.model} csrf={csrf} onSaved={refresh} onError={setError} />
-      )}
+      <div className="chat-page">
+        <Conversation
+          session={selected}
+          draft={draft}
+          onDraftChange={setDraft}
+          submitting={submitting}
+          available={info?.execution.available ?? false}
+          onSend={send}
+          onStop={async () => {
+            if (!selected) return
+            await request(`/api/sessions/${selected.id}/cancel`, csrf, 'POST', {
+              runId: selected.runId,
+            })
+            await refresh()
+          }}
+          onReview={async (requestId) => {
+            if (!selected) return null
+            const value = await request<{ source: string | null }>(
+              `/api/sessions/${selected.id}/interaction?requestId=${encodeURIComponent(requestId)}`,
+              csrf,
+            )
+            return value.source
+          }}
+          onAnswer={async (requestId, runId, value) => {
+            if (!selected) return
+            await request(`/api/sessions/${selected.id}/answers`, csrf, 'POST', {
+              requestId,
+              runId,
+              value,
+            })
+            await refresh()
+          }}
+        />
+      </div>
     </AppShell>
   )
 }

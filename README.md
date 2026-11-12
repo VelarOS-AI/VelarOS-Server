@@ -1,10 +1,10 @@
 # VelarOS Server
 
-本机服务器管理产品。网页复用 VelarOS UI 的布局和会话组件，首版提供对话、文件、终端、设置。Node 是生产运行环境，Bun 负责开发和包管理。
+本机服务器管理产品。网页复用 VelarOS UI 的布局和会话组件，只保留左侧会话栏与右侧聊天；文件与命令操作由 Agent 完成。Node 是生产运行环境，Bun 负责开发和包管理。
 
 ## 当前状态
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写、模型设置和四页网页。当前固定正式 Platform 基础 0.9.7（tag v0.7.8）与 UI 1.1.2，不安装 capabilities；普通依赖直接声明官方归档 URL，产品清单和两份发布包均无 overrides/resolutions。本仓 vendor 保留核对过的同字节归档。[最终接入证据](docs/evidence/platform-097-ui-112-adoption.json)记录普通安装、冻结安装和现有编译入口实际解析到新 SDK。新包仅发行元数据及根说明文档变化，运行代码、声明、资源和第三方依赖未变，因此保留 [0.9.6 / UI 1.1.1 的类型、真实 HTTP/审批/Node 写入与关闭、网页构建及浏览器验证](docs/evidence/platform-096-ui-111-adoption.json)，没有重跑或改写其原身份。模型验证使用确定性驱动，没有生产部署或重新生成 Linux 制品。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写和模型设置接口。当前固定正式 Platform 基础 0.9.7（tag v0.7.8）与 UI 1.1.2，不安装 capabilities；普通依赖直接声明官方归档 URL，产品清单和两份发布包均无 overrides/resolutions。本仓 vendor 保留核对过的同字节归档。[最终接入证据](docs/evidence/platform-097-ui-112-adoption.json)记录普通安装、冻结安装和现有编译入口实际解析到新 SDK。新包仅发行元数据及根说明文档变化，运行代码、声明、资源和第三方依赖未变，因此保留 [0.9.6 / UI 1.1.1 的类型、真实 HTTP/审批/Node 写入与关闭、网页构建及浏览器验证](docs/evidence/platform-096-ui-111-adoption.json)，没有重跑或改写其原身份。模型验证使用确定性驱动，没有生产部署或重新生成 Linux 制品。
 
 既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 

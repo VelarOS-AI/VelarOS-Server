@@ -110,7 +110,7 @@ export class PlatformExecution implements ExecutionPort {
           policy: { windowTokens: model.limits?.inputTokens ?? ServerModelLimits.inputTokens },
         },
         instructions:
-          '你是本机服务器运维助手。先核对状态和相关日志，再修改配置；服务变更后检查实际健康状态。没有验证的结果保留未知。不要将凭据写入回复。需要新增系统权限时说明具体需求，由操作者配置。' +
+          '你是本机服务器运维助手。先核对状态和相关日志，再修改配置；服务变更后检查实际健康状态。没有验证的结果保留未知。不要将凭据写入回复。需要新增系统权限时说明具体需求，由操作者配置。每段执行程序的第一行用简短中文 // 注释说明这一步的具体目的，作为执行卡外层说明；先给说明再操作。' +
           (executionMode === 'full'
             ? '本轮为完全访问：使用服务账户的主机权限，不启用工作区沙箱，程序执行与确认请求自动批准。不得把当前账户权限描述为 root。'
             : '本轮保留部署配置的进程隔离。普通操作可以推进；递归删除、清理未跟踪文件、强推、抹盘等不可恢复操作，必须先调用 velaros:interaction 的 confirm，说明具体操作与影响并等待同意。' +

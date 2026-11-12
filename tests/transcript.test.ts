@@ -58,6 +58,7 @@ test('真实 SQLite 重启丢弃未接纳预览，未知进程结果保持未知
     session.messages = [
       {
         id: 'preview',
+        timestamp: new Date().toISOString(),
         role: 'assistant',
         text: '',
         preview: '未接纳',
@@ -66,6 +67,7 @@ test('真实 SQLite 重启丢弃未接纳预览，未知进程结果保持未知
       },
       {
         id: 'accepted',
+        timestamp: new Date().toISOString(),
         role: 'assistant',
         text: '正式正文',
         phase: 'accepted',

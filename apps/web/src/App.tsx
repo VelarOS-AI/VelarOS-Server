@@ -15,6 +15,23 @@ import { apiUrl, request } from './api.js'
 import { Conversation } from './Conversation.js'
 import { ModelDialog } from './ModelDialog.js'
 import { encodeAttachments, validateAttachments } from './attachments.js'
+import {
+  draftSession,
+  hasInput,
+  projectPendingChats,
+  type PendingMessage,
+} from './pending-chats.js'
+
+interface PendingSubmission {
+  id: string
+  fingerprint: string
+  sessionId: string
+  text: string
+  files: File[]
+  scope: number
+  confirmed: boolean
+  error?: string
+}
 
 export function App(): React.ReactElement {
   const [csrf, setCsrf] = useState<string | null>(null)
@@ -22,6 +39,9 @@ export function App(): React.ReactElement {
   const [token, setToken] = useState('')
   const [info, setInfo] = useState<ServerInfo | null>(null)
   const [sessions, setSessions] = useState<SessionView[]>([])
+  const [localSessions, setLocalSessions] = useState<SessionView[]>([])
+  const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([])
+  const creatingSessions = useRef(new Map<string, Promise<SessionView>>())
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
   const [files, setFiles] = useState<File[]>([])
@@ -37,7 +57,16 @@ export function App(): React.ReactElement {
   // 同步身份只由 changeAuthentication 更新；csrf 是供界面渲染的投影。
   const authentication = useRef<string | null>(null)
   const refreshing = useRef<AbortController | null>(null)
-  const pendingInput = useRef<{ id: string; fingerprint: string; sessionId: string } | null>(null)
+  const pendingInput = useRef<{
+    id: string
+    fingerprint: string
+    sessionId: string
+    text: string
+    files: File[]
+    scope: number
+    confirmed: boolean
+    error?: string
+  } | null>(null)
   const cursor = useRef(0)
   const cancelRefresh = useCallback((): void => {
     refreshing.current?.abort()
@@ -50,6 +79,9 @@ export function App(): React.ReactElement {
       setCsrf(value)
       setInfo(null)
       setSessions([])
+      setLocalSessions([])
+      setPendingMessages([])
+      creatingSessions.current.clear()
       setSelectedId(null)
       setDraft('')
       setFiles([])
@@ -76,9 +108,39 @@ export function App(): React.ReactElement {
       if (refreshing.current !== controller || authentication.current !== csrf) return
       setInfo(nextInfo)
       setSessions(nextSessions)
-      setSelectedId((current) =>
-        current && nextSessions.some((item) => item.id === current) ? current : null,
+      setLocalSessions((current) =>
+        current.filter((local) => !nextSessions.some((server) => server.id === local.id)),
       )
+      setPendingMessages((current) =>
+        current.filter(
+          (pending) =>
+            !hasInput(
+              nextSessions.find((session) => session.id === pending.sessionId),
+              pending.id,
+            ),
+        ),
+      )
+      const delivery = pendingInput.current
+      if (
+        delivery &&
+        hasInput(
+          nextSessions.find((session) => session.id === delivery.sessionId),
+          delivery.id,
+        )
+      ) {
+        delivery.confirmed = true
+        if (delivery.error && draftScope.current === delivery.scope) {
+          setDraft((current) => (current === delivery.text ? '' : current))
+          setFiles((current) =>
+            current.length === delivery.files.length &&
+            current.every((file, index) => file === delivery.files[index])
+              ? []
+              : current,
+          )
+          setError((current) => (current === delivery.error ? null : current))
+          pendingInput.current = null
+        }
+      }
     } catch (failure) {
       if (refreshing.current !== controller || authentication.current !== csrf) return
       const message = failure instanceof Error ? failure.message : '无法读取会话'
@@ -141,7 +203,8 @@ export function App(): React.ReactElement {
     return () => mobile.removeEventListener('change', resize)
   }, [])
 
-  const selected = sessions.find((session) => session.id === selectedId) ?? null
+  const visibleSessions = projectPendingChats(sessions, localSessions, pendingMessages)
+  const selected = visibleSessions.find((session) => session.id === selectedId) ?? null
   if (checking) return <div className="login-page">正在连接服务器…</div>
   if (!csrf)
     return (
@@ -191,13 +254,41 @@ export function App(): React.ReactElement {
       </div>
     )
 
+  const ensureSession = (session: SessionView): Promise<SessionView> => {
+    const known = sessions.find((item) => item.id === session.id)
+    if (known) return Promise.resolve(known)
+    const existing = creatingSessions.current.get(session.id)
+    if (existing) return existing
+    const creation: Promise<SessionView> = request<SessionView>('/api/sessions', csrf, 'POST', {
+      id: session.id,
+      title: session.title,
+    })
+      .then((created) => {
+        if (authentication.current === csrf) {
+          setSessions((current) => [created, ...current.filter((item) => item.id !== created.id)])
+        }
+        return created
+      })
+      .finally(() => {
+        if (creatingSessions.current.get(session.id) === creation)
+          creatingSessions.current.delete(session.id)
+      })
+    creatingSessions.current.set(session.id, creation)
+    return creation
+  }
   const startNewChat = (): void => {
-    setSelectedId(null)
+    const session = draftSession(crypto.randomUUID())
+    setLocalSessions((current) => [session, ...current])
+    setSelectedId(session.id)
     setDraft('')
     setFiles([])
     setError(null)
     draftScope.current += 1
     if (window.innerWidth <= 640) setSidebarOpen(false)
+    void ensureSession(session).catch((failure) => {
+      if (authentication.current === csrf)
+        setError(failure instanceof Error ? failure.message : '无法创建会话')
+    })
   }
   const send = async (text: string, attached: File[]): Promise<void> => {
     if ((!text.trim() && !attached.length) || authentication.current !== csrf || submission.current)
@@ -206,13 +297,57 @@ export function App(): React.ReactElement {
       setError(info?.execution.reason ?? '请先配置模型')
       return
     }
-    const owner = {}
-    const scope = draftScope.current
-    submission.current = owner
-    setSubmitting(true)
-    setError(null)
     try {
       if (text.length > InputLimits.textChars) throw new Error('消息文字不能超过 32,000 字符')
+      validateAttachments(attached)
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : '消息内容无效')
+      throw failure
+    }
+    const owner = {}
+    const scope = draftScope.current
+    const previous = pendingInput.current
+    const session = selected ?? draftSession(crypto.randomUUID())
+    const delivery: PendingSubmission = {
+      id: crypto.randomUUID(),
+      fingerprint: '',
+      sessionId: session.id,
+      text,
+      files: attached,
+      scope,
+      confirmed: false,
+    }
+    submission.current = owner
+    pendingInput.current = delivery
+    setSubmitting(true)
+    setError(null)
+    if (!selected) {
+      setLocalSessions((current) => [session, ...current])
+      setSelectedId(session.id)
+    }
+    setPendingMessages((current) => [
+      ...current,
+      {
+        id: delivery.id,
+        sessionId: session.id,
+        text,
+        timestamp: new Date().toISOString(),
+        accepted: false,
+        attachments: attached.map((file) => ({
+          name: file.name,
+          kind: file.type.startsWith('image/') ? 'image' : 'text',
+          mediaType: file.type.startsWith('image/') ? file.type : 'text/plain',
+          bytes: file.size,
+        })),
+      },
+    ])
+    setDraft((current) => (current === text ? '' : current))
+    setFiles((current) =>
+      current.length === attached.length && current.every((file, index) => file === attached[index])
+        ? []
+        : current,
+    )
+    try {
       const payload: InputContent = {
         text,
         attachments: await encodeAttachments(attached),
@@ -224,45 +359,51 @@ export function App(): React.ReactElement {
         'SHA-256',
         new TextEncoder().encode(JSON.stringify(payload)),
       )
-      const fingerprint = Array.from(new Uint8Array(digest), (byte) =>
+      delivery.fingerprint = Array.from(new Uint8Array(digest), (byte) =>
         byte.toString(16).padStart(2, '0'),
       ).join('')
       if (authentication.current !== csrf) return
-      let session = selected
-      if (!session) {
-        session = await request<SessionView>('/api/sessions', csrf, 'POST', {
-          title: (text.trim().split('\n')[0] || attached[0]?.name || '附件对话').slice(0, 40),
-        })
-        if (authentication.current !== csrf) return
-        const created = session
-        setSessions((current) => [created, ...current.filter((item) => item.id !== created.id)])
-        if (draftScope.current === scope) setSelectedId(created.id)
-      }
-      const previous = pendingInput.current
-      const input =
-        previous && previous.fingerprint === fingerprint && previous.sessionId === session.id
-          ? previous
-          : { id: crypto.randomUUID(), fingerprint, sessionId: session.id }
-      pendingInput.current = input
-      await request(`/api/sessions/${session.id}/inputs`, csrf, 'POST', {
-        requestId: input.id,
-        ...payload,
-      })
-      if (pendingInput.current === input) pendingInput.current = null
-      if (authentication.current === csrf && draftScope.current === scope) {
-        setDraft((current) => (current === text ? '' : current))
-        setFiles((current) =>
-          current.length === attached.length &&
-          current.every((file, index) => file === attached[index])
-            ? []
-            : current,
+      if (
+        previous &&
+        previous.sessionId === session.id &&
+        previous.fingerprint === delivery.fingerprint
+      ) {
+        const provisionalId = delivery.id
+        delivery.id = previous.id
+        setPendingMessages((current) =>
+          current.map((item) => (item.id === provisionalId ? { ...item, id: delivery.id } : item)),
         )
       }
-      // POST 受理与投影读取分开；刷新失败不能把已受理输入留作可重发草稿。
+      await ensureSession(session)
+      if (authentication.current !== csrf) return
+      await request(`/api/sessions/${session.id}/inputs`, csrf, 'POST', {
+        requestId: delivery.id,
+        ...payload,
+      })
+      delivery.confirmed = true
+      setPendingMessages((current) =>
+        current.map((item) => (item.id === delivery.id ? { ...item, accepted: true } : item)),
+      )
+      if (pendingInput.current === delivery) pendingInput.current = null
       await refresh()
     } catch (failure) {
-      const message = failure instanceof Error ? failure.message : '提交失败'
-      if (authentication.current === csrf) setError(message)
+      if (authentication.current !== csrf) return
+      if (delivery.confirmed) {
+        if (pendingInput.current === delivery) pendingInput.current = null
+        setPendingMessages((current) =>
+          current.map((item) => (item.id === delivery.id ? { ...item, accepted: true } : item)),
+        )
+        await refresh()
+        return
+      }
+      const message = failure instanceof Error ? failure.message : '发送结果未确认'
+      delivery.error = message
+      setPendingMessages((current) => current.filter((item) => item.id !== delivery.id))
+      if (draftScope.current === scope) {
+        setDraft((current) => current || text)
+        setFiles((current) => (current.length ? current : attached))
+      }
+      setError(message)
       throw failure
     } finally {
       if (submission.current === owner) {
@@ -271,6 +412,7 @@ export function App(): React.ReactElement {
       }
     }
   }
+
   const sidebar = (
     <aside className="sidebar" id="sessions-sidebar" aria-label="会话栏" inert={!sidebarOpen}>
       <div className="sidebar-header">
@@ -307,7 +449,7 @@ export function App(): React.ReactElement {
         </IconButton>
       </div>
       <div className="session-list">
-        {sessions.map((session) => (
+        {visibleSessions.map((session) => (
           <Button
             key={session.id}
             variant="ghost"

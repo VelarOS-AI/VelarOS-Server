@@ -36,8 +36,22 @@ const sessionSchema = z.object({
       role: z.enum(['user', 'assistant', 'system']),
       text: z.string(),
       truncated: z.boolean(),
-      timestamp: z.string().optional(),
+      timestamp: z.iso.datetime(),
       runId: z.string().optional(),
+      runStatus: z
+        .enum([
+          'idle',
+          'received',
+          'accepted',
+          'running',
+          'waiting',
+          'completed',
+          'failed',
+          'cancelled',
+          'unknown',
+        ])
+        .optional(),
+      runFinishedAt: z.string().optional(),
       turnId: z.string().optional(),
       phase: z.enum(['preview', 'accepted']).optional(),
       preview: z.string().optional(),
@@ -130,7 +144,7 @@ export class ProductStore {
       PRAGMA journal_mode = WAL;
       PRAGMA busy_timeout = 5000;
       CREATE TABLE IF NOT EXISTS product_schema (version INTEGER NOT NULL);
-      INSERT INTO product_schema SELECT 1 WHERE NOT EXISTS (SELECT 1 FROM product_schema);
+      INSERT INTO product_schema SELECT 2 WHERE NOT EXISTS (SELECT 1 FROM product_schema);
       CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, projection TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS requests (
         id TEXT PRIMARY KEY, session_id TEXT NOT NULL, fingerprint TEXT NOT NULL,
@@ -145,7 +159,7 @@ export class ProductStore {
       CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
     `)
     const schema = z
-      .object({ version: z.literal(1) })
+      .object({ version: z.literal(2) })
       .safeParse(this.db.prepare('SELECT version FROM product_schema').get())
     if (!schema.success) throw new HttpError(500, 'SCHEMA_MISMATCH', '产品数据库版本不受支持')
     // 进程重启不是运行成功或取消的证据，所有未收束记录明确变为 unknown。
@@ -154,6 +168,8 @@ export class ProductStore {
       const previews = session.messages.some((message) => message.phase === 'preview')
       if (unfinished || previews) {
         session.messages = session.messages.filter((message) => message.phase !== 'preview')
+        for (const message of session.messages)
+          if (unfinished && message.runId === session.runId) message.runStatus = 'unknown'
         for (const message of session.messages)
           for (const card of message.executions ?? [])
             if (['writing', 'queued', 'running'].includes(card.status)) card.status = 'unknown'
@@ -184,9 +200,11 @@ export class ProductStore {
     return sessionSchema.parse(JSON.parse(rowSchema.parse(row).projection))
   }
 
-  public createSession(title: string): SessionView {
+  public createSession(title: string, id: string = randomUUID()): SessionView {
+    const existing = this.db.prepare('SELECT projection FROM sessions WHERE id=?').get(id)
+    if (existing) return sessionSchema.parse(JSON.parse(rowSchema.parse(existing).projection))
     const session: SessionView = {
-      id: randomUUID(),
+      id,
       title,
       revision: 0,
       status: 'idle',
@@ -297,8 +315,13 @@ export class ProductStore {
       session.runId = null
       session.inputId = null
       session.interaction = null
+      if (session.title === '新会话' && session.messages.length === 0)
+        session.title = (text.trim().split('\n')[0] || attachments[0]?.name || '附件对话').slice(
+          0,
+          40,
+        )
       session.messages.push({
-        id: randomUUID(),
+        id: requestId,
         role: 'user',
         text,
         truncated: false,

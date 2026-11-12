@@ -226,6 +226,24 @@ button:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.execution-mode-menu {
+  width: min(300px, calc(100vw - 32px));
+}
+.execution-mode-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+}
+.execution-mode-choice small {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.execution-mode-choice[data-danger] > span {
+  color: var(--destructive);
+}
 .model-dialog {
   width: min(440px, calc(100vw - 32px));
   padding: 24px;

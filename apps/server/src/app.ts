@@ -140,10 +140,10 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
       return json(response, 200, options.store.listSessions())
     if (method === 'POST' && url.pathname === '/api/sessions') {
       const input = z
-        .object({ title: z.string().trim().min(1).max(100) })
+        .object({ title: z.string().trim().min(1).max(100), id: z.uuid().optional() })
         .strict()
         .parse(await body(request))
-      const session = options.store.createSession(input.title)
+      const session = options.store.createSession(input.title, input.id)
       changes.publish(options.store.saveSession(session))
       return json(response, 201, session)
     }

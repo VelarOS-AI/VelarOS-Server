@@ -109,6 +109,7 @@ test('重启保留 unknown，不自动重放；展示文本有明确上限', asy
     session.status = 'running'
     session.messages.push({
       id: 'long',
+      timestamp: new Date().toISOString(),
       role: 'assistant',
       text: 'x'.repeat(20_000),
       truncated: false,

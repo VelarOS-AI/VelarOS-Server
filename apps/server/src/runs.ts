@@ -10,6 +10,7 @@ import { decodeInput } from './input.js'
 export class RunRequests {
   private readonly pending = new Set<Promise<void>>()
   private readonly activeRequests = new Map<string, string>()
+  private readonly finishedAt = new Map<string, string>()
   private readonly answering = new Set<string>()
   private closing = false
 
@@ -33,18 +34,13 @@ export class RunRequests {
         this.execution.unavailableReason ?? '执行不可用',
       )
     const decoded = decodeInput({ text, ...options })
-    // 默认纯文本的指纹保持兼容；附件、思考深度和执行档位参与请求身份。
-    const identity =
-      options.attachments?.length ||
-      (options.thinkingDepth && options.thinkingDepth !== 'medium') ||
-      options.executionMode
-        ? JSON.stringify({
-            text,
-            attachments: options.attachments ?? [],
-            thinkingDepth: options.thinkingDepth ?? 'medium',
-            executionMode: options.executionMode ?? null,
-          })
-        : text
+    // 所有输入使用同一结构生成身份，不保留旧纯文本指纹。
+    const identity = JSON.stringify({
+      text,
+      attachments: options.attachments ?? [],
+      thinkingDepth: options.thinkingDepth ?? 'medium',
+      executionMode: options.executionMode ?? null,
+    })
     const admission = this.store.admitInput(requestId, sessionId, text, identity, decoded.summaries)
     const { receipt } = admission
     if (!('notice' in admission)) return receipt
@@ -78,11 +74,14 @@ export class RunRequests {
           if (!['completed', 'failed', 'cancelled'].includes(current.status)) {
             current.status = 'unknown'
             current.interaction = null
+            for (const message of current.messages)
+              if (message.runId === current.runId) message.runStatus = 'unknown'
             current.messages.push({
               id: randomUUID(),
               role: 'system',
               text: '执行连接未能确认结果；请核对原运行，系统不会自动重试。',
               truncated: false,
+              timestamp: new Date().toISOString(),
             })
             this.changes.publish(this.store.saveRunSession(requestId, current))
           }
@@ -95,7 +94,10 @@ export class RunRequests {
           })
         }
       })
-      .finally(() => this.pending.delete(delivery))
+      .finally(() => {
+        this.pending.delete(delivery)
+        this.finishedAt.delete(requestId)
+      })
     this.pending.add(delivery)
     return receipt
   }
@@ -111,8 +113,15 @@ export class RunRequests {
       const index = session.messages.findIndex((message) => message.id === notice.messageId)
       if (!notice.message) {
         if (index >= 0) session.messages.splice(index, 1)
-      } else if (index >= 0) session.messages[index] = notice.message
-      else session.messages.push(notice.message)
+      } else {
+        const message = {
+          ...notice.message,
+          runStatus: session.status,
+          runFinishedAt: this.finishedAt.get(requestId) ?? session.messages[index]?.runFinishedAt,
+        }
+        if (index >= 0) session.messages[index] = message
+        else session.messages.push(message)
+      }
     } else if (notice.type === 'text') {
       const message = session.messages.find((item) => item.id === notice.messageId)
       if (message) message.text += notice.text
@@ -122,9 +131,18 @@ export class RunRequests {
           role: 'assistant',
           text: notice.text,
           truncated: false,
+          timestamp: new Date().toISOString(),
+          runId: session.runId ?? undefined,
         })
     } else if (notice.type === 'state') {
       session.status = notice.status
+      if (['completed', 'failed', 'cancelled'].includes(notice.status))
+        this.finishedAt.set(requestId, new Date().toISOString())
+      for (const message of session.messages)
+        if (message.runId === session.runId) {
+          message.runStatus = notice.status
+          message.runFinishedAt = this.finishedAt.get(requestId)
+        }
       if (['completed', 'failed', 'cancelled', 'unknown'].includes(notice.status))
         session.interaction = null
     } else if (notice.type === 'interaction') {

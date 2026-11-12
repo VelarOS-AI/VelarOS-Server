@@ -25,8 +25,10 @@ export interface DisplayMessage {
   text: string
   truncated: boolean
   attachments?: AttachmentSummary[]
-  timestamp?: string
+  timestamp: string
   runId?: string
+  runStatus?: RunStatus
+  runFinishedAt?: string
   turnId?: string
   phase?: 'preview' | 'accepted'
   preview?: string

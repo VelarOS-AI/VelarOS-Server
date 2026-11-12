@@ -46,6 +46,8 @@ if (handle) {
       ['composer-input', '--test', 'dist/tests/composer-input.test.js'],
       ['execution-modes', '--test', 'dist/tests/execution-modes.test.js'],
       ['transcript', '--test', 'dist/tests/transcript.test.js'],
+      ['chat-flow', '--test', 'dist/tests/chat-flow.test.js'],
+      ['conversation-projection', '--test', 'dist/tests/conversation-projection.test.js'],
       [
         'runtime-lifecycle',
         '--experimental-test-module-mocks',

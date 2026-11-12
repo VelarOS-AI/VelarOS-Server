@@ -18,13 +18,14 @@ import {
   type ChatComposerControl,
 } from '@velaros-ai/ui/conversation/composer'
 import {
-  ExecutionModes,
   type ExecutionMode,
   type SessionView,
   type ThinkingDepth,
 } from '../../../packages/contracts/src/index.js'
 import { Interaction } from './Interaction.js'
 import { ContextUsageIndicator } from './ContextUsageIndicator.js'
+import { groupRunMessages, projectRunMarkers } from './conversation-messages.js'
+import { ExecutionModeSelector } from './ExecutionModeSelector.js'
 
 const i18n: ConversationI18nContextValue = {
   locale: 'zh-CN',
@@ -50,93 +51,97 @@ const active = (session: SessionView | null): boolean =>
 /** 产品投影只绑定共享展示合同，不带入 Desktop 的会话或 People 模型。 */
 function project(session: SessionView | null): ConversationView {
   const isStreaming = active(session)
+  const messages = groupRunMessages(
+    session?.messages.map((message) => ({
+      id: message.id,
+      role: message.role === 'user' ? 'user' : 'assistant',
+      conversationKind:
+        message.role === 'user'
+          ? 'turn-input'
+          : message.role === 'system'
+            ? 'system-notice'
+            : 'assistant-output',
+      timestamp: Date.parse(message.timestamp),
+      runId: message.runId,
+      turnId: message.turnId,
+      attachments: message.attachments?.map((attachment, index) => ({
+        id: `${message.id}:${index}`,
+        kind: attachment.kind === 'image' ? ('image' as const) : ('file' as const),
+        name: attachment.name,
+        mediaType: attachment.mediaType,
+        size: attachment.bytes,
+      })),
+      blocks: [
+        ...(message.thinking
+          ? [
+              {
+                type: 'thinking' as const,
+                text: message.thinking,
+                streamId: `${message.id}:thinking`,
+              },
+            ]
+          : []),
+        ...((message.preview ?? message.text)
+          ? [
+              {
+                type: 'text',
+                segmentId: message.id,
+                turnId: message.turnId,
+                text:
+                  (message.preview ?? message.text) +
+                  (message.truncated ? '\n\n（展示已截短，完整执行结果以运行事实为准）' : ''),
+              } as const,
+            ]
+          : []),
+        ...(message.executions ?? []).map((card) => ({
+          type: 'script-execution' as const,
+          id: card.id,
+          kind: card.kind,
+          title:
+            card.source
+              .split('\n')
+              .find((line) => line.trim())
+              ?.match(/^\s*\/\/\s*(.+)$/)?.[1]
+              ?.trim() ?? '',
+          status: card.status === 'unknown' ? ('failed' as const) : card.status,
+          source: card.source,
+          sourceTruncated: card.sourceTruncated,
+          error: card.status === 'unknown' ? '执行结果尚未确认，请核对原进程。' : card.error,
+          durationMs: card.durationMs,
+          calls: [
+            ...(card.processOutput
+              ? [
+                  {
+                    module: 'node',
+                    operation: 'execute',
+                    status:
+                      card.status === 'succeeded'
+                        ? ('succeeded' as const)
+                        : card.status === 'failed'
+                          ? ('failed' as const)
+                          : card.status === 'cancelled'
+                            ? ('cancelled' as const)
+                            : ('pending' as const),
+                    effect: 'unknown' as const,
+                    input: '',
+                    output: card.processOutput,
+                    inputTruncated: false,
+                    outputTruncated: !!card.processOutputTruncated,
+                  },
+                ]
+              : []),
+            ...card.calls,
+          ],
+        })),
+      ],
+    })) ?? [],
+  )
   return {
     sessionId: session?.id ?? 'new-chat',
     activeMemberSessionId: session?.id ?? 'new-chat',
     supportsProjectFiles: false,
-    messages:
-      session?.messages.map((message) => ({
-        id: message.id,
-        role: message.role === 'user' ? 'user' : 'assistant',
-        conversationKind:
-          message.role === 'user'
-            ? 'turn-input'
-            : message.role === 'system'
-              ? 'system-notice'
-              : 'assistant-output',
-        timestamp: message.timestamp ? Date.parse(message.timestamp) : Number.NaN,
-        runId: message.runId,
-        turnId: message.turnId,
-        attachments: message.attachments?.map((attachment, index) => ({
-          id: `${message.id}:${index}`,
-          kind: attachment.kind === 'image' ? ('image' as const) : ('file' as const),
-          name: attachment.name,
-          mediaType: attachment.mediaType,
-          size: attachment.bytes,
-        })),
-        blocks: [
-          ...(message.thinking
-            ? [
-                {
-                  type: 'thinking' as const,
-                  text: message.thinking,
-                  streamId: `${message.id}:thinking`,
-                },
-              ]
-            : []),
-          ...((message.preview ?? message.text)
-            ? [
-                {
-                  type: 'text',
-                  text:
-                    (message.preview ?? message.text) +
-                    (message.truncated ? '\n\n（展示已截短，完整执行结果以运行事实为准）' : ''),
-                } as const,
-              ]
-            : []),
-          ...(message.executions ?? []).map((card) => ({
-            type: 'script-execution' as const,
-            id: card.id,
-            kind: card.kind,
-            title:
-              card.source
-                .split('\n')
-                .find((line) => line.trim())
-                ?.match(/^\s*\/\/\s*(.+)$/)?.[1]
-                ?.trim() ?? '',
-            status: card.status === 'unknown' ? ('failed' as const) : card.status,
-            source: card.source,
-            sourceTruncated: card.sourceTruncated,
-            error: card.status === 'unknown' ? '执行结果尚未确认，请核对原进程。' : card.error,
-            durationMs: card.durationMs,
-            calls: [
-              ...(card.processOutput
-                ? [
-                    {
-                      module: 'node',
-                      operation: 'execute',
-                      status:
-                        card.status === 'succeeded'
-                          ? ('succeeded' as const)
-                          : card.status === 'failed'
-                            ? ('failed' as const)
-                            : card.status === 'cancelled'
-                              ? ('cancelled' as const)
-                              : ('pending' as const),
-                      effect: 'unknown' as const,
-                      input: '',
-                      output: card.processOutput,
-                      inputTruncated: false,
-                      outputTruncated: !!card.processOutputTruncated,
-                    },
-                  ]
-                : []),
-              ...card.calls,
-            ],
-          })),
-        ],
-      })) ?? [],
-    messageRunMarkers: [],
+    messages,
+    messageRunMarkers: projectRunMarkers(session, messages),
     runtime: {
       status:
         session?.status === 'unknown' || session?.status === 'failed'
@@ -219,34 +224,13 @@ export function Conversation({
   const control: ChatComposerControl = {
     scopeKey: session?.id ?? 'new-chat',
     leftSlot: modelSettings,
-    capabilityControls: [
-      {
-        id: 'execution-mode',
-        kind: 'choice',
-        placement: 'toolbar',
-        label: '执行',
-        value: executionMode,
-        disabled: submitting || active(session),
-        choices: [
-          {
-            id: 'standard',
-            label: '标准模式',
-            description: '工作区内自动执行；不可恢复的操作先确认。',
-          },
-          {
-            id: 'full',
-            label: '完全访问',
-            description: '使用服务账户的主机权限，不启用工作区沙箱，自动批准执行。',
-            tone: 'danger',
-          },
-          { id: 'ask', label: '每次询问', description: '保留工作区沙箱，每次执行程序前确认。' },
-        ],
-        onChange: (value) => {
-          if (ExecutionModes.some((mode) => mode === value))
-            onExecutionModeChange(value as ExecutionMode)
-        },
-      },
-    ],
+    rightSlot: (
+      <ExecutionModeSelector
+        value={executionMode}
+        onChange={onExecutionModeChange}
+        disabled={submitting || active(session)}
+      />
+    ),
     modelRunSummary: {
       primaryLabel: '思考深度',
       secondaryLabel: { low: '低', medium: '中', high: '高', xhigh: '极高', max: '最高' }[

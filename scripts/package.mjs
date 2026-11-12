@@ -50,7 +50,7 @@ try {
   await mkdir(dirname(join(bundle, runtime.platform.file)), { recursive: true })
   await cp(join(root, runtime.platform.file), join(bundle, runtime.platform.file))
   await mkdir(join(bundle, 'dist'), { recursive: true })
-  for (const entry of ['apps/server', 'packages/contracts', 'web'])
+  for (const entry of ['apps/server', 'packages/contracts', 'packages/model-config', 'web'])
     await cp(join(root, 'dist', entry), join(bundle, 'dist', entry), { recursive: true })
   const install = spawnSync('bun', ['install', '--production', '--frozen-lockfile'], {
     cwd: bundle,

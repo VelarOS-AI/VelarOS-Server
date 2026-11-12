@@ -64,7 +64,7 @@ function project(session: SessionView | null): ConversationView {
             : message.role === 'system'
               ? 'system-notice'
               : 'assistant-output',
-        timestamp: message.timestamp ? Date.parse(message.timestamp) : 0,
+        timestamp: message.timestamp ? Date.parse(message.timestamp) : Number.NaN,
         runId: message.runId,
         turnId: message.turnId,
         attachments: message.attachments?.map((attachment, index) => ({

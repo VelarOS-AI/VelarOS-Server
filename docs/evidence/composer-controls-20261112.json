@@ -1,0 +1,223 @@
+{
+  "recordedAt": "2026-11-12T08:21:04.045Z",
+  "kind": "server-composer-content-and-runtime-controls",
+  "basedOnCommit": "ce38c7d70f33fc3730d76790d80faae6b54059b9",
+  "branch": "main",
+  "buildState": {
+    "web": {
+      "fingerprint": "79ce9e06fae23531cf31080ca10be489704e22f4af86bc44a985a21e729d6d65",
+      "passedAt": "2026-11-12T08:18:12.536Z"
+    },
+    "server": {
+      "fingerprint": "920a1c191b7b4537f17ee39d725fadec5386814524288adff36083b4c93c6c99",
+      "passedAt": "2026-11-12T08:04:57.460Z"
+    }
+  },
+  "dependencies": {
+    "platform": {
+      "name": "@velaros-ai/velaros",
+      "version": "0.12.1",
+      "file": "vendor/runtime/velaros-ai-velaros-0.12.1.tgz",
+      "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+      "sha256": "191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c",
+      "integrity": "sha512-UyR1NsMtLK1dMo2mVlL3DwwfoDoWBpomF2u/W8ND3gkCxEzyY3R006oUhrudKWZDPHMiS8fV7FSe2+UV4wy0Tw==",
+      "kind": "published-release",
+      "provenance": "resources/platform-provenance.json",
+      "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz"
+    },
+    "ui": {
+      "name": "@velaros-ai/ui",
+      "version": "1.1.3",
+      "file": "vendor/ui/velaros-ai-ui-1.1.3.tgz",
+      "sourceCommit": "ba5f9c506f9e05a57b748671f7d0ed522b1e84bc",
+      "sha256": "e4477df9d3964dd3f0070a67aaeb9d1dfcb974e7275a37c21e2c09c840ecea39",
+      "integrity": "sha512-onuztDwSyVSrlbpSHItQPj5M7ENpKapRAFswM/jdQtvj6uCYdAq1unRXt2a7xECKN/ZhY7d6ZLpdHTaW5dbh8w==",
+      "kind": "published-release",
+      "provenance": "resources/ui-provenance.json",
+      "url": "https://github.com/VelarOS-AI/VelarOS-UI/releases/download/v1.1.3/velaros-ai-ui-1.1.3.tgz"
+    }
+  },
+  "inputPolicy": {
+    "fileCount": 4,
+    "textFileBytes": 131072,
+    "totalTextBytes": 262144,
+    "imageBytes": 2097152,
+    "totalAttachmentBytes": 4194304,
+    "inputBodyBytes": 6291456,
+    "supported": ["UTF-8 text/code/logs", "PNG", "JPEG", "WebP"],
+    "binaryDocumentsParsed": false,
+    "attachmentUrlOrServerPath": false,
+    "truncatedUploads": false,
+    "productProjectionStoresRawAttachments": false
+  },
+  "checks": [
+    {
+      "label": "validation",
+      "selected": [
+        "server-types",
+        "web-types",
+        "composer-input",
+        "product-boundaries",
+        "admission-atomicity",
+        "runtime-lifecycle",
+        "web-build"
+      ],
+      "exitCode": 0,
+      "logSha256": "4d4f4ac63ea439c77f0cb213f5002f0e28b2d7bf907c2705943dbf4e3b3704d4"
+    },
+    {
+      "label": "followup-hint",
+      "selected": ["web-types", "web-build"],
+      "exitCode": 0,
+      "logSha256": "2e346cbe7e4ec0d42128a13a9414a0cb7524020b40a71ca0d91a5a78ab4340ed"
+    },
+    {
+      "label": "followup-gauge",
+      "selected": ["web-types", "web-build"],
+      "exitCode": 0,
+      "logSha256": "2e346cbe7e4ec0d42128a13a9414a0cb7524020b40a71ca0d91a5a78ab4340ed"
+    },
+    {
+      "label": "followup-web",
+      "selected": ["web-types", "web-build"],
+      "exitCode": 0,
+      "logSha256": "2e346cbe7e4ec0d42128a13a9414a0cb7524020b40a71ca0d91a5a78ab4340ed"
+    }
+  ],
+  "serverAssertions": {
+    "productBoundaries": {
+      "passed": 4,
+      "failed": 0
+    },
+    "admissionAtomicity": {
+      "passed": 4,
+      "failed": 0
+    },
+    "runtimeLifecycle": {
+      "passed": 5,
+      "failed": 0
+    },
+    "composerInput": {
+      "passed": 2,
+      "failed": 0
+    },
+    "actualOfficialSdkWire": {
+      "inlineImage": true,
+      "fullTextFile": true,
+      "reasoningEffort": "high",
+      "reportedInputTokens": 1200,
+      "configuredInputWindow": 110000,
+      "completed": true
+    },
+    "inputIdentityIncludesAttachmentAndDepth": true,
+    "sameInputReplayNotExecutedAgain": true,
+    "rejected": [
+      "single text size",
+      "total text size",
+      "single image size",
+      "total attachment size",
+      "file count",
+      "HTTP body bytes",
+      "image URL in place of bytes",
+      "invalid image type signature",
+      "invalid UTF-8",
+      "invalid thinking depth",
+      "empty submission"
+    ]
+  },
+  "browser": {
+    "calls": [
+      {
+        "reasoning": "high",
+        "fullFile": true,
+        "rawImage": true,
+        "requestBytes": 24182
+      }
+    ],
+    "sessions": [
+      {
+        "status": "completed",
+        "attachments": [
+          [
+            {
+              "name": "service.log",
+              "kind": "text",
+              "mediaType": "text/plain",
+              "bytes": 76
+            },
+            {
+              "name": "pixel.png",
+              "kind": "image",
+              "mediaType": "image/png",
+              "bytes": 68
+            }
+          ]
+        ],
+        "contextUsage": {
+          "requestId": "0dcacc43-ebd1-4ec0-ae9c-34675d0c9011:dc6d19c4",
+          "model": "gpt-5",
+          "inputTokens": 5000,
+          "inputWindow": 110000
+        }
+      }
+    ],
+    "naturalClose": true,
+    "realProvider": false,
+    "hostPrograms": false,
+    "naturalExitCode": 0,
+    "screenshots": [
+      {
+        "file": ".cache/composer-controls-20261112/attachments-draft.png",
+        "sha256": "21517a36886d733a1925121cc5c7c616067961e67b9ea6f253eafbf586ddb8b1"
+      },
+      {
+        "file": ".cache/composer-controls-20261112/composer-verified.png",
+        "sha256": "c61c371f92c028edbbc3c2e85a7660c7f4f1e627576db6bc59ce269209da799f"
+      },
+      {
+        "file": ".cache/composer-controls-20261112/composer-mobile.png",
+        "sha256": "1d26d48710ffbf37b4df717bbd7a93ed5b082a783400877feb2de1830f0afd6f"
+      },
+      {
+        "file": ".cache/composer-controls-20261112/actual-preview.png",
+        "sha256": "68e9f1599514937678afe76a3cb3527ae29e5d3a33c55613da4d177515a98408"
+      }
+    ],
+    "sharedContextGauge": "@velaros-ai/ui/conversation/status",
+    "fileSelection": true,
+    "previewAndRemoval": true,
+    "oversizedFileRefusedBeforeSubmission": true,
+    "draftClearedAfterAcceptance": true,
+    "usageShown": "4.5% · 5,000 / 110,000 tokens",
+    "narrowViewport": {
+      "width": 390,
+      "scrollWidth": 390
+    },
+    "errors": [],
+    "finalUnconfiguredPreview": {
+      "url": "http://127.0.0.1:8788",
+      "prepareAttachmentsBeforeModelSetup": true,
+      "sendGuardPreservesTextAndFiles": true,
+      "persistedSessionsAfterGuard": 0,
+      "sampleDraftCleared": true,
+      "errors": []
+    }
+  },
+  "limits": {
+    "nodeHeapMiB": 2048,
+    "perCheckTimeoutMs": 45000,
+    "sharedExclusiveLock": true,
+    "repeatedGreenBackendChecks": false,
+    "webFollowups": "Only affected web types/build after copy, shared-gauge reuse, and pre-configuration draft behavior changes."
+  },
+  "scope": {
+    "dependencyReinstall": false,
+    "platformSourceChanges": false,
+    "newLinuxProductArtifact": false,
+    "productionDeploy": false,
+    "realProviderApi": false,
+    "paidModelCalls": false,
+    "userModelConfigurationChanged": false,
+    "oldEvidenceRelabeled": false
+  }
+}

@@ -3,10 +3,17 @@ import { AppShell } from '@velaros-ai/ui/product/layout/AppShell'
 import { Button } from '@velaros-ai/ui/primitives/buttons/Button'
 import { IconButton } from '@velaros-ai/ui/primitives/buttons/IconButton'
 import { Input } from '@velaros-ai/ui/primitives/forms/Input'
-import type { ServerInfo, SessionView } from '../../../packages/contracts/src/index.js'
+import {
+  InputLimits,
+  type InputContent,
+  type ThinkingDepth,
+  type ServerInfo,
+  type SessionView,
+} from '../../../packages/contracts/src/index.js'
 import { request } from './api.js'
 import { Conversation } from './Conversation.js'
 import { ModelDialog } from './ModelDialog.js'
+import { encodeAttachments, validateAttachments } from './attachments.js'
 
 export function App(): React.ReactElement {
   const [csrf, setCsrf] = useState<string | null>(null)
@@ -16,6 +23,8 @@ export function App(): React.ReactElement {
   const [sessions, setSessions] = useState<SessionView[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
+  const [files, setFiles] = useState<File[]>([])
+  const [thinkingDepth, setThinkingDepth] = useState<ThinkingDepth>('medium')
   const [submitting, setSubmitting] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 640)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +35,7 @@ export function App(): React.ReactElement {
   // 同步身份只由 changeAuthentication 更新；csrf 是供界面渲染的投影。
   const authentication = useRef<string | null>(null)
   const refreshing = useRef<AbortController | null>(null)
-  const pendingInput = useRef<{ id: string; text: string; sessionId: string } | null>(null)
+  const pendingInput = useRef<{ id: string; fingerprint: string; sessionId: string } | null>(null)
   const cursor = useRef(0)
   const cancelRefresh = useCallback((): void => {
     refreshing.current?.abort()
@@ -41,6 +50,8 @@ export function App(): React.ReactElement {
       setSessions([])
       setSelectedId(null)
       setDraft('')
+      setFiles([])
+      setThinkingDepth('medium')
       draftScope.current += 1
       submission.current = null
       setSubmitting(false)
@@ -180,22 +191,43 @@ export function App(): React.ReactElement {
   const startNewChat = (): void => {
     setSelectedId(null)
     setDraft('')
+    setFiles([])
     setError(null)
     draftScope.current += 1
     if (window.innerWidth <= 640) setSidebarOpen(false)
   }
-  const send = async (text: string): Promise<void> => {
-    if (!text.trim() || authentication.current !== csrf || submission.current) return
+  const send = async (text: string, attached: File[]): Promise<void> => {
+    if ((!text.trim() && !attached.length) || authentication.current !== csrf || submission.current)
+      return
+    if (!info?.execution.available) {
+      setError(info?.execution.reason ?? '请先配置模型')
+      return
+    }
     const owner = {}
     const scope = draftScope.current
     submission.current = owner
     setSubmitting(true)
     setError(null)
     try {
+      if (text.length > InputLimits.textChars) throw new Error('消息文字不能超过 32,000 字符')
+      const payload: InputContent = {
+        text,
+        attachments: await encodeAttachments(attached),
+        thinkingDepth,
+      }
+      if (authentication.current !== csrf) return
+      const digest = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(JSON.stringify(payload)),
+      )
+      const fingerprint = Array.from(new Uint8Array(digest), (byte) =>
+        byte.toString(16).padStart(2, '0'),
+      ).join('')
+      if (authentication.current !== csrf) return
       let session = selected
       if (!session) {
         session = await request<SessionView>('/api/sessions', csrf, 'POST', {
-          title: text.trim().split('\n')[0]!.slice(0, 40),
+          title: (text.trim().split('\n')[0] || attached[0]?.name || '附件对话').slice(0, 40),
         })
         if (authentication.current !== csrf) return
         const created = session
@@ -204,17 +236,24 @@ export function App(): React.ReactElement {
       }
       const previous = pendingInput.current
       const input =
-        previous && previous.text === text && previous.sessionId === session.id
+        previous && previous.fingerprint === fingerprint && previous.sessionId === session.id
           ? previous
-          : { id: crypto.randomUUID(), text, sessionId: session.id }
+          : { id: crypto.randomUUID(), fingerprint, sessionId: session.id }
       pendingInput.current = input
       await request(`/api/sessions/${session.id}/inputs`, csrf, 'POST', {
         requestId: input.id,
-        text,
+        ...payload,
       })
       if (pendingInput.current === input) pendingInput.current = null
-      if (authentication.current === csrf && draftScope.current === scope)
+      if (authentication.current === csrf && draftScope.current === scope) {
         setDraft((current) => (current === text ? '' : current))
+        setFiles((current) =>
+          current.length === attached.length &&
+          current.every((file, index) => file === attached[index])
+            ? []
+            : current,
+        )
+      }
       // POST 受理与投影读取分开；刷新失败不能把已受理输入留作可重发草稿。
       await refresh()
     } catch (failure) {
@@ -279,6 +318,7 @@ export function App(): React.ReactElement {
               }
               setSelectedId(session.id)
               setDraft('')
+              setFiles([])
               setError(null)
               draftScope.current += 1
               if (window.innerWidth <= 640) setSidebarOpen(false)
@@ -339,6 +379,19 @@ export function App(): React.ReactElement {
           session={selected}
           draft={draft}
           onDraftChange={setDraft}
+          files={files}
+          onFilesChange={(next) => {
+            try {
+              validateAttachments(next)
+              setFiles(next)
+              setError(null)
+            } catch (failure) {
+              setFiles((current) => [...current])
+              setError(failure instanceof Error ? failure.message : '无法添加附件')
+            }
+          }}
+          thinkingDepth={thinkingDepth}
+          onThinkingDepthChange={setThinkingDepth}
           submitting={submitting}
           available={info?.execution.available ?? false}
           modelSettings={

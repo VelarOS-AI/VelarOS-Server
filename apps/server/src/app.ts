@@ -16,6 +16,8 @@ import { ModelSettingsStore, modelSettingsSchema, modelCatalogSchema } from './m
 import { ServerModelCatalog } from './model-catalog.js'
 import type { TerminalPort } from './terminal.js'
 import { TerminalHttp } from './terminal-http.js'
+import { InputLimits } from '../../../packages/contracts/src/index.js'
+import { inputSchema } from './input.js'
 
 const mimeTypes: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -26,15 +28,18 @@ const mimeTypes: Record<string, string> = {
   '.png': 'image/png',
 }
 
-async function body(request: IncomingMessage): Promise<unknown> {
+async function body(request: IncomingMessage, limit = 192 * 1024): Promise<unknown> {
   if (!request.headers['content-type']?.startsWith('application/json'))
     throw new HttpError(415, 'JSON_REQUIRED', '请求需要 JSON 内容')
   let bytes = 0
   const chunks: Buffer[] = []
-  for await (const chunk of request) {
+  for await (const chunk of request.iterator({ destroyOnReturn: false })) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
     bytes += buffer.length
-    if (bytes > 192 * 1024) throw new HttpError(413, 'BODY_LIMIT', '请求内容过大')
+    if (bytes > limit) {
+      request.resume()
+      throw new HttpError(413, 'BODY_LIMIT', '请求内容过大')
+    }
     chunks.push(buffer)
   }
   try {
@@ -150,18 +155,15 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
       if (method === 'GET' && !sessionRoute[2])
         return json(response, 200, options.store.getSession(id))
       if (method === 'POST' && sessionRoute[2] === 'inputs') {
-        const input = z
-          .object({
-            requestId: z.uuid(),
-            text: z
-              .string()
-              .min(1)
-              .max(32_000)
-              .refine((value) => value.trim().length > 0),
-          })
-          .strict()
-          .parse(await body(request))
-        return json(response, 202, runs.submit(id, input.requestId, input.text))
+        const input = inputSchema.parse(await body(request, InputLimits.bodyBytes))
+        return json(
+          response,
+          202,
+          runs.submit(id, input.requestId, input.text, {
+            attachments: input.attachments,
+            thinkingDepth: input.thinkingDepth,
+          }),
+        )
       }
       if (method === 'POST' && sessionRoute[2] === 'cancel') {
         const input = z

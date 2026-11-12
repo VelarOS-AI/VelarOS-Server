@@ -1,4 +1,7 @@
 /** Server 产品 API 数据；不依赖 Workspace、People、IPC 或 Platform 实现。 */
+import type { AttachmentSummary, ContextUsage } from './input.js'
+export * from './input.js'
+
 export type RunStatus =
   | 'idle'
   | 'received'
@@ -21,6 +24,7 @@ export interface DisplayMessage {
   role: 'user' | 'assistant' | 'system'
   text: string
   truncated: boolean
+  attachments?: AttachmentSummary[]
 }
 
 export interface PendingInteraction {
@@ -41,6 +45,7 @@ export interface SessionView {
   messages: DisplayMessage[]
   interaction: PendingInteraction | null
   facts: FactReference[]
+  contextUsage?: ContextUsage
 }
 
 export interface InputReceipt {

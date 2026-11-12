@@ -17,13 +17,16 @@ import {
   emptyConversationComposerPort,
   type ChatComposerControl,
 } from '@velaros-ai/ui/conversation/composer'
-import type { SessionView } from '../../../packages/contracts/src/index.js'
+import type { SessionView, ThinkingDepth } from '../../../packages/contracts/src/index.js'
 import { Interaction } from './Interaction.js'
+import { ContextUsageIndicator } from './ContextUsageIndicator.js'
 
 const i18n: ConversationI18nContextValue = {
   locale: 'zh-CN',
   setLocale: async () => {},
   t: (key, params) => {
+    if (key === 'chat.composerThinkingDepthHint')
+      return '控制模型推理力度；模型不支持的档位由对应适配器降到支持的档位。'
     let value: unknown = conversationZhCNMessages
     for (const part of key.split('.')) {
       if (!value || typeof value !== 'object' || !(part in value)) return key
@@ -57,6 +60,13 @@ function project(session: SessionView | null): ConversationView {
               ? 'system-notice'
               : 'assistant-output',
         timestamp: Date.parse(session.updatedAt),
+        attachments: message.attachments?.map((attachment, index) => ({
+          id: `${message.id}:${index}`,
+          kind: 'file' as const,
+          name: attachment.name,
+          mediaType: attachment.mediaType,
+          size: attachment.bytes,
+        })),
         blocks: [
           {
             type: 'text',
@@ -104,6 +114,10 @@ export function Conversation({
   session,
   draft,
   onDraftChange,
+  files,
+  onFilesChange,
+  thinkingDepth,
+  onThinkingDepthChange,
   submitting,
   available,
   modelSettings,
@@ -115,10 +129,14 @@ export function Conversation({
   session: SessionView | null
   draft: string
   onDraftChange(text: string): void
+  files: File[]
+  onFilesChange(files: File[]): void
+  thinkingDepth: ThinkingDepth
+  onThinkingDepthChange(value: ThinkingDepth): void
   submitting: boolean
   available: boolean
   modelSettings: React.ReactNode
-  onSend(text: string): Promise<void>
+  onSend(text: string, files: File[]): Promise<void>
   onStop(): Promise<void>
   onReview(requestId: string): Promise<string | null>
   onAnswer(requestId: string, runId: string, value: string | boolean): Promise<void>
@@ -130,15 +148,33 @@ export function Conversation({
   const control: ChatComposerControl = {
     scopeKey: session?.id ?? 'new-chat',
     leftSlot: modelSettings,
+    modelRunSummary: {
+      primaryLabel: '思考深度',
+      secondaryLabel: { low: '低', medium: '中', high: '高', xhigh: '极高', max: '最高' }[
+        thinkingDepth
+      ],
+    },
+    slots: { contextUsageIndicator: <ContextUsageIndicator usage={session?.contextUsage} /> },
     input: {
       input: {
         value: draft,
         onValueChange: onDraftChange,
         placeholder: available ? '发送消息…' : '模型未连接',
-        disabled: !available || submitting || active(session) || session?.status === 'unknown',
-        onSend: () => onSend(draft),
+        disabled: submitting || active(session) || session?.status === 'unknown',
+        onSend: (submission) => onSend(submission?.value ?? draft, submission?.files ?? files),
       },
-      attachments: { files: [] },
+      attachments: {
+        files,
+        onFilesChange:
+          submitting || active(session) || session?.status === 'unknown'
+            ? undefined
+            : onFilesChange,
+      },
+      thinkingDepth: {
+        value: thinkingDepth,
+        onChange: onThinkingDepthChange,
+        disabled: submitting || active(session),
+      },
       features: { voiceInput: false },
       streaming: {
         isStreaming: active(session),

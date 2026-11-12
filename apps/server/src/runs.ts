@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto'
-import type { InputReceipt } from '../../../packages/contracts/src/index.js'
+import type { InputContent, InputReceipt } from '../../../packages/contracts/src/index.js'
 import type { ExecutionNotice, ExecutionPort } from './execution.js'
 import { ChangeStream } from './change-stream.js'
 import { HttpError } from './errors.js'
 import { ProductStore } from './store.js'
+import { decodeInput } from './input.js'
 
 /** 仅桥接产品请求与执行事实，不负责模型循环或进程生命周期。 */
 export class RunRequests {
@@ -18,7 +19,12 @@ export class RunRequests {
     private readonly execution: ExecutionPort,
   ) {}
 
-  public submit(sessionId: string, requestId: string, text: string): InputReceipt {
+  public submit(
+    sessionId: string,
+    requestId: string,
+    text: string,
+    options: Omit<InputContent, 'text'> = {},
+  ): InputReceipt {
     if (this.closing) throw new HttpError(503, 'CLOSING', '服务正在收束运行')
     if (!this.execution.available)
       throw new HttpError(
@@ -26,7 +32,17 @@ export class RunRequests {
         'EXECUTION_UNAVAILABLE',
         this.execution.unavailableReason ?? '执行不可用',
       )
-    const admission = this.store.admitInput(requestId, sessionId, text)
+    const decoded = decodeInput({ text, ...options })
+    // 默认纯文本的指纹保持兼容；附件和思考档位参与同一请求的内容身份。
+    const identity =
+      options.attachments?.length || (options.thinkingDepth && options.thinkingDepth !== 'medium')
+        ? JSON.stringify({
+            text,
+            attachments: options.attachments ?? [],
+            thinkingDepth: options.thinkingDepth ?? 'medium',
+          })
+        : text
+    const admission = this.store.admitInput(requestId, sessionId, text, identity, decoded.summaries)
     const { receipt } = admission
     if (!('notice' in admission)) return receipt
     this.activeRequests.set(sessionId, requestId)
@@ -34,8 +50,15 @@ export class RunRequests {
 
     const delivery = Promise.resolve()
       .then(() =>
-        this.execution.submit({ sessionId, requestId, text }, (notice) =>
-          this.observe(sessionId, requestId, notice),
+        this.execution.submit(
+          {
+            sessionId,
+            requestId,
+            text: decoded.text,
+            images: decoded.images,
+            thinkingDepth: options.thinkingDepth ?? 'medium',
+          },
+          (notice) => this.observe(sessionId, requestId, notice),
         ),
       )
       .catch((error: unknown) => {
@@ -97,7 +120,8 @@ export class RunRequests {
     } else if (notice.type === 'interaction') {
       session.interaction = notice.request
       if (notice.request) session.status = 'waiting'
-    } else session.facts.push(notice.reference)
+    } else if (notice.type === 'context-usage') session.contextUsage = notice.usage
+    else session.facts.push(notice.reference)
     this.changes.publish(this.store.saveRunSession(requestId, session))
   }
 

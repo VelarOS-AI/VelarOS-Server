@@ -5,8 +5,8 @@ import { createNodeRuntime, type RuntimeModelConfiguration } from '@velaros-ai/v
 import type { VelarosRuntime, VelarosSession } from '@velaros-ai/velaros'
 import type { ModelDriver } from '@velaros-ai/velaros/kernel'
 import type { LocalShellHostApi } from '@velaros-ai/velaros/execution'
-import type { PendingInteraction } from '../../../packages/contracts/src/index.js'
-import type { ExecutionNotice, ExecutionPort } from './execution.js'
+import type { PendingInteraction, ThinkingDepth } from '../../../packages/contracts/src/index.js'
+import type { ExecutionInput, ExecutionNotice, ExecutionPort } from './execution.js'
 import type { ServerExecutionBinding } from './execution-binding.js'
 import { HttpError } from './errors.js'
 import { ProductStore } from './store.js'
@@ -20,6 +20,13 @@ export interface PlatformExecutionOptions {
   approval: 'ask' | 'allow'
   model?: ModelDriver
 }
+
+/** 显式装配产品窗口，与展示分母共用；不是供应商可用型号或物理最大容量。 */
+const ServerModelLimits = {
+  contextTokens: 128_000,
+  inputTokens: 110_000,
+  outputTokens: 12_000,
+} as const
 
 /** 只消费 SDK 会话与事实；模型循环和标准进程均由同一个 Runtime/Host 提供。 */
 export class PlatformExecution implements ExecutionPort {
@@ -49,7 +56,7 @@ export class PlatformExecution implements ExecutionPort {
         : '请先在输入框的模型配置中选择模型并填写 API 密钥'
   }
 
-  private configuration(): RuntimeModelConfiguration | ModelDriver {
+  private configuration(thinkingDepth: ThinkingDepth): RuntimeModelConfiguration | ModelDriver {
     if (this.options.model) return this.options.model
     const value = this.settings.read()
     if (!value.model || !value.apiKey)
@@ -60,12 +67,15 @@ export class PlatformExecution implements ExecutionPort {
       baseURL: value.baseUrl,
       apiKey: value.apiKey,
       model: value.model,
+      reasoningLevel: thinkingDepth,
+      limits: ServerModelLimits,
     }
   }
 
-  private async getRuntime(): Promise<VelarosRuntime> {
+  private async getRuntime(
+    model: RuntimeModelConfiguration | ModelDriver,
+  ): Promise<VelarosRuntime> {
     if (this.closing) throw new HttpError(503, 'CLOSING', '执行环境正在收束')
-    const model = this.configuration()
     const identity = this.options.model
       ? 'injected-driver'
       : createHash('sha256').update(JSON.stringify(model)).digest('hex')
@@ -85,6 +95,9 @@ export class PlatformExecution implements ExecutionPort {
         host: this.options.host,
         model,
         modules: [],
+        context: {
+          policy: { windowTokens: model.limits?.inputTokens ?? ServerModelLimits.inputTokens },
+        },
         instructions:
           '你是本机服务器运维助手。先核对状态和相关日志，再修改配置；服务变更后检查实际健康状态。没有验证的结果保留未知。不要将凭据写入回复。需要新增系统权限时说明具体需求，由操作者配置。',
         execution: {
@@ -140,11 +153,12 @@ export class PlatformExecution implements ExecutionPort {
   }
 
   public async submit(
-    input: { sessionId: string; requestId: string; text: string },
+    input: ExecutionInput,
     observe: (notice: ExecutionNotice) => void,
   ): Promise<void> {
     await this.validateBinding(input.sessionId)
-    const runtime = await this.getRuntime()
+    const model = this.configuration(input.thinkingDepth ?? 'medium')
+    const runtime = await this.getRuntime(model)
     const session = await runtime.openSession(input.sessionId)
     this.active.set(input.sessionId, session)
     let terminalState = false
@@ -152,6 +166,7 @@ export class PlatformExecution implements ExecutionPort {
       for await (const event of session.submit({
         inputId: input.requestId,
         text: input.text,
+        images: input.images,
         task: 'new',
       })) {
         if (event.type === 'input') {
@@ -176,6 +191,16 @@ export class PlatformExecution implements ExecutionPort {
               sessionId: event.ref.sessionId,
               runId: event.runId,
               recordId: event.ref.id,
+            },
+          })
+        } else if (event.type === 'usage') {
+          observe({
+            type: 'context-usage',
+            usage: {
+              requestId: event.requestId,
+              model: 'stream' in model ? model.id : model.model,
+              inputTokens: event.inputTokens,
+              inputWindow: model.limits?.inputTokens ?? ServerModelLimits.inputTokens,
             },
           })
         } else if (event.type === 'interaction') {

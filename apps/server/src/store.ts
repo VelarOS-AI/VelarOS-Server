@@ -5,6 +5,7 @@ import type {
   ChangeNotice,
   InputReceipt,
   SessionView,
+  AttachmentSummary,
 } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
 
@@ -34,6 +35,16 @@ const sessionSchema = z.object({
       role: z.enum(['user', 'assistant', 'system']),
       text: z.string(),
       truncated: z.boolean(),
+      attachments: z
+        .array(
+          z.object({
+            name: z.string(),
+            kind: z.enum(['text', 'image']),
+            mediaType: z.string(),
+            bytes: z.number().int().nonnegative(),
+          }),
+        )
+        .optional(),
     }),
   ),
   interaction: z
@@ -45,6 +56,14 @@ const sessionSchema = z.object({
     })
     .nullable(),
   facts: z.array(z.object({ sessionId: z.string(), runId: z.string(), recordId: z.string() })),
+  contextUsage: z
+    .object({
+      requestId: z.string(),
+      model: z.string(),
+      inputTokens: z.number().nonnegative(),
+      inputWindow: z.number().positive(),
+    })
+    .optional(),
 })
 
 const rowSchema = z.object({ projection: z.string() })
@@ -172,8 +191,14 @@ export class ProductStore {
     }
   }
 
-  public admitInput(requestId: string, sessionId: string, text: string): InputAdmission {
-    const fingerprint = createHash('sha256').update(text).digest('hex')
+  public admitInput(
+    requestId: string,
+    sessionId: string,
+    text: string,
+    identity = text,
+    attachments: AttachmentSummary[] = [],
+  ): InputAdmission {
+    const fingerprint = createHash('sha256').update(identity).digest('hex')
     return this.transaction((): InputAdmission => {
       const existing = this.db.prepare('SELECT * FROM requests WHERE id=?').get(requestId)
       if (existing) {
@@ -203,7 +228,13 @@ export class ProductStore {
       session.runId = null
       session.inputId = null
       session.interaction = null
-      session.messages.push({ id: randomUUID(), role: 'user', text, truncated: false })
+      session.messages.push({
+        id: randomUUID(),
+        role: 'user',
+        text,
+        truncated: false,
+        ...(attachments.length ? { attachments } : {}),
+      })
       return {
         receipt: {
           requestId,

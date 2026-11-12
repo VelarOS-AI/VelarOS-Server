@@ -2,6 +2,8 @@ import type {
   FactReference,
   PendingInteraction,
   RunStatus,
+  ContextUsage,
+  ThinkingDepth,
 } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
 
@@ -12,14 +14,20 @@ export type ExecutionNotice =
   | { type: 'state'; status: RunStatus }
   | { type: 'interaction'; request: PendingInteraction | null }
   | { type: 'fact'; reference: FactReference }
+  | { type: 'context-usage'; usage: ContextUsage }
+
+export interface ExecutionInput {
+  sessionId: string
+  requestId: string
+  text: string
+  thinkingDepth?: ThinkingDepth
+  images?: { type: 'image-data'; origin: 'user'; mediaType: string; data: string; label: string }[]
+}
 
 export interface ExecutionPort {
   readonly available: boolean
   readonly unavailableReason: string | null
-  submit(
-    input: { sessionId: string; requestId: string; text: string },
-    observe: (notice: ExecutionNotice) => void,
-  ): Promise<void>
+  submit(input: ExecutionInput, observe: (notice: ExecutionNotice) => void): Promise<void>
   cancel(sessionId: string, runId: string): Promise<void>
   answer(sessionId: string, request: PendingInteraction, value: string | boolean): Promise<void>
   close(): Promise<void>

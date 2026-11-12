@@ -1,0 +1,95 @@
+{
+  "recordedAt": "2026-11-12T09:40:53.062Z",
+  "kind": "independent-cloud-host-trial-deployment",
+  "productCommit": "cdd5aa3ffffd635a209c4fede0f0508e781861d4",
+  "foundation": {
+    "name": "@velaros-ai/velaros",
+    "version": "0.12.1",
+    "file": "vendor/runtime/velaros-ai-velaros-0.12.1.tgz",
+    "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+    "sha256": "191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c",
+    "integrity": "sha512-UyR1NsMtLK1dMo2mVlL3DwwfoDoWBpomF2u/W8ND3gkCxEzyY3R006oUhrudKWZDPHMiS8fV7FSe2+UV4wy0Tw==",
+    "kind": "published-release",
+    "provenance": "resources/platform-provenance.json",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz"
+  },
+  "artifact": {
+    "file": "velaros-server-0.1.0-linux-x64.tar.gz",
+    "sha256": "9fef8280b92320b6dfabaf4e2b72bfba79214bbb3052fa46f177b83d0c6e30af",
+    "bytes": 40313395,
+    "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43190848464",
+    "githubArtifactId": 13930657322,
+    "githubZipSha256": "452a366933f01703887e9f38d25507c30caaad8456617188078de866869a4275",
+    "filesVerifiedOnTarget": 12452
+  },
+  "installation": {
+    "os": "Ubuntu 24.04 x64",
+    "node": "24.22.0",
+    "dedicatedUser": "velaros-server",
+    "service": "velaros-server.service",
+    "active": true,
+    "enabled": true,
+    "releaseDirectory": "/opt/velaros-server/releases/cdd5aa3ffffd635a209c4fede0f0508e781861d4/velaros-server",
+    "current": "/opt/velaros-server/current",
+    "dataDirectory": "/var/lib/velaros-server",
+    "configuration": "/etc/velaros-server.env",
+    "executionRoot": "/srv/velaros-server",
+    "mode": "workspace-write",
+    "approval": "ask",
+    "bind": "127.0.0.1:8890",
+    "access": "SSH local forward",
+    "existingCloud": "running healthy",
+    "existingCloudReadiness": "ok",
+    "sudoOrDockerGroupGranted": false
+  },
+  "confinement": {
+    "nativeHost": true,
+    "mode": "workspace-write",
+    "enforced": true,
+    "backend": "bubblewrap",
+    "receipt": {
+      "uid": 990,
+      "writeAndReadback": true,
+      "outsideStateWriteBlocked": true
+    },
+    "bubblewrap": "0.9.0-1ubuntu0.3",
+    "apparmorProfileSource": "Ubuntu apparmor-profiles 4.0.1really4.0.1-0ubuntu0.24.04.9",
+    "profile": "/etc/apparmor.d/bwrap-userns-restrict",
+    "profileSha256": "11d39094f044f0cda0febb3ad517b830301da6b2ce929664af09ee9e4dd264f9",
+    "globalUnprivilegedUsernsRestriction": 1,
+    "reference": "https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces"
+  },
+  "liveHttp": {
+    "serverPlatform": "linux",
+    "httpLogin": true,
+    "unauthenticatedApi": 401,
+    "sessions": true,
+    "workspaceListing": true,
+    "stateFileExcluded": true,
+    "htmlAndCompiledJs": true,
+    "modelConfigured": false,
+    "providerApiCalled": false,
+    "terminalAvailable": true,
+    "executionRoot": "/srv/velaros-server",
+    "browserErrors": [],
+    "browserSessionReady": true
+  },
+  "browser": {
+    "loggedIn": true,
+    "modelConfigurationOpen": true,
+    "errors": [],
+    "screenshot": ".cache/server-deploy-20261112/remote-server.png",
+    "screenshotSha256": "037b5aad222eb0c546b4df2a64b3eebaf7d310107effff465114d8a833811871"
+  },
+  "scope": {
+    "realHostSystemd": true,
+    "nativeHost": true,
+    "realProviderApi": false,
+    "paidModel": false,
+    "modelConfigured": false,
+    "publicDnsOrCaddyChanged": false,
+    "cloudProductRedeployed": false,
+    "oldEvidenceRelabeled": false
+  },
+  "installationEvidence": "docs/evidence/linux-install-cdd5aa3.json"
+}

@@ -23,7 +23,7 @@
 
 使用模板前，核对 `velaros-server.service` 的 Node 路径、用户、产品目录和数据目录；核对 `server.env.example` 的公开 origin 与授权根。模板不自动扩大 sudo、Docker 或文件权限。
 
-管理员审阅后可安装 unit 并启用服务。本仓本轮没有执行这些系统变更，也没有获得 Cloud 生产部署授权。反向代理使用同源 HTTPS，关闭 SSE 缓冲；后端默认只绑定 loopback。
+管理员按实际环境配置后可安装 unit 并启用服务。2026-11-12 已安装一个专用账户运行的独立试用实例，使用 loopback + SSH 隧道，详见[部署记录](../docs/deployment-trial-20261112.md)。采用反向代理时使用同源 HTTPS 并关闭 SSE 缓冲；Cloud 产品发布仍是独立流程。
 
 ## 运行与更新
 
@@ -39,6 +39,6 @@
 
 此脚本消费真实生产目录和原生依赖，核对基础归档与主入口哈希，确认不安装 UI/React/Electron/capabilities 开发或扩展包，再启动真实产品 main，验证 HTTP 登录、静态网页、样例文件、PTY 输出与停止、SIGTERM 后零退出码。测试使用一次性目录和 loopback，不配置供应商密钥，不重跑已通过 Agent 链；进程退出未知时报告并保留现场，不增加强杀兜底。
 
-最近一次已验收的 Linux 制品来自 [run 42607896603](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)，准确源码为 `19d426196d43238f38d83ae1c3712438e1b0fd48`，使用基础 0.9.3。已下载产物并核对 SHA-256 `23ebc020c3c02968d723fb4c5369558a31073c0bb54f45768ff7328d4e4fdc6e`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，40,298,499 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-19d4261.json`。此前 165139c / 0.9.2 的原回执同样保留；两者均不包含后续源码与依赖升级，不重标为当前版本。
+最近一次已验收的 Linux 制品来自 [run 43190848464](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43190848464)，准确源码为 `cdd5aa3ffffd635a209c4fede0f0508e781861d4`，使用基础 0.12.1 / UI 1.1.3 构建。已下载产物并核对 SHA-256 `9fef8280b92320b6dfabaf4e2b72bfba79214bbb3052fa46f177b83d0c6e30af`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，40,313,395 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-cdd5aa3.json`。旧 19d4261 / 0.9.3 与 165139c / 0.9.2 的回执保持原身份。
 
-此验证使用显式 danger-full-access 来验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。真实 systemd 启停、授权模式和实际服务维护任务仍需在目标环境验收，不能用 Platform 基础 CI 或 Windows PTY 结果替代。尚未部署到 Cloud 或用户生产主机。
+CI 安装验证使用显式 danger-full-access 验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。独立试用实例的真实 systemd 启动、专用用户、workspace-write 隔离与网页登录已在目标云主机另外验证；记录见 `docs/evidence/server-trial-20261112.json`。模型服务和实际运维任务由用户随后配置与确认，不用 CI 或 Windows 结果代替。

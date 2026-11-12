@@ -10,7 +10,7 @@ import {
   type ServerInfo,
   type SessionView,
 } from '../../../packages/contracts/src/index.js'
-import { request } from './api.js'
+import { apiUrl, request } from './api.js'
 import { Conversation } from './Conversation.js'
 import { ModelDialog } from './ModelDialog.js'
 import { encodeAttachments, validateAttachments } from './attachments.js'
@@ -107,7 +107,7 @@ export function App(): React.ReactElement {
     let refreshTimer: ReturnType<typeof setTimeout> | null = null
     const isCurrent = (): boolean => !disposed && authentication.current === csrf
     void refresh()
-    const events = new EventSource(`/api/events?after=${cursor.current}`)
+    const events = new EventSource(apiUrl(`/api/events?after=${cursor.current}`))
     events.onopen = () => {
       if (!isCurrent()) return
       if (connected) void refresh()

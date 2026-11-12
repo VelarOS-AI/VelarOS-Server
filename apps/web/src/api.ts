@@ -1,5 +1,10 @@
 import type { ApiFailure } from '../../../packages/contracts/src/index.js'
 
+/** 同一份网页可放在根目录或由反向代理挂到子路径。 */
+export function apiUrl(path: string): string {
+  return new URL(`.${path}`, document.baseURI).href
+}
+
 export async function request<T>(
   path: string,
   csrf: string,
@@ -7,7 +12,7 @@ export async function request<T>(
   body?: unknown,
   signal?: AbortSignal,
 ): Promise<T> {
-  const response = await fetch(path, {
+  const response = await fetch(apiUrl(path), {
     method,
     signal,
     credentials: 'same-origin',

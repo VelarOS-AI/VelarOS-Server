@@ -15,6 +15,28 @@ const Connection = {
   model: 'test-model',
 }
 
+test('服务商或地址变更不能沿用原连接密钥，非内置适配器不进入模型配置', () => {
+  const store = new ProductStore(':memory:')
+  const settings = new ModelSettingsStore(store)
+  try {
+    for (const destination of [
+      { ...Connection, provider: 'anthropic' },
+      { ...Connection, baseUrl: 'https://other-model.example/v1' },
+    ]) {
+      settings.save(modelSettingsSchema.parse({ ...Connection, apiKey: 'original-provider-key' }))
+      assert.equal(settings.save(modelSettingsSchema.parse(destination)).hasApiKey, false)
+      assert.equal(settings.read().apiKey, '')
+      settings.save(modelSettingsSchema.parse({ ...destination, apiKey: 'new-provider-key' }))
+      settings.save(modelSettingsSchema.parse(destination))
+      assert.equal(settings.read().apiKey, 'new-provider-key')
+    }
+    for (const provider of ['velaros', 'custom', 'unregistered-provider'])
+      assert.equal(modelSettingsSchema.safeParse({ ...Connection, provider }).success, false)
+  } finally {
+    store.close()
+  }
+})
+
 function loginFrom(
   auth: BrowserAuth,
   address: string,

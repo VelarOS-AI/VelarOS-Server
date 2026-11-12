@@ -254,8 +254,25 @@ button:focus-visible {
   gap: 8px;
   font-size: 12px;
 }
-.model-dialog label > button {
+.model-dialog label > button,
+.model-field > button {
   width: 100%;
+}
+.model-field {
+  display: grid;
+  gap: 8px;
+}
+.model-field-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.model-field-heading .model-custom-address {
+  height: auto;
+  padding: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 400;
 }
 .model-dialog-actions {
   display: flex;

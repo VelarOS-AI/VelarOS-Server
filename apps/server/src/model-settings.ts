@@ -1,10 +1,11 @@
 import { z } from 'zod'
 import type { ModelSettings } from '../../../packages/contracts/src/index.js'
+import { ModelProviderPresets } from '../../../packages/model-config/src/providers.js'
 import { ProductStore } from './store.js'
 
 const storedModelSettingsSchema = z
   .object({
-    provider: z.enum(['openai', 'openai-compatible-gateway']),
+    provider: z.enum(ModelProviderPresets.map((entry) => entry.id)),
     baseUrl: z.url().refine((value) => {
       const url = new URL(value)
       return (
@@ -30,7 +31,7 @@ export class ModelSettingsStore {
   public constructor(private readonly store: ProductStore) {}
 
   public read(): {
-    provider: ModelSettings['provider']
+    provider: z.infer<typeof storedModelSettingsSchema>['provider']
     baseUrl: string
     model: string
     apiKey: string
@@ -56,11 +57,13 @@ export class ModelSettingsStore {
 
   public save(value: z.infer<typeof modelSettingsSchema>): ModelSettings {
     const previous = this.read()
+    const sameConnection =
+      previous.provider === value.provider && previous.baseUrl === value.baseUrl
     const next = {
       provider: value.provider,
       baseUrl: value.baseUrl,
       model: value.model,
-      apiKey: value.clearApiKey ? '' : value.apiKey || previous.apiKey,
+      apiKey: value.clearApiKey ? '' : value.apiKey || (sameConnection ? previous.apiKey : ''),
     }
     this.store.db
       .prepare(

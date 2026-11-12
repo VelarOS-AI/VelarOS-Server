@@ -46,7 +46,7 @@ export class PlatformExecution implements ExecutionPort {
       ? null
       : this.closing
         ? '执行环境正在收束'
-        : '请先在设置中填写模型名称与 API 密钥'
+        : '请先在输入框的模型配置中选择模型并填写 API 密钥'
   }
 
   private configuration(): RuntimeModelConfiguration | ModelDriver {
@@ -54,7 +54,7 @@ export class PlatformExecution implements ExecutionPort {
     const value = this.settings.read()
     if (!value.model || !value.apiKey)
       throw new HttpError(503, 'MODEL_NOT_CONFIGURED', '模型连接尚未配置完整')
-    // 两个协议使用底座已有适配器，不按地址猜测或降级到另一条线路。
+    // 服务商身份由共享目录校验，协议继续交给底座已有适配器。
     return {
       provider: value.provider,
       baseURL: value.baseUrl,

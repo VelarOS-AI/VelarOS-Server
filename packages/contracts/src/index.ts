@@ -59,7 +59,7 @@ export interface ChangeNotice {
 }
 
 export interface ModelSettings {
-  provider: 'openai' | 'openai-compatible-gateway'
+  provider: string
   baseUrl: string
   model: string
   hasApiKey: boolean

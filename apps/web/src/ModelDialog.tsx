@@ -10,7 +10,10 @@ import {
   DialogTrigger,
 } from '@velaros-ai/ui/primitives/overlays/Dialog'
 import type { ModelSettings } from '../../../packages/contracts/src/index.js'
+import { ModelProviderPresets } from '../../../packages/model-config/src/providers.js'
 import { request } from './api.js'
+
+const CustomModel = '__custom_model__'
 
 export function ModelDialog({
   model,
@@ -25,16 +28,24 @@ export function ModelDialog({
   const [provider, setProvider] = useState(model.provider)
   const [baseUrl, setBaseUrl] = useState(model.baseUrl)
   const [name, setName] = useState(model.model)
+  const [customAddress, setCustomAddress] = useState(false)
+  const [customModel, setCustomModel] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pending = useRef(false)
+  const preset = ModelProviderPresets.find((entry) => entry.id === provider)
+  const keepKey = model.hasApiKey && provider === model.provider && baseUrl.trim() === model.baseUrl
   const changeOpen = (next: boolean): void => {
     if (pending.current) return
     if (next) {
       setProvider(model.provider)
       setBaseUrl(model.baseUrl)
-      setName(model.model)
+      const current = ModelProviderPresets.find((entry) => entry.id === model.provider)
+      const selected = model.model || current?.defaultModel || ''
+      setName(selected)
+      setCustomModel(!current?.models.includes(selected))
+      setCustomAddress(Boolean(current?.customEndpoint || model.baseUrl !== current?.baseUrl))
       setError(null)
     }
     setApiKey('')
@@ -103,49 +114,101 @@ export function ModelDialog({
               })
           }}
         >
-          <label htmlFor="model-provider">
-            接口协议
-            <Select<ModelSettings['provider']>
+          <div className="model-field">
+            <div className="model-field-heading">
+              <label htmlFor="model-provider">服务商</label>
+              {!preset?.customEndpoint && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="model-custom-address"
+                  disabled={saving}
+                  onClick={() => {
+                    setCustomAddress(!customAddress)
+                    if (customAddress && preset) setBaseUrl(preset.baseUrl)
+                  }}
+                >
+                  {customAddress ? '使用默认地址' : '自定义地址'}
+                </Button>
+              )}
+            </div>
+            <Select
               id="model-provider"
               value={provider}
               disabled={saving}
-              onChange={setProvider}
+              searchable
+              searchPlaceholder="搜索服务商"
+              onChange={(value) => {
+                const next = ModelProviderPresets.find((entry) => entry.id === value)
+                if (!next) return
+                setProvider(next.id)
+                setBaseUrl(next.baseUrl)
+                setName(next.defaultModel)
+                setCustomAddress(next.customEndpoint)
+                setCustomModel(!next.models.length)
+                setApiKey('')
+                setError(null)
+              }}
+              options={ModelProviderPresets.map((entry) => ({
+                value: entry.id,
+                label: entry.label,
+              }))}
+            />
+          </div>
+          {customAddress && (
+            <label>
+              服务地址
+              <Input
+                type="url"
+                required
+                value={baseUrl}
+                disabled={saving}
+                onChange={(event) => setBaseUrl(event.target.value)}
+              />
+            </label>
+          )}
+          <div className="model-field">
+            <label htmlFor="model-name">模型</label>
+            <Select
+              id="model-name"
+              value={customModel ? CustomModel : name}
+              disabled={saving}
+              searchable
+              searchPlaceholder="搜索模型"
               options={[
-                { value: 'openai', label: 'OpenAI · Responses' },
-                { value: 'openai-compatible-gateway', label: 'OpenAI 兼容 · Chat Completions' },
+                ...(preset?.models ?? []).map((id) => ({ value: id, label: id })),
+                { value: CustomModel, label: '自定义模型…' },
               ]}
+              onChange={(value) => {
+                setCustomModel(value === CustomModel)
+                setName(value === CustomModel ? '' : value)
+              }}
             />
-          </label>
-          <label>
-            服务地址
-            <Input
-              type="url"
-              required
-              value={baseUrl}
-              disabled={saving}
-              onChange={(event) => setBaseUrl(event.target.value)}
-            />
-          </label>
-          <label>
-            模型名称
-            <Input
-              required
-              maxLength={160}
-              value={name}
-              disabled={saving}
-              placeholder="服务商提供的模型 ID"
-              onChange={(event) => setName(event.target.value)}
-            />
-          </label>
+          </div>
+          {customModel && (
+            <label>
+              自定义模型
+              <Input
+                required
+                maxLength={160}
+                value={name}
+                disabled={saving}
+                placeholder="服务商提供的模型 ID"
+                onChange={(event) => setName(event.target.value)}
+              />
+            </label>
+          )}
           <label>
             API 密钥
             <Input
               type="password"
+              required={!keepKey}
               autoComplete="off"
               maxLength={4096}
               value={apiKey}
               disabled={saving}
-              placeholder={model.hasApiKey ? '已配置，留空保留' : '输入 API 密钥'}
+              placeholder={keepKey ? '已配置，留空保留' : '输入此服务商的 API 密钥'}
               onChange={(event) => setApiKey(event.target.value)}
             />
           </label>

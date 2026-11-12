@@ -20,13 +20,13 @@ bun run build
 bun run start
 ```
 
-模型在输入框左下角的「配置模型」中设置：接口协议、服务地址、模型名称与 API 密钥。已有密钥留空保留；配置保存在服务器，网页不回显密钥。
+模型在输入框左下角的「配置模型」中设置。服务商和模型从可搜索的下拉框选择，使用与 Desktop 同源的 Platform 内置目录；默认地址自动带入，可展开「自定义地址」或选择「自定义模型」。同一服务商与地址下，已有密钥留空保留；切换服务商或地址需填写对应密钥。配置保存在服务器，网页不回显密钥。
 
 访问 `http://127.0.0.1:8787`。初次启动在数据目录的 `access-token` 写入访问令牌，仅打印文件位置。Linux 默认数据目录是 `$XDG_STATE_HOME/velaros-server`，未设置时为 `~/.local/state/velaros-server`；Windows 开发使用 `%LOCALAPPDATA%/VelarOS-Server`。数据目录必须在执行根之外，并从文件 API 排除。
 
 可用环境变量见 `deploy/server.env.example`。文件根使用 JSON 数组，生产时必须明确配置；默认只开放启动目录。开发 Vite 页面时，把后端 `VELAROS_SERVER_PUBLIC_ORIGIN` 设为实际 Vite origin，避免放宽来源检查。
 
-执行默认 `workspace-write` 与逐程序 `ask`。Linux 受约束模式需要可用 bubblewrap，底座不能落实约束时拒绝执行；`danger-full-access` 是管理员明确选择的进程权限模式，仍受服务用户的操作系统权限约束。模型首版可明确选择 OpenAI Responses 或兼容 Chat Completions，设置变更在活动运行收束后应用。
+执行默认 `workspace-write` 与逐程序 `ask`。Linux 受约束模式需要可用 bubblewrap，底座不能落实约束时拒绝执行；`danger-full-access` 是管理员明确选择的进程权限模式，仍受服务用户的操作系统权限约束。模型服务商与建议模型来自 Platform 内置目录，协议由对应适配器提供，设置变更在活动运行收束后应用。
 
 只读观察能力由真实 Host 报告，不按操作系统推定支持，也不以普通执行代替只读采集。后端不可用时仍可选择已有观察历史或清除订阅；历史、动态材料和索引均由 Core 维护。当前 Windows 接缝实际报告只读程序不可用，不影响历史控制及明确审批的普通执行。
 

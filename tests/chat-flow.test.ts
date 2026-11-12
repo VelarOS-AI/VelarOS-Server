@@ -9,7 +9,7 @@ import { ProductStore } from '../apps/server/src/store.js'
 import { ServerFiles } from '../apps/server/src/files.js'
 import type { SessionView } from '../packages/contracts/src/index.js'
 
-test('真实 HTTP 会话创建身份重试不重复，消息回显复用 requestId，终态后迟到投影不丢运行尾标', async () => {
+test('真实 HTTP 单个空会话、运行回显、命名置顶归档及执行边界', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'velaros-chat-flow-'))
   await mkdir(join(directory, 'state'))
   const store = new ProductStore(':memory:')
@@ -83,12 +83,89 @@ test('真实 HTTP 会话创建身份重试不重复，消息回显复用 request
     await api('/api/sessions', 'POST', input)
     assert.equal(store.getSession(id).title, '检查系统状态', '重试创建不覆盖已更新的会话名称和内容')
     assert.equal((await api('/api/sessions', 'POST', { ...input, id: 'invalid' })).status, 400)
+    const draftId = randomUUID()
+    const next = (await (
+      await api('/api/sessions', 'POST', { id: draftId, title: '新会话' })
+    ).json()) as SessionView
+    const reused = (await (
+      await api('/api/sessions', 'POST', { id: randomUUID(), title: '新会话' })
+    ).json()) as SessionView
+    assert.equal(next.id, draftId)
+    assert.equal(reused.id, draftId, '不同窗口的创建请求也复用唯一空会话')
+    assert.equal(store.listSessions().length, 2)
+    assert.equal((await api(`/api/sessions/${id}`, 'PATCH', { title: '   ' })).status, 400)
+    assert.equal(
+      (await api(`/api/sessions/${id}`, 'PATCH', { title: 'x'.repeat(101) })).status,
+      400,
+    )
+    assert.equal((await api(`/api/sessions/${id}`, 'PATCH', {})).status, 400)
+    assert.equal(
+      (await api(`/api/sessions/${id}`, 'PATCH', { title: '日常维护', pinned: true })).status,
+      200,
+    )
+    const list = (await (await api('/api/sessions')).json()) as SessionView[]
+    assert.equal(list[0]!.id, id, '置顶会话排在更新建的空会话前面')
+    assert.equal(list[0]!.title, '日常维护')
+    assert.equal(list[0]!.pinned, true)
+    assert.equal((await api(`/api/sessions/${id}`, 'PATCH', { archived: true })).status, 200)
+    assert.equal(store.getSession(id).archived, true)
+    assert.equal(store.getSession(id).pinned, false)
+    assert.equal(store.getSession(id).messages.length, result.messages.length, '归档保留原消息')
+    assert.equal(
+      (await api(`/api/sessions/${id}/inputs`, 'POST', { ...body, requestId: randomUUID() }))
+        .status,
+      409,
+    )
+    assert.equal(submissions, 1, '已归档会话不启动新执行')
+    assert.equal(
+      (await api(`/api/sessions/${id}/inputs`, 'POST', body)).status,
+      202,
+      '原请求仍可查询回执，不能重放',
+    )
+    assert.equal((await api(`/api/sessions/${id}`, 'PATCH', { archived: false })).status, 200)
+    assert.equal(store.getSession(id).archived, false)
+    store.admitInput(randomUUID(), draftId, '待受理的执行')
+    assert.equal((await api(`/api/sessions/${draftId}`, 'PATCH', { archived: true })).status, 409)
+    assert.equal(store.getSession(draftId).archived, false, '拒绝归档不影响原任务')
   } finally {
     await app.close()
     store.close()
     const actual = await realpath(directory)
     assert.equal(dirname(actual).toLowerCase(), (await realpath(tmpdir())).toLowerCase())
     assert.ok(basename(actual).startsWith('velaros-chat-flow-'))
+    await rm(actual, { recursive: true, force: true })
+  }
+})
+
+test('会话组织信息独立于执行投影，SQLite 重启后保留命名、置顶和归档', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'velaros-chat-metadata-'))
+  const path = join(directory, 'server.sqlite')
+  let store = new ProductStore(path)
+  try {
+    const session = store.createSession('新会话')
+    store.saveSession(session)
+    store.updateSession(session.id, { title: '我的服务器', pinned: true })
+    const renamedRevision = store.getSession(session.id).revision
+    store.saveSession(session)
+    assert.ok(store.getSession(session.id).revision > renamedRevision)
+    assert.equal(store.getSession(session.id).title, '我的服务器')
+    assert.equal(store.getSession(session.id).pinned, true)
+    store.close()
+    store = new ProductStore(path)
+    assert.equal(store.getSession(session.id).title, '我的服务器')
+    assert.equal(store.getSession(session.id).pinned, true)
+    store.updateSession(session.id, { archived: true })
+    store.close()
+    store = new ProductStore(path)
+    assert.equal(store.getSession(session.id).archived, true)
+    assert.equal(store.getSession(session.id).pinned, false)
+    assert.equal(store.createSession('新会话').archived, false)
+    assert.equal(store.listSessions().length, 2)
+  } finally {
+    store.close()
+    const actual = await realpath(directory)
+    assert.equal(dirname(actual).toLowerCase(), (await realpath(tmpdir())).toLowerCase())
+    assert.ok(basename(actual).startsWith('velaros-chat-metadata-'))
     await rm(actual, { recursive: true, force: true })
   }
 })

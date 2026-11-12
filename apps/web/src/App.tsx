@@ -10,14 +10,18 @@ import {
   type ExecutionMode,
   type ServerInfo,
   type SessionView,
+  type SessionUpdate,
 } from '../../../packages/contracts/src/index.js'
 import { apiUrl, request } from './api.js'
 import { Conversation } from './Conversation.js'
 import { ModelDialog } from './ModelDialog.js'
+import { SessionsSidebar } from './SessionsSidebar.js'
 import { encodeAttachments, validateAttachments } from './attachments.js'
 import {
   draftSession,
   hasInput,
+  mergeSessions,
+  singleDraft,
   projectPendingChats,
   type PendingMessage,
 } from './pending-chats.js'
@@ -42,7 +46,12 @@ export function App(): React.ReactElement {
   const [localSessions, setLocalSessions] = useState<SessionView[]>([])
   const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([])
   const creatingSessions = useRef(new Map<string, Promise<SessionView>>())
+  const newSession = useRef<SessionView | null>(null)
+  const initialDraftRequested = useRef(false)
+  const [showArchived, setShowArchived] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const currentSelection = useRef(selectedId)
+  currentSelection.current = selectedId
   const [draft, setDraft] = useState('')
   const [files, setFiles] = useState<File[]>([])
   const [thinkingDepth, setThinkingDepth] = useState<ThinkingDepth>('medium')
@@ -79,10 +88,14 @@ export function App(): React.ReactElement {
       setCsrf(value)
       setInfo(null)
       setSessions([])
-      setLocalSessions([])
+      const initial = value ? draftSession(crypto.randomUUID()) : null
+      newSession.current = initial
+      initialDraftRequested.current = false
+      setLocalSessions(initial ? [initial] : [])
+      setShowArchived(false)
       setPendingMessages([])
       creatingSessions.current.clear()
-      setSelectedId(null)
+      setSelectedId(initial?.id ?? null)
       setDraft('')
       setFiles([])
       setThinkingDepth('medium')
@@ -107,7 +120,10 @@ export function App(): React.ReactElement {
       ])
       if (refreshing.current !== controller || authentication.current !== csrf) return
       setInfo(nextInfo)
-      setSessions(nextSessions)
+      setSessions((current) => mergeSessions(current, nextSessions))
+      const knownDraft = nextSessions.find((session) => session.id === newSession.current?.id)
+      if (knownDraft && (knownDraft.archived || knownDraft.messages.length > 0))
+        newSession.current = null
       setLocalSessions((current) =>
         current.filter((local) => !nextSessions.some((server) => server.id === local.id)),
       )
@@ -151,6 +167,51 @@ export function App(): React.ReactElement {
       if (refreshing.current === controller) refreshing.current = null
     }
   }, [csrf, cancelRefresh])
+  const ensureSession = useCallback(
+    (session: SessionView): Promise<SessionView> => {
+      const known = sessions.find((item) => item.id === session.id)
+      if (known) return Promise.resolve(known)
+      const existing = creatingSessions.current.get(session.id)
+      if (existing) return existing
+      const creation: Promise<SessionView> = request<SessionView>('/api/sessions', csrf!, 'POST', {
+        id: session.id,
+        title: session.title,
+      })
+        .then((created) => {
+          if (authentication.current === csrf) {
+            setSessions((current) => mergeSessions(current, [created]))
+            setLocalSessions((current) => current.filter((item) => item.id !== session.id))
+            if (newSession.current?.id === session.id) newSession.current = created
+            if (created.id !== session.id) {
+              setSelectedId((current) => (current === session.id ? created.id : current))
+              setPendingMessages((current) =>
+                current.map((item) =>
+                  item.sessionId === session.id ? { ...item, sessionId: created.id } : item,
+                ),
+              )
+              if (pendingInput.current?.sessionId === session.id)
+                pendingInput.current.sessionId = created.id
+            }
+          }
+          return created
+        })
+        .finally(() => {
+          if (creatingSessions.current.get(session.id) === creation)
+            creatingSessions.current.delete(session.id)
+        })
+      creatingSessions.current.set(session.id, creation)
+      return creation
+    },
+    [csrf, sessions],
+  )
+  useEffect(() => {
+    if (!csrf || initialDraftRequested.current || !newSession.current) return
+    initialDraftRequested.current = true
+    void ensureSession(newSession.current).catch((failure) => {
+      if (authentication.current === csrf)
+        setError(failure instanceof Error ? failure.message : '无法创建会话')
+    })
+  }, [csrf, ensureSession])
   useEffect(() => {
     const controller = new AbortController()
     void request<{ csrf: string | null }>('/api/auth', '', 'GET', undefined, controller.signal)
@@ -203,7 +264,10 @@ export function App(): React.ReactElement {
     return () => mobile.removeEventListener('change', resize)
   }, [])
 
-  const visibleSessions = projectPendingChats(sessions, localSessions, pendingMessages)
+  const visibleSessions = singleDraft(
+    projectPendingChats(sessions, localSessions, pendingMessages),
+    newSession.current?.id,
+  )
   const selected = visibleSessions.find((session) => session.id === selectedId) ?? null
   if (checking) return <div className="login-page">正在连接服务器…</div>
   if (!csrf)
@@ -254,45 +318,95 @@ export function App(): React.ReactElement {
       </div>
     )
 
-  const ensureSession = (session: SessionView): Promise<SessionView> => {
-    const known = sessions.find((item) => item.id === session.id)
-    if (known) return Promise.resolve(known)
-    const existing = creatingSessions.current.get(session.id)
-    if (existing) return existing
-    const creation: Promise<SessionView> = request<SessionView>('/api/sessions', csrf, 'POST', {
-      id: session.id,
-      title: session.title,
-    })
-      .then((created) => {
-        if (authentication.current === csrf) {
-          setSessions((current) => [created, ...current.filter((item) => item.id !== created.id)])
-        }
-        return created
-      })
-      .finally(() => {
-        if (creatingSessions.current.get(session.id) === creation)
-          creatingSessions.current.delete(session.id)
-      })
-    creatingSessions.current.set(session.id, creation)
-    return creation
-  }
   const startNewChat = (): void => {
-    const session = draftSession(crypto.randomUUID())
-    setLocalSessions((current) => [session, ...current])
+    const session =
+      newSession.current ??
+      visibleSessions.find(
+        (item) => !item.archived && item.status === 'idle' && item.messages.length === 0,
+      ) ??
+      draftSession(crypto.randomUUID())
+    newSession.current = session
+    if (!visibleSessions.some((item) => item.id === session.id))
+      setLocalSessions((current) => [session, ...current])
+    setShowArchived(false)
+    if (selectedId === session.id) {
+      if (window.innerWidth <= 640) setSidebarOpen(false)
+      return
+    }
     setSelectedId(session.id)
     setDraft('')
     setFiles([])
     setError(null)
     draftScope.current += 1
     if (window.innerWidth <= 640) setSidebarOpen(false)
-    void ensureSession(session).catch((failure) => {
+  }
+  const updateSession = async (session: SessionView, update: SessionUpdate): Promise<void> => {
+    try {
+      const stored = await ensureSession(session)
+      if (authentication.current !== csrf) return
+      const updated = await request<SessionView>(
+        `/api/sessions/${stored.id}`,
+        csrf,
+        'PATCH',
+        update,
+      )
+      if (authentication.current !== csrf) return
+      setSessions((current) => mergeSessions(current, [updated]))
+      setError(null)
+      if (update.archived !== undefined) {
+        if (newSession.current?.id === updated.id) newSession.current = null
+        if (
+          update.archived &&
+          (currentSelection.current === session.id || currentSelection.current === updated.id)
+        ) {
+          const next =
+            newSession.current ??
+            visibleSessions.find(
+              (item) =>
+                item.id !== updated.id &&
+                !item.archived &&
+                item.status === 'idle' &&
+                item.messages.length === 0,
+            ) ??
+            draftSession(crypto.randomUUID())
+          newSession.current = next
+          if (!visibleSessions.some((item) => item.id === next.id))
+            setLocalSessions((current) => [
+              next,
+              ...current.filter((item) => item.id !== session.id),
+            ])
+          setSelectedId(next.id)
+          setShowArchived(false)
+          setDraft('')
+          setFiles([])
+          draftScope.current += 1
+        } else if (!update.archived) {
+          if (updated.status === 'idle' && updated.messages.length === 0) {
+            newSession.current = updated
+            setLocalSessions((current) =>
+              current.filter((item) => item.messages.length > 0 || item.id === updated.id),
+            )
+          }
+          setShowArchived(false)
+          setSelectedId(updated.id)
+          setDraft('')
+          setFiles([])
+          draftScope.current += 1
+        }
+      }
+    } catch (failure) {
       if (authentication.current === csrf)
-        setError(failure instanceof Error ? failure.message : '无法创建会话')
-    })
+        setError(failure instanceof Error ? failure.message : '无法更新会话')
+      throw failure
+    }
   }
   const send = async (text: string, attached: File[]): Promise<void> => {
     if ((!text.trim() && !attached.length) || authentication.current !== csrf || submission.current)
       return
+    if (selected?.archived) {
+      setError('会话已归档，请先取消归档')
+      return
+    }
     if (!info?.execution.available) {
       setError(info?.execution.reason ?? '请先配置模型')
       return
@@ -308,6 +422,7 @@ export function App(): React.ReactElement {
     const scope = draftScope.current
     const previous = pendingInput.current
     const session = selected ?? draftSession(crypto.randomUUID())
+    if (newSession.current?.id === session.id) newSession.current = null
     const delivery: PendingSubmission = {
       id: crypto.randomUUID(),
       fingerprint: '',
@@ -374,9 +489,10 @@ export function App(): React.ReactElement {
           current.map((item) => (item.id === provisionalId ? { ...item, id: delivery.id } : item)),
         )
       }
-      await ensureSession(session)
+      const stored = await ensureSession(session)
+      delivery.sessionId = stored.id
       if (authentication.current !== csrf) return
-      await request(`/api/sessions/${session.id}/inputs`, csrf, 'POST', {
+      await request(`/api/sessions/${stored.id}/inputs`, csrf, 'POST', {
         requestId: delivery.id,
         ...payload,
       })
@@ -414,67 +530,27 @@ export function App(): React.ReactElement {
   }
 
   const sidebar = (
-    <aside className="sidebar" id="sessions-sidebar" aria-label="会话栏" inert={!sidebarOpen}>
-      <div className="sidebar-header">
-        <span className="sidebar-brand">VelarOS Server</span>
-        <IconButton label="收起会话栏" size="icon-sm" onClick={() => setSidebarOpen(false)}>
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            aria-hidden="true"
-          >
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <path d="M9 4v16" />
-          </svg>
-        </IconButton>
-      </div>
-      <div className="sidebar-heading">
-        <span>会话</span>
-        <IconButton label="新建对话" size="icon-sm" onClick={startNewChat}>
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            aria-hidden="true"
-          >
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-        </IconButton>
-      </div>
-      <div className="session-list">
-        {visibleSessions.map((session) => (
-          <Button
-            key={session.id}
-            variant="ghost"
-            size="block"
-            active={selectedId === session.id}
-            aria-current={selectedId === session.id ? 'page' : undefined}
-            title={session.title}
-            onClick={() => {
-              if (selectedId === session.id) {
-                if (window.innerWidth <= 640) setSidebarOpen(false)
-                return
-              }
-              setSelectedId(session.id)
-              setDraft('')
-              setFiles([])
-              setError(null)
-              draftScope.current += 1
-              if (window.innerWidth <= 640) setSidebarOpen(false)
-            }}
-          >
-            <span>{session.title}</span>
-          </Button>
-        ))}
-      </div>
-    </aside>
+    <SessionsSidebar
+      key={csrf}
+      open={sidebarOpen}
+      sessions={visibleSessions}
+      selectedId={selectedId}
+      archived={showArchived}
+      onCollapse={() => setSidebarOpen(false)}
+      onNew={startNewChat}
+      onSelect={(session) => {
+        if (selectedId !== session.id) {
+          setSelectedId(session.id)
+          setDraft('')
+          setFiles([])
+          setError(null)
+          draftScope.current += 1
+        }
+        if (window.innerWidth <= 640) setSidebarOpen(false)
+      }}
+      onArchivedChange={setShowArchived}
+      onUpdate={updateSession}
+    />
   )
   return (
     <AppShell
@@ -541,7 +617,7 @@ export function App(): React.ReactElement {
           executionMode={executionMode}
           onExecutionModeChange={setExecutionMode}
           submitting={submitting}
-          available={info?.execution.available ?? false}
+          available={!selected?.archived && (info?.execution.available ?? false)}
           modelSettings={
             info && (
               <ModelDialog

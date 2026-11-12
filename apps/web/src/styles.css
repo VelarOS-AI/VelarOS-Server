@@ -81,29 +81,83 @@ button:focus-visible {
   min-height: 0;
   overflow: auto;
 }
-.session-list button {
+.session-row {
+  position: relative;
+}
+.session-list .session-select {
   display: flex;
   justify-content: flex-start;
   width: 100%;
   height: 36px;
   margin-block: 2px;
-  padding-inline: 12px;
+  padding-inline: 12px 36px;
+  gap: 7px;
   border-radius: 7px;
   color: var(--foreground);
   font-size: 13px;
   font-weight: 400;
   text-align: left;
 }
-.session-list button:hover {
+.session-select:hover {
   background: rgb(0 0 0 / 4%);
 }
-.session-list button[aria-current='page'] {
+.session-select[aria-current='page'] {
   background: rgb(0 0 0 / 6%);
 }
-.session-list button span {
+.session-select span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.session-pin {
+  flex: none;
+  color: var(--muted-foreground);
+}
+.session-actions {
+  position: absolute;
+  right: 3px;
+  top: 4px;
+  opacity: 0;
+  color: var(--muted-foreground);
+}
+.session-row:hover .session-actions,
+.session-row:focus-within .session-actions,
+.session-actions[aria-expanded='true'] {
+  opacity: 1;
+}
+@media (hover: none) {
+  .session-actions {
+    opacity: 1;
+  }
+}
+.session-menu {
+  min-width: 140px;
+}
+.archive-toggle {
+  justify-content: flex-start;
+  gap: 9px;
+  margin-top: 10px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.archive-empty {
+  padding: 12px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.rename-dialog {
+  max-width: 360px;
+}
+.rename-dialog form {
+  display: grid;
+  gap: 12px;
+}
+.rename-dialog label {
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.rename-dialog form > :last-child {
+  margin-top: 8px;
 }
 .sidebar-reopen {
   position: absolute;

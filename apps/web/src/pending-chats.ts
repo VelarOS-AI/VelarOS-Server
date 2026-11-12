@@ -13,6 +13,8 @@ export function draftSession(id: string): SessionView {
   return {
     id,
     title: '新会话',
+    pinned: false,
+    archived: false,
     revision: 0,
     status: 'idle',
     runId: null,
@@ -22,6 +24,34 @@ export function draftSession(id: string): SessionView {
     interaction: null,
     facts: [],
   }
+}
+
+/** 列表读取可能早于刚完成的更名或创建；较新的产品 revision 不被旧快照覆盖。 */
+export function mergeSessions(current: SessionView[], incoming: SessionView[]): SessionView[] {
+  const merged = new Map(current.map((session) => [session.id, session]))
+  for (const session of incoming) {
+    const known = merged.get(session.id)
+    if (!known || session.revision >= known.revision) merged.set(session.id, session)
+  }
+  return [...merged.values()]
+}
+
+export function sidebarSessions(sessions: SessionView[], archived: boolean): SessionView[] {
+  return sessions
+    .filter((session) => session.archived === archived)
+    .sort(
+      (left, right) =>
+        Number(right.pinned) - Number(left.pinned) || right.updatedAt.localeCompare(left.updatedAt),
+    )
+}
+
+/** 新会话是唯一的空白入口；已在发送的本地气泡不算空白。 */
+export function singleDraft(sessions: SessionView[], preferredId?: string): SessionView[] {
+  const empty = (session: SessionView): boolean =>
+    !session.archived && session.status === 'idle' && session.messages.length === 0
+  const chosen =
+    sessions.find((session) => session.id === preferredId && empty(session)) ?? sessions.find(empty)
+  return sessions.filter((session) => !empty(session) || session.id === chosen?.id)
 }
 
 export function hasInput(session: SessionView | undefined, id: string): boolean {

@@ -154,6 +154,20 @@ export function createServerApplication(options: ServerApplicationOptions): Serv
       const id = sessionRoute[1]!
       if (method === 'GET' && !sessionRoute[2])
         return json(response, 200, options.store.getSession(id))
+      if (method === 'PATCH' && !sessionRoute[2]) {
+        const input = z
+          .object({
+            title: z.string().trim().min(1).max(100).optional(),
+            pinned: z.boolean().optional(),
+            archived: z.boolean().optional(),
+          })
+          .strict()
+          .refine((value) => Object.keys(value).length > 0)
+          .parse(await body(request))
+        const { session, notice } = options.store.updateSession(id, input)
+        changes.publish(notice)
+        return json(response, 200, session)
+      }
       if (method === 'POST' && sessionRoute[2] === 'inputs') {
         const input = inputSchema.parse(await body(request, InputLimits.bodyBytes))
         await execution.validateSession?.(id)

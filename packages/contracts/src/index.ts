@@ -82,6 +82,8 @@ export interface PendingInteraction {
 export interface SessionView {
   id: string
   title: string
+  pinned: boolean
+  archived: boolean
   revision: number
   status: RunStatus
   runId: string | null
@@ -91,6 +93,12 @@ export interface SessionView {
   interaction: PendingInteraction | null
   facts: FactReference[]
   contextUsage?: ContextUsage
+}
+
+export interface SessionUpdate {
+  title?: string
+  pinned?: boolean
+  archived?: boolean
 }
 
 export interface InputReceipt {

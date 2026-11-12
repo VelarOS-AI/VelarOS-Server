@@ -6,6 +6,7 @@ import type {
   InputReceipt,
   SessionView,
   AttachmentSummary,
+  SessionUpdate,
 } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
 import { TranscriptLimits } from '../../../packages/contracts/src/index.js'
@@ -122,7 +123,26 @@ const sessionSchema = z.object({
     .optional(),
 })
 
-const rowSchema = z.object({ projection: z.string() })
+const rowSchema = z.object({
+  projection: z.string(),
+  customTitle: z.string().nullable(),
+  pinned: z.number(),
+  archived: z.number(),
+})
+const sessionSelection = `SELECT sessions.projection,
+  session_metadata.title customTitle,
+  COALESCE(session_metadata.pinned,0) pinned, COALESCE(session_metadata.archived,0) archived
+  FROM sessions LEFT JOIN session_metadata ON session_metadata.session_id=sessions.id`
+
+function readSession(row: unknown): SessionView {
+  const value = rowSchema.parse(row)
+  return {
+    ...sessionSchema.parse(JSON.parse(value.projection)),
+    ...(value.customTitle === null ? {} : { title: value.customTitle }),
+    pinned: value.pinned === 1,
+    archived: value.archived === 1,
+  }
+}
 const requestSchema = z.object({
   id: z.string(),
   session_id: z.string(),
@@ -146,6 +166,10 @@ export class ProductStore {
       CREATE TABLE IF NOT EXISTS product_schema (version INTEGER NOT NULL);
       INSERT INTO product_schema SELECT 2 WHERE NOT EXISTS (SELECT 1 FROM product_schema);
       CREATE TABLE IF NOT EXISTS sessions (id TEXT PRIMARY KEY, projection TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS session_metadata (
+        session_id TEXT PRIMARY KEY, title TEXT, pinned INTEGER NOT NULL DEFAULT 0,
+        archived INTEGER NOT NULL DEFAULT 0
+      );
       CREATE TABLE IF NOT EXISTS requests (
         id TEXT PRIMARY KEY, session_id TEXT NOT NULL, fingerprint TEXT NOT NULL,
         input_id TEXT, run_id TEXT, status TEXT NOT NULL
@@ -189,23 +213,29 @@ export class ProductStore {
 
   public listSessions(): SessionView[] {
     return this.db
-      .prepare('SELECT projection FROM sessions ORDER BY rowid DESC')
+      .prepare(`${sessionSelection} ORDER BY pinned DESC, sessions.rowid DESC`)
       .all()
-      .map((row) => sessionSchema.parse(JSON.parse(rowSchema.parse(row).projection)))
+      .map(readSession)
   }
 
   public getSession(id: string): SessionView {
-    const row = this.db.prepare('SELECT projection FROM sessions WHERE id=?').get(id)
+    const row = this.db.prepare(`${sessionSelection} WHERE sessions.id=?`).get(id)
     if (!row) throw new HttpError(404, 'NOT_FOUND', '会话不存在')
-    return sessionSchema.parse(JSON.parse(rowSchema.parse(row).projection))
+    return readSession(row)
   }
 
   public createSession(title: string, id: string = randomUUID()): SessionView {
-    const existing = this.db.prepare('SELECT projection FROM sessions WHERE id=?').get(id)
-    if (existing) return sessionSchema.parse(JSON.parse(rowSchema.parse(existing).projection))
+    const existing = this.db.prepare(`${sessionSelection} WHERE sessions.id=?`).get(id)
+    if (existing) return readSession(existing)
+    const empty = this.listSessions().find(
+      (session) => !session.archived && session.status === 'idle' && session.messages.length === 0,
+    )
+    if (empty) return empty
     const session: SessionView = {
       id,
       title,
+      pinned: false,
+      archived: false,
       revision: 0,
       status: 'idle',
       runId: null,
@@ -219,6 +249,31 @@ export class ProductStore {
       .prepare('INSERT INTO sessions (id,projection) VALUES (?,?)')
       .run(session.id, JSON.stringify(session))
     return session
+  }
+
+  /** 组织信息由产品持有；归档不取消执行、不删除事实，也不重放原请求。 */
+  public updateSession(
+    id: string,
+    update: SessionUpdate,
+  ): { session: SessionView; notice: ChangeNotice } {
+    return this.transaction(() => {
+      const session = this.getSession(id)
+      if (
+        update.archived &&
+        ['received', 'accepted', 'running', 'waiting'].includes(session.status)
+      )
+        throw new HttpError(409, 'SESSION_BUSY', '会话正在执行，请等待运行结束后归档')
+      if (update.title !== undefined) session.title = update.title
+      session.archived = update.archived ?? session.archived
+      session.pinned = session.archived ? false : (update.pinned ?? session.pinned)
+      this.db
+        .prepare(
+          `INSERT INTO session_metadata(session_id,title,pinned,archived) VALUES (?,?,?,?)
+        ON CONFLICT(session_id) DO UPDATE SET title=COALESCE(excluded.title,session_metadata.title),pinned=excluded.pinned,archived=excluded.archived`,
+        )
+        .run(id, update.title ?? null, Number(session.pinned), Number(session.archived))
+      return { session, notice: this.persistSession(session) }
+    })
   }
 
   public saveSession(session: SessionView): ChangeNotice {
@@ -251,11 +306,18 @@ export class ProductStore {
       })),
     }))
     session.facts = session.facts.slice(-ProjectionLimits.facts)
-    session.revision++
+    const current = z
+      .object({ revision: z.number() })
+      .parse(
+        this.db
+          .prepare("SELECT json_extract(projection,'$.revision') revision FROM sessions WHERE id=?")
+          .get(session.id),
+      )
+    session.revision = current.revision + 1
     session.updatedAt = new Date().toISOString()
     this.db
       .prepare('UPDATE sessions SET projection=? WHERE id=?')
-      .run(JSON.stringify(session), session.id)
+      .run(JSON.stringify(sessionSchema.parse(session)), session.id)
     const result = this.db
       .prepare('INSERT INTO changes (session_id,revision) VALUES (?,?)')
       .run(session.id, session.revision)
@@ -304,6 +366,7 @@ export class ProductStore {
         }
       }
       const session = this.getSession(sessionId)
+      if (session.archived) throw new HttpError(409, 'SESSION_ARCHIVED', '会话已归档，请先取消归档')
       if (['received', 'accepted', 'running', 'waiting', 'unknown'].includes(session.status))
         throw new HttpError(409, 'SESSION_BUSY', '会话仍有执行或未知结果，请先核对原运行')
       this.db

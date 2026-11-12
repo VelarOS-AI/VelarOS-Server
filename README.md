@@ -38,7 +38,7 @@ bun run start
 
 按一批改动集中进行格式、必要类型和四个产品边界场景，不默认跑压力测试、大型矩阵或 Linux/桌面全量回归。真实 Platform 与 Linux 验收在接入固定归档后单独记录，不用测试端口替代。
 
-`deploy/` 提供原生 Node + systemd 和同源反向代理模板。独立试用实例已使用专用账户、systemd、loopback 与 SSH 隧道运行，真实工作目录写入及隔离约束已验证。其他部署需按实际环境配置用户、目录与 Node 路径。
+`deploy/` 提供原生 Node + systemd 和同源反向代理模板。独立试用实例已通过 HTTPS `/server/` 提供网页和 API，无需 SSH 隧道；服务由专用账户和 systemd 运行，真实工作目录写入及隔离约束已验证。网页同时支持根目录和反向代理子路径，API 与事件地址随页面位置解析。其他部署需按实际环境配置用户、目录与 Node 路径。
 
 架构、数据与待接入边界见 `docs/architecture.md`。
 
@@ -49,13 +49,13 @@ Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI
 当前 Linux x64 安装包使用 Platform 0.12.1，包含编译后的服务、网页和原生生产依赖，已通过一次独立安装验收。目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。下载并核对 CI 产物：
 
 ```sh
-gh run download 43190848464 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-43190848464 --dir server-download
+gh run download 43196294103 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-43196294103 --dir server-download
 (cd server-download/artifacts && sha256sum --check velaros-server-0.1.0-linux-x64.tar.gz.sha256)
 mkdir server-install
 tar -xzf server-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz -C server-install
 ```
 
-进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `cdd5aa3ffffd635a209c4fede0f0508e781861d4`，安装包 SHA-256 `9fef8280b92320b6dfabaf4e2b72bfba79214bbb3052fa46f177b83d0c6e30af`，保留至 2026-11-15 17:22:54（北京时间）。持久安装回执见 `docs/evidence/linux-install-cdd5aa3.json`；旧 19d4261 / 165139c 回执保持原身份。真实试用部署与 CI 安装的范围分别记录，不互相替代。
+进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `2a1eca4b79fc578def21e13d31a14c15d7dccb4c`，安装包 SHA-256 `8146039740dc1f6fbeab5eb02918aeca78952e4a58252ef1380d913730089c6e`，保留至 2026-11-15 17:59:57（北京时间）。持久安装回执见 `docs/evidence/linux-install-2a1eca4.json`；旧版本回执保持原身份。真实试用部署与 CI 安装的范围分别记录，不互相替代。
 
 ## 许可证
 

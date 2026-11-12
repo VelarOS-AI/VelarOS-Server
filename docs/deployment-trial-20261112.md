@@ -1,5 +1,17 @@
 # 云主机独立试用实例
 
+## 当前 HTTPS 控制台
+
+按用户追加的控制台部署请求，已升级到 `2a1eca4b79fc578def21e13d31a14c15d7dccb4c`，通过现有 Caddy 的 HTTPS `/server/` 提供网页和 API，无需本地 SSH 隧道。后端只监听 Caddy 容器可达的宿主桥接地址 `172.18.0.1:8890`，未开放公网 8890。公开 origin 绑定 HTTPS 站点，保留令牌登录、Secure/HttpOnly/SameSite Cookie、CSRF 和来源检查。实际站点地址交付给实例所有者，不写入公开回执。
+
+本轮差量是 Vite 相对资源路径，以及网页请求和 EventSource 相对页面位置解析；服务端 API、数据合同和 Platform/UI 依赖身份未改变。Cloud 主分支提交 `2e5896eb98a67548b410cc7f57fb3639075c74b4` 包含对应路由和末尾斜杠跳转修复。代理移除 `/server` 前缀，8 MB 代理请求上限覆盖产品现有 4 MiB 附件内容及 JSON 编码开销，原有前后端附件上限继续生效；事件转发关闭缓冲。本轮仅热加载代理配置，没有重新部署 Cloud 产品或改动原有业务路由。
+
+新的 [Linux 安装验收 43196294103](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43196294103)核验冻结安装、类型、网页构建、独立生产包、文件与 PTY、停止及零退出码。归档 SHA-256 为 `8146039740dc1f6fbeab5eb02918aeca78952e4a58252ef1380d913730089c6e`；目标机逐项核对 12,452 个文件哈希。切换前确认没有活动会话，保留旧版本、数据和配置备份，现有模型配置与访问令牌未修改。systemd 当前 active/enabled。
+
+公网验证通过 HTTPS 证书校验、308 跳转、网页与匹配清单哈希的 JS、401 鉴权、登录与 Secure Cookie、CSRF/Origin 拒绝、会话和工作根读取、403 排除状态令牌以及 SSE 首段数据。实际浏览器已登录，模型配置可打开且没有 error；模型尚未配置，没有调用真实供应商。原 Cloud readiness 和容器健康正常。回执见 `evidence/server-public-console-20261112.json`，CI 安装证明见 `evidence/linux-install-2a1eca4.json`。下文初次部署的安装及隔离证明保留原源码身份，不作为本次新增验证。
+
+## 初次部署（历史）
+
 已按用户请求安装真实 Linux x64 制品，运行源码为 `cdd5aa3ffffd635a209c4fede0f0508e781861d4`，包含附件原始内容、思考深度、上下文仪表及动态模型目录。该提交修复部署归档遗漏 `dist/packages/model-config` 的问题；此前 `fff813e` 安装包启动失败，不作为部署结果。修复后 [Linux 安装验收 43190848464](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43190848464)通过，归档 SHA-256 为 `9fef8280b92320b6dfabaf4e2b72bfba79214bbb3052fa46f177b83d0c6e30af`。目标机逐文件核对全部 12,452 个清单条目的哈希后才启动。
 
 应用与生产依赖位于 `/opt/velaros-server/releases/<源码提交>/velaros-server`，`/opt/velaros-server/current` 指向本次版本；Node 24.22.0 位于 `/opt/velaros-node/v24.22.0`。`velaros-server.service` 使用独立 `velaros-server` 账户并已启用开机启动，数据为 `/var/lib/velaros-server`，配置为 `/etc/velaros-server.env`。该账户没有 sudo 或 Docker 组授权。默认工作及文件根是 `/srv/velaros-server`，执行模式为 `workspace-write`，逐程序审批为 `ask`。

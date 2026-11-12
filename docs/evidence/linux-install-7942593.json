@@ -1,0 +1,33 @@
+{
+  "productCommit": "79425931a5514e4a25af3d91ce6f8c050c4dd9a1",
+  "platform": "linux",
+  "arch": "x64",
+  "node": "24.22.0",
+  "foundation": {
+    "name": "@velaros-ai/velaros",
+    "version": "0.12.1",
+    "file": "vendor/runtime/velaros-ai-velaros-0.12.1.tgz",
+    "sourceCommit": "4bdd09df58fd86898543992d6e36cdd5a5f64925",
+    "sha256": "191e4391ce31e98517f785a1f354d37337cca17d1f63ee2c86a3f8523caab76c",
+    "integrity": "sha512-UyR1NsMtLK1dMo2mVlL3DwwfoDoWBpomF2u/W8ND3gkCxEzyY3R006oUhrudKWZDPHMiS8fV7FSe2+UV4wy0Tw==",
+    "kind": "published-release",
+    "provenance": "resources/platform-provenance.json",
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.13/velaros-ai-velaros-0.12.1.tgz"
+  },
+  "productionDependenciesOnly": true,
+  "httpLogin": true,
+  "fileRead": true,
+  "fileWriteWithModePreserved": true,
+  "nativePtyOutput": true,
+  "nativePtyStop": true,
+  "processExitCode": 0,
+  "providerApi": false,
+  "agentChainRepeated": false,
+  "systemd": false,
+  "confinement": "danger-full-access",
+  "artifact": "velaros-server-0.1.0-linux-x64.tar.gz",
+  "sha256": "7c7aa479c2b85b1ce05bdc53244128b299808d9b62dd983d48a7062a73697612",
+  "ciUrl": "https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43220425537",
+  "githubArtifactId": 13946171058,
+  "githubZipSha256": "c23d5caff56d276ba745b50577f9fa7fd78a6bd89f11d462309e6bd4e1c05d12"
+}

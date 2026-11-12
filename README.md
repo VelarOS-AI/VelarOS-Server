@@ -4,6 +4,8 @@
 
 ## 当前状态
 
+登录后默认一个空白新会话，连续点「+」复用它并保留输入草稿。侧栏行内「…」提供重命名、置顶和归档，底部「已归档」可查看并恢复；这些设置保存在服务器，刷新后保留。运行中的会话需结束后再归档。
+
 已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写和动态模型设置。当前固定正式 Platform 基础 0.12.1（tag v0.7.13）与 UI 1.1.3，不安装 capabilities；普通依赖直接声明官方归档 URL，产品清单和两份发布包均无 overrides/resolutions。本仓 vendor 保留核对过的同字节归档。[接入证据](docs/evidence/dynamic-models-20261112.json)记录普通安装、冻结安装、实际 SDK 身份、严格类型、动态目录 HTTP、真实 Runtime/审批/Node 写入与关闭、网页构建及隔离浏览器验证。2026-11-12 已生成当前 Linux 制品并安装独立云主机试用实例，见[部署记录](docs/deployment-trial-20261112.md)。真实供应商模型仍由用户配置，未自动调用付费模型。
 
 既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
@@ -51,13 +53,13 @@ Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI
 当前 Linux x64 安装包使用 Platform 0.12.1，包含编译后的服务、网页和原生生产依赖，已通过一次独立安装验收。目标机只需 Node.js 24.22.0 或更新版本，不需要安装 Bun 或拉取其他仓库。下载并核对 CI 产物：
 
 ```sh
-gh run download 43214638113 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-43214638113 --dir server-download
+gh run download 43220425537 --repo VelarOS-AI/VelarOS-Server --name velaros-server-linux-43220425537 --dir server-download
 (cd server-download/artifacts && sha256sum --check velaros-server-0.1.0-linux-x64.tar.gz.sha256)
 mkdir server-install
 tar -xzf server-download/artifacts/velaros-server-0.1.0-linux-x64.tar.gz -C server-install
 ```
 
-进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `75957d038494bb016e4cbc447c4092ab7cac65ad`，安装包 SHA-256 `921de6d86b356269d184620d0a65e753b5ce56b64a199ed64917ff247c91544f`，保留至 2026-11-15 20:05:26（北京时间）。持久安装回执见 `docs/evidence/linux-install-75957d0.json`；旧版本回执保持原身份。真实试用部署与 CI 安装的范围分别记录，不互相替代。
+进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行用户、明确的执行/文件根和站点 origin，然后执行 `node dist/apps/server/src/main.js`。该 CI artifact 对应源码 `79425931a5514e4a25af3d91ce6f8c050c4dd9a1`，安装包 SHA-256 `7c7aa479c2b85b1ce05bdc53244128b299808d9b62dd983d48a7062a73697612`，保留至 2026-11-15 20:43:32（北京时间）。持久安装回执见 `docs/evidence/linux-install-7942593.json`；旧版本回执保持原身份。真实试用部署与 CI 安装的范围分别记录，不互相替代。
 
 ## 许可证
 

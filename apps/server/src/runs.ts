@@ -107,6 +107,12 @@ export class RunRequests {
       session.inputId = notice.inputId
       session.runId = notice.runId
       session.status = 'accepted'
+    } else if (notice.type === 'transcript') {
+      const index = session.messages.findIndex((message) => message.id === notice.messageId)
+      if (!notice.message) {
+        if (index >= 0) session.messages.splice(index, 1)
+      } else if (index >= 0) session.messages[index] = notice.message
+      else session.messages.push(notice.message)
     } else if (notice.type === 'text') {
       const message = session.messages.find((item) => item.id === notice.messageId)
       if (message) message.text += notice.text

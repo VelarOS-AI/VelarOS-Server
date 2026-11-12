@@ -5,6 +5,7 @@ import type {
   ContextUsage,
   ThinkingDepth,
   ExecutionMode,
+  DisplayMessage,
 } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
 
@@ -16,6 +17,7 @@ export type ExecutionNotice =
   | { type: 'interaction'; request: PendingInteraction | null }
   | { type: 'fact'; reference: FactReference }
   | { type: 'context-usage'; usage: ContextUsage }
+  | { type: 'transcript'; messageId: string; message: DisplayMessage | null }
 
 export interface ExecutionInput {
   sessionId: string

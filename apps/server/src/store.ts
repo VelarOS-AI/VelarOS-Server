@@ -8,6 +8,7 @@ import type {
   AttachmentSummary,
 } from '../../../packages/contracts/src/index.js'
 import { HttpError } from './errors.js'
+import { TranscriptLimits } from '../../../packages/contracts/src/index.js'
 
 export const ProjectionLimits = { messages: 40, textChars: 8_000, facts: 24, notices: 512 } as const
 
@@ -35,6 +36,47 @@ const sessionSchema = z.object({
       role: z.enum(['user', 'assistant', 'system']),
       text: z.string(),
       truncated: z.boolean(),
+      timestamp: z.string().optional(),
+      runId: z.string().optional(),
+      turnId: z.string().optional(),
+      phase: z.enum(['preview', 'accepted']).optional(),
+      preview: z.string().optional(),
+      thinking: z.string().optional(),
+      executions: z
+        .array(
+          z.object({
+            id: z.string(),
+            kind: z.enum(['execute', 'observe', 'blobs']),
+            status: z.enum([
+              'writing',
+              'queued',
+              'running',
+              'succeeded',
+              'failed',
+              'cancelled',
+              'unknown',
+            ]),
+            source: z.string(),
+            sourceTruncated: z.boolean(),
+            durationMs: z.number().nullable(),
+            processOutput: z.string().optional(),
+            processOutputTruncated: z.boolean().optional(),
+            error: z.string().optional(),
+            calls: z.array(
+              z.object({
+                module: z.string(),
+                operation: z.string(),
+                status: z.enum(['pending', 'succeeded', 'failed', 'cancelled']),
+                effect: z.enum(['none', 'committed', 'partial', 'unknown']),
+                input: z.string(),
+                output: z.string(),
+                inputTruncated: z.boolean(),
+                outputTruncated: z.boolean(),
+              }),
+            ),
+          }),
+        )
+        .optional(),
       attachments: z
         .array(
           z.object({
@@ -108,11 +150,19 @@ export class ProductStore {
     if (!schema.success) throw new HttpError(500, 'SCHEMA_MISMATCH', '产品数据库版本不受支持')
     // 进程重启不是运行成功或取消的证据，所有未收束记录明确变为 unknown。
     for (const session of this.listSessions()) {
-      if (['received', 'accepted', 'running', 'waiting'].includes(session.status)) {
+      const unfinished = ['received', 'accepted', 'running', 'waiting'].includes(session.status)
+      const previews = session.messages.some((message) => message.phase === 'preview')
+      if (unfinished || previews) {
+        session.messages = session.messages.filter((message) => message.phase !== 'preview')
+        for (const message of session.messages)
+          for (const card of message.executions ?? [])
+            if (['writing', 'queued', 'running'].includes(card.status)) card.status = 'unknown'
+      }
+      if (unfinished) {
         session.status = 'unknown'
         session.interaction = null
-        this.saveSession(session)
       }
+      if (unfinished || previews) this.saveSession(session)
     }
     this.db
       .prepare(
@@ -162,6 +212,25 @@ export class ProductStore {
       ...message,
       text: message.text.slice(0, ProjectionLimits.textChars),
       truncated: message.truncated || message.text.length > ProjectionLimits.textChars,
+      preview: message.preview?.slice(0, ProjectionLimits.textChars),
+      thinking: message.thinking?.slice(0, TranscriptLimits.thinkingChars),
+      executions: message.executions?.slice(-TranscriptLimits.executions).map((card) => ({
+        ...card,
+        source: card.source.slice(0, TranscriptLimits.sourceChars),
+        sourceTruncated: card.sourceTruncated || card.source.length > TranscriptLimits.sourceChars,
+        processOutput: card.processOutput?.slice(0, TranscriptLimits.outputChars),
+        processOutputTruncated:
+          card.processOutputTruncated ||
+          (card.processOutput?.length ?? 0) > TranscriptLimits.outputChars,
+        error: card.error?.slice(0, TranscriptLimits.outputChars),
+        calls: card.calls.slice(0, TranscriptLimits.calls).map((call) => ({
+          ...call,
+          input: call.input.slice(0, TranscriptLimits.callChars),
+          output: call.output.slice(0, TranscriptLimits.callChars),
+          inputTruncated: call.inputTruncated || call.input.length > TranscriptLimits.callChars,
+          outputTruncated: call.outputTruncated || call.output.length > TranscriptLimits.callChars,
+        })),
+      })),
     }))
     session.facts = session.facts.slice(-ProjectionLimits.facts)
     session.revision++
@@ -233,6 +302,7 @@ export class ProductStore {
         role: 'user',
         text,
         truncated: false,
+        timestamp: new Date().toISOString(),
         ...(attachments.length ? { attachments } : {}),
       })
       return {

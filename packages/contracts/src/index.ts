@@ -25,6 +25,49 @@ export interface DisplayMessage {
   text: string
   truncated: boolean
   attachments?: AttachmentSummary[]
+  timestamp?: string
+  runId?: string
+  turnId?: string
+  phase?: 'preview' | 'accepted'
+  preview?: string
+  thinking?: string
+  executions?: DisplayExecution[]
+}
+
+/** 仅保存有界展示；实际源码、进程与调用事实仍归 Platform。 */
+export const TranscriptLimits = {
+  turns: 40,
+  thinkingChars: 4000,
+  executions: 6,
+  sourceChars: 4000,
+  outputChars: 4000,
+  calls: 6,
+  callChars: 1000,
+  traceChars: 32000,
+  refreshMs: 500,
+  publishMs: 100,
+} as const
+
+export interface DisplayExecution {
+  id: string
+  kind: 'execute' | 'observe' | 'blobs'
+  status: 'writing' | 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'unknown'
+  source: string
+  sourceTruncated: boolean
+  processOutput?: string
+  processOutputTruncated?: boolean
+  durationMs: number | null
+  error?: string
+  calls: {
+    module: string
+    operation: string
+    status: 'pending' | 'succeeded' | 'failed' | 'cancelled'
+    effect: 'none' | 'committed' | 'partial' | 'unknown'
+    input: string
+    output: string
+    inputTruncated: boolean
+    outputTruncated: boolean
+  }[]
 }
 
 export interface PendingInteraction {

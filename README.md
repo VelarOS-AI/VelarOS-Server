@@ -26,6 +26,8 @@ bun run start
 
 「思考深度」沿用 Desktop 的低、中、高、极高、最高五档，随本次输入交给底座适配器；具体模型的档位支持和降档由 Platform 处理。右侧上下文环只在模型报告用量后显示，分子是上次请求的供应商输入 token，分母是该次运行实际装配的输入窗口（本实例默认 110,000 token），不是累计花费或按消息字符猜出的比例。
 
+聊天按 Desktop 的完整会话门面渲染，支持流式正文、思考摘要、脚本执行卡、真实进程输出及耗时、共享确认/提问卡、Markdown 表格和代码高亮。「思考过程」开关在思考深度菜单内，默认关闭。正文预览与正式接纳分开，执行状态来自 Platform 追踪，未知结果不显示为成功；实现与验收范围见[渲染差量](docs/desktop-rendering-20261112.md)。
+
 访问 `http://127.0.0.1:8787`。初次启动在数据目录的 `access-token` 写入访问令牌，仅打印文件位置。Linux 默认数据目录是 `$XDG_STATE_HOME/velaros-server`，未设置时为 `~/.local/state/velaros-server`；Windows 开发使用 `%LOCALAPPDATA%/VelarOS-Server`。数据目录必须在执行根之外，并从文件 API 排除。
 
 可用环境变量见 `deploy/server.env.example`。文件根使用 JSON 数组，生产时必须明确配置；默认只开放启动目录。开发 Vite 页面时，把后端 `VELAROS_SERVER_PUBLIC_ORIGIN` 设为实际 Vite origin，避免放宽来源检查。

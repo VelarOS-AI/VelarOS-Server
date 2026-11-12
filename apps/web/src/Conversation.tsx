@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ChatConversationPane,
   ChatThinkingVisibilityProvider,
   ConversationActionPortProvider,
   ConversationBlockHooksProvider,
@@ -11,6 +10,7 @@ import {
   type ConversationI18nContextValue,
   type ConversationView,
 } from '@velaros-ai/ui/conversation/basic'
+import { ChatConversationPane } from '@velaros-ai/ui/conversation'
 import {
   ChatSurfaceComposer,
   ConversationComposerPortProvider,
@@ -64,21 +64,76 @@ function project(session: SessionView | null): ConversationView {
             : message.role === 'system'
               ? 'system-notice'
               : 'assistant-output',
-        timestamp: Date.parse(session.updatedAt),
+        timestamp: message.timestamp ? Date.parse(message.timestamp) : 0,
+        runId: message.runId,
+        turnId: message.turnId,
         attachments: message.attachments?.map((attachment, index) => ({
           id: `${message.id}:${index}`,
-          kind: 'file' as const,
+          kind: attachment.kind === 'image' ? ('image' as const) : ('file' as const),
           name: attachment.name,
           mediaType: attachment.mediaType,
           size: attachment.bytes,
         })),
         blocks: [
-          {
-            type: 'text',
-            text:
-              message.text +
-              (message.truncated ? '\n\n（展示已截短，完整执行结果以运行事实为准）' : ''),
-          },
+          ...(message.thinking
+            ? [
+                {
+                  type: 'thinking' as const,
+                  text: message.thinking,
+                  streamId: `${message.id}:thinking`,
+                },
+              ]
+            : []),
+          ...((message.preview ?? message.text)
+            ? [
+                {
+                  type: 'text',
+                  text:
+                    (message.preview ?? message.text) +
+                    (message.truncated ? '\n\n（展示已截短，完整执行结果以运行事实为准）' : ''),
+                } as const,
+              ]
+            : []),
+          ...(message.executions ?? []).map((card) => ({
+            type: 'script-execution' as const,
+            id: card.id,
+            kind: card.kind,
+            title:
+              card.source
+                .split('\n')
+                .find((line) => line.trim())
+                ?.match(/^\s*\/\/\s*(.+)$/)?.[1]
+                ?.trim() ?? '',
+            status: card.status === 'unknown' ? ('failed' as const) : card.status,
+            source: card.source,
+            sourceTruncated: card.sourceTruncated,
+            error: card.status === 'unknown' ? '执行结果尚未确认，请核对原进程。' : card.error,
+            durationMs: card.durationMs,
+            calls: [
+              ...(card.processOutput
+                ? [
+                    {
+                      module: 'node',
+                      operation: 'execute',
+                      status:
+                        card.status === 'succeeded'
+                          ? ('succeeded' as const)
+                          : card.status === 'failed'
+                            ? ('failed' as const)
+                            : card.status === 'cancelled'
+                              ? ('cancelled' as const)
+                              : ('pending' as const),
+                      effect: 'unknown' as const,
+                      input: '',
+                      output: card.processOutput,
+                      inputTruncated: false,
+                      outputTruncated: !!card.processOutputTruncated,
+                    },
+                  ]
+                : []),
+              ...card.calls,
+            ],
+          })),
         ],
       })) ?? [],
     messageRunMarkers: [],
@@ -95,7 +150,13 @@ function project(session: SessionView | null): ConversationView {
                 : isStreaming
                   ? 'running'
                   : 'idle',
-      teamPhase: null,
+      teamPhase: isStreaming
+        ? session?.messages.some((message) =>
+            message.executions?.some((card) => card.status === 'running'),
+          )
+          ? 'executing'
+          : 'researching'
+        : null,
       activeTurn: null,
       completedTurns: 0,
       lastError: session?.status === 'unknown' ? '执行结果尚未确认' : null,
@@ -110,7 +171,7 @@ function project(session: SessionView | null): ConversationView {
       usageTelemetry: [],
     },
     isStreaming,
-    hasStreamingThinkingBlock: false,
+    hasStreamingThinkingBlock: isStreaming && Boolean(session?.messages.at(-1)?.thinking),
     runningLabel: session?.status === 'received' ? '等待处理' : '正在处理',
   }
 }
@@ -151,6 +212,7 @@ export function Conversation({
   onAnswer(requestId: string, runId: string, value: string | boolean): Promise<void>
 }): React.ReactElement {
   const [followLocked, setFollowLocked] = useState(false)
+  const [showThinking, setShowThinking] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   useEffect(() => setFollowLocked(false), [session?.id])
   const conversation = useMemo(() => project(session), [session])
@@ -212,6 +274,7 @@ export function Conversation({
         onChange: onThinkingDepthChange,
         disabled: submitting || active(session),
       },
+      thinkingVisibility: { value: showThinking, onChange: setShowThinking },
       features: { voiceInput: false },
       streaming: {
         isStreaming: active(session),
@@ -220,29 +283,25 @@ export function Conversation({
       },
     },
   }
-  const composer = (
-    <>
-      {session?.interaction && (
-        <Interaction
-          key={session.interaction.id}
-          interaction={session.interaction}
-          onReview={onReview}
-          onAnswer={onAnswer}
-        />
-      )}
-      <ChatSurfaceComposer control={control} />
-    </>
-  )
+  const interaction = session?.interaction ? (
+    <Interaction
+      key={session.interaction.id}
+      interaction={session.interaction}
+      onReview={onReview}
+      onAnswer={onAnswer}
+    />
+  ) : null
+  const composer = <ChatSurfaceComposer control={control} />
   return (
     <ConversationLocalizationProvider value={i18n}>
       <ConversationActionPortProvider value={emptyConversationActionPort}>
         <ConversationComposerPortProvider value={emptyConversationComposerPort}>
           <ConversationBlockHooksProvider value={emptyConversationBlockHooks}>
-            <ChatThinkingVisibilityProvider visible={false}>
+            <ChatThinkingVisibilityProvider visible={showThinking}>
               {!session || (session.messages.length === 0 && session.status === 'idle') ? (
                 <section className="new-conversation" aria-label="对话">
                   <div className="new-conversation-content">
-                    <h1>有什么需要处理？</h1>
+                    <h1>今天想完成什么？</h1>
                     {composer}
                   </div>
                 </section>
@@ -250,6 +309,7 @@ export function Conversation({
                 <ChatConversationPane
                   conversation={conversation}
                   composer={composer}
+                  streamSlot={interaction}
                   followLocked={followLocked}
                   onFollowLockedChange={setFollowLocked}
                   scrollRef={scrollRef}

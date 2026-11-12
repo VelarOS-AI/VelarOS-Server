@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@velaros-ai/ui/primitives/buttons/Button'
-import { Input } from '@velaros-ai/ui/primitives/forms/Input'
+import { InteractionAnswerProvider, InteractionCard } from '@velaros-ai/ui/conversation/basic'
 import type { PendingInteraction } from '../../../packages/contracts/src/index.js'
 
 export function Interaction({
@@ -14,8 +13,6 @@ export function Interaction({
 }): React.ReactElement {
   const [source, setSource] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
-  const [answer, setAnswer] = useState('')
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   useEffect(() => {
     let disposed = false
@@ -35,18 +32,41 @@ export function Interaction({
     // 此交互以 id 为身份；父组件刷新投影不重复取执行正文。
   }, [interaction.id])
   const submit = async (value: string | boolean): Promise<void> => {
-    setBusy(true)
     setError(null)
     try {
       await onAnswer(interaction.id, interaction.runId, value)
     } catch (error) {
       setError(error instanceof Error ? error.message : '回答未确认')
-      setBusy(false)
+      throw error
     }
   }
   return (
     <div className="interaction-panel">
-      <strong>{interaction.message}</strong>
+      <InteractionAnswerProvider
+        value={
+          loaded
+            ? async (_id, answer) => {
+                await submit(
+                  interaction.kind === 'confirm'
+                    ? answer.approved === true
+                    : answer.declined
+                      ? false
+                      : (answer.text ?? ''),
+                )
+              }
+            : null
+        }
+      >
+        <InteractionCard
+          block={{
+            type: 'interaction',
+            id: interaction.id,
+            kind: interaction.kind === 'confirm' ? 'confirm' : 'input',
+            message: interaction.message,
+            status: 'pending',
+          }}
+        />
+      </InteractionAnswerProvider>
       {source && (
         <details>
           <summary>查看将要执行的程序</summary>
@@ -57,34 +77,6 @@ export function Interaction({
         <p role="alert" className="error-text">
           {error}
         </p>
-      )}
-      {interaction.kind === 'confirm' ? (
-        <div className="row">
-          <Button size="sm" disabled={!loaded || busy} onClick={() => void submit(true)}>
-            允许本次执行
-          </Button>
-          <Button size="sm" variant="ghost" disabled={busy} onClick={() => void submit(false)}>
-            拒绝
-          </Button>
-        </div>
-      ) : (
-        <form
-          className="row"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void submit(answer)
-          }}
-        >
-          <Input
-            value={answer}
-            disabled={busy}
-            onChange={(event) => setAnswer(event.target.value)}
-            aria-label="回答"
-          />
-          <Button type="submit" size="sm" disabled={busy || !answer.trim()}>
-            发送回答
-          </Button>
-        </form>
       )}
     </div>
   )

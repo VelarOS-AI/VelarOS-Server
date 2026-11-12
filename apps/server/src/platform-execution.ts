@@ -15,6 +15,8 @@ import type { ServerExecutionBinding } from './execution-binding.js'
 import { HttpError } from './errors.js'
 import { ProductStore } from './store.js'
 import { ModelSettingsStore } from './model-settings.js'
+import { ExecutionTranscript } from './execution-transcript.js'
+import { TranscriptLimits } from '../../../packages/contracts/src/index.js'
 
 export interface PlatformExecutionOptions {
   host: LocalShellHostApi
@@ -178,6 +180,28 @@ export class PlatformExecution implements ExecutionPort {
     const runtime = await this.getRuntime(model, executionMode)
     const session = await runtime.openSession(input.sessionId)
     this.active.set(input.sessionId, session)
+    const transcript = new ExecutionTranscript(observe)
+    let traceReading: Promise<void> | null = null
+    const refreshTrace = (): Promise<void> => {
+      if (traceReading) return traceReading
+      traceReading = (async () => {
+        for (const turnId of transcript.pendingTurns()) {
+          try {
+            transcript.trace(await session.trace(turnId, TranscriptLimits.traceChars))
+          } catch (error) {
+            console.error('Execution display trace unavailable', {
+              name: error instanceof Error ? error.name : 'unknown',
+            })
+          }
+        }
+      })().finally(() => {
+        traceReading = null
+      })
+      return traceReading
+    }
+    const traceTimer = setInterval(() => {
+      void refreshTrace()
+    }, TranscriptLimits.refreshMs)
     let terminalState = false
     try {
       for await (const event of session.submit({
@@ -186,6 +210,9 @@ export class PlatformExecution implements ExecutionPort {
         images: input.images,
         task: 'new',
       })) {
+        transcript.apply(event)
+        if (event.type === 'turn' || event.type === 'accepted' || event.type === 'state')
+          await refreshTrace()
         if (event.type === 'input') {
           observe({
             type: 'accepted',
@@ -201,7 +228,6 @@ export class PlatformExecution implements ExecutionPort {
             },
           })
         } else if (event.type === 'accepted') {
-          observe({ type: 'text', messageId: event.ref.id, text: event.text })
           observe({
             type: 'fact',
             reference: {
@@ -246,10 +272,13 @@ export class PlatformExecution implements ExecutionPort {
           observe({ type: 'state', status })
         } else if (event.type === 'error' || event.type === 'stalled')
           observe({ type: 'text', messageId: `${event.runId}:notice`, text: event.message })
-        // text/program 是预览，不冒充被接纳正文或进程执行回执。
+        // 预览与正式正文分开；程序结果只从正式 trace 投影。
       }
       if (!terminalState) observe({ type: 'state', status: 'unknown' })
     } finally {
+      clearInterval(traceTimer)
+      await refreshTrace()
+      transcript.finish()
       this.active.delete(input.sessionId)
     }
   }

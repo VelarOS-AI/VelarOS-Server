@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
 import { test } from 'node:test'
 import type { ModelDriver } from '@velaros-ai/velaros/kernel'
-import type { ExecutionMode } from '../packages/contracts/src/index.js'
+import type { DisplayMessage, ExecutionMode } from '../packages/contracts/src/index.js'
 import { composePlatform } from '../apps/server/src/platform-composition.js'
 import { ProductStore } from '../apps/server/src/store.js'
 
@@ -39,7 +39,9 @@ for (const [mode, approved, expectedConfirmations] of [
         }),
         stream: async function* () {
           assert.ok(++calls <= 2)
-          if (calls === 1)
+          if (calls === 1) {
+            yield { type: 'reasoning', text: '先核对确认路径。' }
+            yield { type: 'text', text: '准备执行验证程序。' }
             yield {
               type: 'tool-call',
               value: {
@@ -48,7 +50,7 @@ for (const [mode, approved, expectedConfirmations] of [
                 input: { code: source, options: { async: false } },
               },
             }
-          else
+          } else
             yield {
               type: 'tool-call',
               value: {
@@ -74,6 +76,7 @@ for (const [mode, approved, expectedConfirmations] of [
       let confirmations = 0
       let completed = false
       const answers: Promise<void>[] = []
+      const messages = new Map<string, DisplayMessage>()
       try {
         await platform.execution.submit(
           {
@@ -83,6 +86,10 @@ for (const [mode, approved, expectedConfirmations] of [
             executionMode: mode as ExecutionMode,
           },
           (notice) => {
+            if (notice.type === 'transcript') {
+              if (notice.message) messages.set(notice.messageId, notice.message)
+              else messages.delete(notice.messageId)
+            }
             if (notice.type === 'interaction' && notice.request) {
               confirmations++
               const answer = platform.execution.answer(session.id, notice.request, approved)
@@ -98,6 +105,15 @@ for (const [mode, approved, expectedConfirmations] of [
         if (approved) assert.equal(await readFile(target, 'utf8'), 'approved')
         else await assert.rejects(readFile(target), { code: 'ENOENT' })
         assert.equal(calls, 2)
+        assert.ok([...messages.values()].some((message) => message.thinking === '先核对确认路径。'))
+        assert.ok(
+          [...messages.values()].some((message) => message.text.includes('准备执行验证程序。')),
+        )
+        assert.ok([...messages.values()].every((message) => !message.preview))
+        const card = [...messages.values()].flatMap((message) => message.executions ?? [])[0]
+        assert.ok(card)
+        assert.equal(card.status, mode === 'ask' && !approved ? 'failed' : 'succeeded')
+        if (approved) assert.ok(card.processOutput?.includes('approved'))
       } finally {
         await platform.close()
         store.close()

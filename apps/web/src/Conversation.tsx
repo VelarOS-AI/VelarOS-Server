@@ -106,6 +106,7 @@ export function Conversation({
   onDraftChange,
   submitting,
   available,
+  modelSettings,
   onSend,
   onStop,
   onReview,
@@ -116,6 +117,7 @@ export function Conversation({
   onDraftChange(text: string): void
   submitting: boolean
   available: boolean
+  modelSettings: React.ReactNode
   onSend(text: string): Promise<void>
   onStop(): Promise<void>
   onReview(requestId: string): Promise<string | null>
@@ -127,6 +129,7 @@ export function Conversation({
   const conversation = useMemo(() => project(session), [session])
   const control: ChatComposerControl = {
     scopeKey: session?.id ?? 'new-chat',
+    leftSlot: modelSettings,
     input: {
       input: {
         value: draft,

@@ -217,6 +217,52 @@ button:focus-visible {
 .row input {
   min-width: 0;
 }
+.model-button {
+  gap: 5px;
+  max-width: 220px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 400;
+}
+.model-button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.model-dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: 24px;
+}
+.model-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.model-dialog-heading h2 {
+  margin: 0;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+}
+.model-dialog form {
+  display: grid;
+  gap: 18px;
+}
+.model-dialog label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.model-dialog label > button {
+  width: 100%;
+}
+.model-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
 @media (max-width: 640px) {
   .server-shell .velar-app-shell-main {
     margin-left: 0;

@@ -6,6 +6,7 @@ import { Input } from '@velaros-ai/ui/primitives/forms/Input'
 import type { ServerInfo, SessionView } from '../../../packages/contracts/src/index.js'
 import { request } from './api.js'
 import { Conversation } from './Conversation.js'
+import { ModelDialog } from './ModelDialog.js'
 
 export function App(): React.ReactElement {
   const [csrf, setCsrf] = useState<string | null>(null)
@@ -340,6 +341,20 @@ export function App(): React.ReactElement {
           onDraftChange={setDraft}
           submitting={submitting}
           available={info?.execution.available ?? false}
+          modelSettings={
+            info && (
+              <ModelDialog
+                key={csrf}
+                model={info.model}
+                csrf={csrf}
+                onSaved={(model) => {
+                  if (authentication.current !== csrf) return
+                  setInfo((current) => (current ? { ...current, model } : current))
+                  void refresh()
+                }}
+              />
+            )
+          }
           onSend={send}
           onStop={async () => {
             if (!selected) return

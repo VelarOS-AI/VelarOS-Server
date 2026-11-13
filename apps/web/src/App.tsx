@@ -293,7 +293,6 @@ export function App(): React.ReactElement {
               })
           }}
         >
-          <div className="brand-mark">V</div>
           <h1>VelarOS Server</h1>
           <label>
             访问令牌

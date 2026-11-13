@@ -45,6 +45,6 @@
 
 此脚本消费真实生产目录和原生依赖，核对基础归档与主入口哈希，确认不安装 UI/React/Electron/capabilities 开发或扩展包，再启动真实产品 main，验证 HTTP 登录、静态网页、样例文件、PTY 输出与停止、SIGTERM 后零退出码。测试使用一次性目录和 loopback，不配置供应商密钥，不重跑已通过 Agent 链；进程退出未知时报告并保留现场，不增加强杀兜底。
 
-最近一次已验收的 Linux 制品来自 [run 43220425537](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43220425537)，准确源码为 `79425931a5514e4a25af3d91ce6f8c050c4dd9a1`，使用基础 0.12.1 / UI 1.1.3 构建。已下载产物并核对 SHA-256 `7c7aa479c2b85b1ce05bdc53244128b299808d9b62dd983d48a7062a73697612`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，43,079,857 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-7942593.json`。旧版本回执保持原身份。
+最近一次已验收的 Linux 制品来自 [run 43354223350](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/43354223350)，准确源码为 `5a42fd0e068a5a437f1bd695cc70a79a6b99f6c5`，使用基础 0.12.1 / UI 1.1.3 构建。已下载产物并核对 SHA-256 `e7542dbfd947a5dab4273e6200628490abec8b2608d56e682f250a737898abce`；文件名 `velaros-server-0.1.0-linux-x64.tar.gz`，43,080,273 bytes。CI artifact 保留 3 天，持久回执见 `docs/evidence/linux-install-5a42fd0.json`。旧版本回执保持原身份。
 
 CI 安装验证使用显式 danger-full-access 验证服务用户的直接权限，不宣称覆盖 bubblewrap 或 systemd unit。独立试用实例的真实 systemd 启动、专用用户、workspace-write 隔离与网页登录已在目标云主机另外验证；初次隔离证明见 `docs/evidence/server-trial-20261112.json`，HTTPS 首次接入见 `docs/evidence/server-public-console-20261112.json`，执行权限首次验证见 `docs/evidence/server-execution-render-20261112.json`，会话归组与旧格式清理见 `docs/evidence/server-chat-flow-20261112.json`，当前会话管理部署见 `docs/evidence/server-session-management-20261112.json`。模型服务和实际运维任务由用户随后配置与确认，不用 CI 或 Windows 结果代替。

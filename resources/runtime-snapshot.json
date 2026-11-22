@@ -3,14 +3,14 @@
   "platformGeneration": "0.7",
   "platform": {
     "name": "@velaros-ai/velaros",
-    "version": "0.12.2",
-    "file": "vendor/runtime/velaros-ai-velaros-0.12.2.tgz",
-    "sourceCommit": "953d8b3561c6b23feee4e3423d0a7551c9912be6",
-    "sha256": "9eff6875785f1cefd2e98c7d486890af319b294c405d91cee7a1a5674b5839a0",
-    "integrity": "sha512-+6HokjxOeuQxLJhngzmkmWWc4aNmGYcAVXpKkMiOmV4hb2Q9ywhh/5e+vELRpdNcuDCvCtyobVRuoSP2o7hSdA==",
+    "version": "0.12.5",
+    "file": "vendor/runtime/velaros-ai-velaros-0.12.5.tgz",
+    "sourceCommit": "7ad03822fb83f74041e0d7df12221ee80deb9ecf",
+    "sha256": "384c16549bcf5d93eea2e5e512a1b93ed11f511742ab3f9f5ed030f83e2de67f",
+    "integrity": "sha512-iSTO/hJsraT3SBYVJc6hdp9HeqwWjDDzhw+4onNWKuyZ64s2orF/ufZ/2Sh1YDBkAhYkUz5mtAIWR84cyET9tw==",
     "kind": "published-release",
     "provenance": "resources/platform-provenance.json",
-    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.14/velaros-ai-velaros-0.12.2.tgz"
+    "url": "https://github.com/VelarOS-AI/VelarOS-Platform/releases/download/v0.7.18/velaros-ai-velaros-0.12.5.tgz"
   },
   "ui": {
     "name": "@velaros-ai/ui",

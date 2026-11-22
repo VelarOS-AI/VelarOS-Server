@@ -6,7 +6,7 @@
 
 登录后默认一个空白新会话，连续点「+」复用它并保留输入草稿。侧栏行内「…」提供重命名、置顶和归档，底部「已归档」可查看并恢复；这些设置保存在服务器，刷新后保留。运行中的会话需结束后再归档。
 
-已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写和动态模型设置。当前固定正式 Platform 基础 0.12.2（v0.7.14）和 UI 1.1.3，直接消费正式归档，未安装 capabilities。依赖身份和验收范围见[验证记录](docs/verification.md)。独立云主机试用实例见[部署记录](docs/deployment-trial-20261112.md)。
+已实现登录、HTTP/事件边界、会话索引、请求去重、有界展示投影、真实文件读写和动态模型设置。当前固定正式 Platform 基础 0.12.5（v0.7.18）和 UI 1.1.3，直接消费正式归档，未安装 capabilities。依赖身份和验收范围见[验证记录](docs/verification.md)。独立云主机试用实例见[部署记录](docs/deployment-trial-20261112.md)。
 
 既有 [Linux 安装验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42607896603)与同一安装包的[真实 Agent 整链验收](https://github.com/VelarOS-AI/VelarOS-Server/actions/runs/42610262328)准确对应 19d4261 / Platform 0.9.3，包括完成、取消与资源回收；没有重标为后续版本制品。网页确认与中文/列表/代码/表格的既有证明也保持原依赖身份，准确范围见 docs/verification.md。
 
@@ -50,12 +50,12 @@ bun run start
 
 Linux 单次安装验证见 [Server Linux install](https://github.com/VelarOS-AI/VelarOS-Server/actions/workflows/linux-install.yml) 和 `docs/linux-validation-handoff.md`。工作流仅手动触发，不因普通推送重跑。
 
-从 [Server v0.1.0](https://github.com/VelarOS-AI/VelarOS-Server/releases/tag/v0.1.0) 下载 Linux x64 安装包和同名的 `.sha256` 文件。安装包包含编译后的服务、网页和原生生产依赖，运行需要 Node.js 24.22.0 或更新版本。
+从 [Server v0.1.1](https://github.com/VelarOS-AI/VelarOS-Server/releases/tag/v0.1.1) 下载 Linux x64 安装包和同名的 `.sha256` 文件。安装包包含编译后的服务、网页和原生生产依赖，运行需要 Node.js 24.22.0 或更新版本。
 
 ```sh
-sha256sum --check velaros-server-0.1.0-linux-x64.tar.gz.sha256
+sha256sum --check velaros-server-0.1.1-linux-x64.tar.gz.sha256
 mkdir server-install
-tar -xzf velaros-server-0.1.0-linux-x64.tar.gz -C server-install
+tar -xzf velaros-server-0.1.1-linux-x64.tar.gz -C server-install
 ```
 
 进入 `server-install/velaros-server`，按 `deploy/server.env.example` 配置专用运行账户、执行和文件根及站点 origin，再执行 `node dist/apps/server/src/main.js`。使用默认的工作区隔离时，在目标机安装可用的 bubblewrap。反向代理和 systemd 示例见安装包内的 `deploy/`。
